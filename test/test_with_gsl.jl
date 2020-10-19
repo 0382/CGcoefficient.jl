@@ -1,10 +1,6 @@
-using Test
-using BenchmarkTools
+# this file test the validity by comparing with the widely used `libgsl`
 
-include("../src/CGcoefficient.jl")
-
-const test_collect = 1:5
-
+# wapper of gsl 3nj functions
 function gsl3j(dj1::Int, dj2::Int, dj3::Int, dm1::Int, dm2::Int, dm3::Int)
     ccall(
         (:gsl_sf_coupling_3j, "libgsl"),
@@ -44,13 +40,13 @@ function check_9j(dj1::Int, dj2::Int, dj3::Int, dj4::Int, dj5::Int, dj6::Int, dj
     check_couple(dj1, dj4, dj7) & check_couple(dj2, dj5, dj8) & check_couple(dj3, dj6, dj9)
 end
 
-# 由于 gsl 库是浮点数运算，可能有误差，而我是准确计算。
-# 有时我计算得到零，而 gsl 得到一个很小的数值，这种情况下 `≈` 运算会给出 false
-# 这种情况应该排除
-@testset "3j" begin
-    for dj1 in test_collect
-    for dj2 in test_collect
-    for dj3 in test_collect
+# Because the gsl compute wigner 3nj symbols using float point number,
+# sometimes my code give out zero, but gsl give out a very small number.
+# In this condition, `≈` operator will get false result. So it should be exclude.
+function test_3j_with_gsl(test_range::AbstractArray)
+    for dj1 in test_range
+    for dj2 in test_range
+    for dj3 in test_range
     for dm1 in -dj1:2:dj1
     for dm2 in -dj2:2:dj2
         dm3 = -dm1-dm2
@@ -62,13 +58,13 @@ end
     end end end end end
 end
 
-@testset "6j" begin
-    for j1 in test_collect
-    for j2 in test_collect
-    for j3 in test_collect
-    for j4 in test_collect
-    for j5 in test_collect
-    for j6 in test_collect
+function test_6j_with_gsl(test_range::AbstractArray)
+    for j1 in test_range
+    for j2 in test_range
+    for j3 in test_range
+    for j4 in test_range
+    for j5 in test_range
+    for j6 in test_range
         if check_6j(j1, j2, j3, j4, j5, j6)
             gsl = gsl6j(j1, j2, j3, j4, j5, j6)
             my = float(d6j(j1,j2,j3,j4,j5,j6))
@@ -77,16 +73,16 @@ end
     end end end end end end
 end
 
-@testset "9j" begin
-    for j1 in test_collect
-    for j2 in test_collect
-    for j3 in test_collect
-    for j4 in test_collect
-    for j5 in test_collect
-    for j6 in test_collect
-    for j7 in test_collect
-    for j8 in test_collect
-    for j9 in test_collect
+function test_9j_with_gsl(test_range::AbstractArray)
+    for j1 in test_range
+    for j2 in test_range
+    for j3 in test_range
+    for j4 in test_range
+    for j5 in test_range
+    for j6 in test_range
+    for j7 in test_range
+    for j8 in test_range
+    for j9 in test_range
         if check_9j(j1,j2,j3,j4,j5,j6,j7,j8,j9)
             gsl = gsl9j(j1,j2,j3,j4,j5,j6,j7,j8,j9)
             my = float(d9j(j1,j2,j3,j4,j5,j6,j7,j8,j9))
