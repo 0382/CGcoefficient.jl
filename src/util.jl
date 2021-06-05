@@ -2,12 +2,13 @@
 
 """
     iphase(n::Integer)
-(-1)^n
+``(-1)^n``
 """
 iphase(n::T) where {T <: Integer} = iseven(n) ? one(T) : -one(T)
 
 """
-judge if two integer are same odd or same even
+    is_same_parity(x::T, y::T) where {T <: Integer}
+judge if two integers are same odd or same even
 """
 is_same_parity(x::T, y::T) where {T <: Integer} = iseven(x ⊻ y)
 
@@ -18,8 +19,9 @@ for odd number, show `"n/2"`, else show the exact value.
 show_half(x::Integer) = iseven(x) ? "$(x >> 1)" : "$x/2"
 
 """
+    check_jm(dj::T, dm::T) where {T <: Integer}
 check if the m-quantum number if one of the components of the j-quantum number,
-on the other words, `m` and `j` has the same parity, and `abs(m) < j`
+in other words, `m` and `j` has the same parity, and `abs(m) < j`
 """
 check_jm(dj::T, dm::T) where {T <: Integer} = is_same_parity(dj, dm) & (abs(dm) <= dj)
 
@@ -31,6 +33,7 @@ jm_mismatching_msg(dj::T, dm::T) where {T <: Integer} = begin
 end
 
 """
+    check_couple(dj1::T, dj2::T, dj3::T) where {T <: Integer}
 check if three angular monentum number `j1, j2, j3` can couple
 """
 check_couple(dj1::T, dj2::T, dj3::T) where {T <: Integer} = begin

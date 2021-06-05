@@ -3,7 +3,8 @@ using Markdown
 
 """
     SqrtRational <: Real
-A type to store exact value of square root of a Rational: ±√p. To store infinity values, use Rational{BigInt} to represent the `p`.
+A type to store exact value of square root of a `Rational`: ±√p. To store infinity values, use `Rational{BigInt}` to represent the `p`.
+Basic functions such as `zero, one, inv, *, /` are supported for this type.
 """
 struct SqrtRational <: Real
     sign::Bool
@@ -41,7 +42,7 @@ Base.inv(x::SqrtRational) = SqrtRational(x.sign, inv(x.value))
 Base.float(x::SqrtRational) = sign(x) * sqrt(float(x.value))
 
 """
-simplify a integer `n` to `x√t`
+simplify a integer `n = x * t^2` to `(x, t)`
 """
 function simplify(x::T) where T<:Integer
     s = sign(x)

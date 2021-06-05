@@ -1,11 +1,10 @@
 name = "CGcoefficient"
 uuid = "c862aa61-d51e-47d1-b396-b1e789b4e0b6"
 authors = ["jinshaoliang <18322825326@163.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 julia = "1"

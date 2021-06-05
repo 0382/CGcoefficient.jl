@@ -2,8 +2,8 @@
 
 """
     HalfInt = Union{Integer, Rational}
-This package support half integer angular monentum number, you can use 3//2 as parameter.
-But the parameter with denominator that's not 2 while give out error.
+Angular momentum quantum numbers may be half integers and integers. With `HalfInt` type, you can use both `2` and `3//2` as parameters.
+But the parameter like `5//3`, who's denominator is not `2` while gives out error.
 """
 const HalfInt = Union{Integer,Rational}
 
@@ -152,7 +152,7 @@ end
 """
     dCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
 CG coefficient function with double angular monentum number parameters, so that the parameters can be integer.
-You can calculate `dCG(1, 1, 2, 1, 1, 2)` to calculate the real CG(1/2, 1/2, 1, 1/2, 1/2, 1)
+You can calculate `dCG(1, 1, 2, 1, 1, 2)` to calculate the real `CG(1//2, 1//2, 1, 1/2, 1//2, 1)`
 """
 dCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer) = _dCG(BigInt.((dj1, dj2, dj3, dm1, dm2, dm3))...)
 
@@ -178,42 +178,48 @@ d9j(dj1::Integer, dj2::Integer, dj3::Integer,
     dj4::Integer, dj5::Integer, dj6::Integer,
     dj7::Integer, dj8::Integer, dj9::Integer) = _d9j(BigInt.((dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))...)
 
-"""
+@doc raw"""
     CG(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt)
-CG coefficient `<j1m1, j2m2 | j3m2>`
+CG coefficient ``\langle j_1m_1 j_2m_2 | j_3m_3 \rangle``
 """
 CG(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = _dCG(BigInt.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...)
 
-"""
+@doc raw"""
     threeJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt)
 Wigner 3j-symbol
-``\\begin{pmatrix}
-j1 & j2 & j3 \\
-m1 & m2 & m3
-\\end{pmatrix}``
+```math
+\begin{pmatrix}
+j_1 & j_2 & j_3 \\
+m_1 & m_2 & m_3
+\end{pmatrix}
+```
 """
 threeJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = _d3j(BigInt.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...)
 
-"""
+@doc raw"""
     sixJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt)
 Wigner 6j-symbol
-``\\begin{Bmatrix}
-j1 j2 j3
-j4 j5 j6
-\\end{Bmatrix}``
+```math
+\begin{Bmatrix}
+j_1 & j_2 & j_3 \\
+j_4 & j_5 & j_6
+\end{Bmatrix}
+```
 """
 sixJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt) = _d6j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...)
 
-"""
+@doc raw"""
     nineJ(j1::HalfInt, j2::HalfInt, j3::HalfInt,
           j4::HalfInt, j5::HalfInt, j6::HalfInt,
           j7::HalfInt, j8::HalfInt, j9::HalfInt)
 Wigner 9j-symbol
-``\\begin{Bmatrix}
-j1 j2 j3
-j4 j5 j6
-j7 j7 j9
-\\end{Bmatrix}``
+```math
+\begin{Bmatrix}
+j_1 & j_2 & j_3 \\
+j_4 & j_5 & j_6 \\
+j_7 & j_8 & j_9
+\end{Bmatrix}
+```
 """
 nineJ(j1::HalfInt, j2::HalfInt, j3::HalfInt,
       j4::HalfInt, j5::HalfInt, j6::HalfInt,
