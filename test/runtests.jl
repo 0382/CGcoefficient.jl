@@ -1,14 +1,13 @@
 using Test
 using CGcoefficient
-using CGcoefficient:check_couple,check_jm,HalfInt
 
 include("test_special.jl")
 include("test_with_gsl.jl")
 
-@testset "special condition: CG" begin test_special_CG(1 // 2:1 // 2:10) end
-@testset "special condition: 3j" begin test_special_3j(1 // 2:1 // 2:10) end
-@testset "special condition: 6j" begin test_special_6j(1 // 2:1 // 2:5) end
-@testset "special condition: 9j" begin test_special_9j(1 // 2:1 // 2:5) end
+@testset "special condition: CG" begin test_special_CG(1//2:1//2:10) end
+@testset "special condition: 3j" begin test_special_3j(1//2:1//2:10) end
+@testset "special condition: 6j" begin test_special_6j(1//2:1//2:5) end
+@testset "special condition: 9j" begin test_special_9j(1//2:1//2:5) end
 
 try
     gsl3j(1, 1, 1, 0, 0, 0)

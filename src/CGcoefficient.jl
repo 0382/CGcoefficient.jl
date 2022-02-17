@@ -1,8 +1,10 @@
 module CGcoefficient
 
-export CG, threeJ, sixJ, nineJ,
-       dCG, d3j, d6j, d9j,
+export CG, threeJ, sixJ, nineJ, Racah,
+       dCG, d3j, d6j, d9j, dRacah,
        SqrtRational,
+       exact_sqrt,
+       simplify,
        HalfInt,
        iphase,
        is_same_parity,

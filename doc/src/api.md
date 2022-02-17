@@ -12,6 +12,7 @@ CG
 threeJ
 sixJ
 nineJ
+Racah
 ```
 
 People often use double of angular momentum quantum number as parameters, so we can use integer as parameters. This package also offers such functions, where the `d` letter means *double*.
@@ -20,6 +21,7 @@ dCG
 d3j
 d6j
 d9j
+dRacah
 ```
 
 ## Some useful function
@@ -28,4 +30,7 @@ iphase
 is_same_parity
 check_jm
 check_couple
+exact_sqrt
+simplify(::Integer)
+simplify(::SqrtRational)
 ```

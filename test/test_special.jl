@@ -5,7 +5,7 @@ function test_special_CG(test_range::AbstractArray)
     for j = test_range
         for m = -j:1:j
             cg = CG(j, j, 0, m, -m, 0)
-            mycg = iphase(Int(j - m)) / SqrtRational(2j + 1)
+            mycg = iphase(Int(j - m)) / exact_sqrt(2j + 1)
             @test cg == mycg
         end
     end
@@ -16,7 +16,7 @@ function test_special_3j(test_range::AbstractArray)
     for j = test_range
         for m = -j:1:j
             tj = threeJ(j, 1, j, -m, 0, m)
-            mytj = iphase(Int(j - m)) * m / SqrtRational(j * (2j + 1) * (j + 1))
+            mytj = iphase(Int(j - m)) * m / exact_sqrt(j * (2j + 1) * (j + 1))
             @test tj == mytj
         end
     end
@@ -27,7 +27,7 @@ function test_special_6j(test_range::AbstractArray)
     for j1 in test_range, j2 in test_range, j3 in test_range
         if check_couple(Int(2j1), Int(2j2), Int(2j3))
             sj = sixJ(j1, j2, j3, j2, j1, 0)
-            mysj = iphase(Int(j1 + j2 + j3)) / SqrtRational((2j1 + 1) * (2j2 + 1))
+            mysj = iphase(Int(j1 + j2 + j3)) / exact_sqrt((2j1 + 1) * (2j2 + 1))
             @test sj == mysj
         end
     end
@@ -47,7 +47,7 @@ function test_special_9j(test_range::AbstractArray)
         j4 in test_range, j5 in test_range, j7 in test_range
         if check_6j(j1, j2, j3, j5, j4, j7)
             nj = nineJ(j1, j2, j3, j4, j5, j3, j7, j7, 0)
-            snj = iphase(Int(j2 + j3 + j4 + j7)) / SqrtRational((2j3 + 1) * (2j7 + 1))
+            snj = iphase(Int(j2 + j3 + j4 + j7)) / exact_sqrt((2j3 + 1) * (2j7 + 1))
             snj *= sixJ(j1, j2, j3, j5, j4, j7)
             @test nj == snj
         end

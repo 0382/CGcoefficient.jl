@@ -42,7 +42,7 @@ end
 
 # Because the gsl compute wigner 3nj symbols using float point number,
 # sometimes my code give out zero, but gsl give out a very small number.
-# In this condition, `≈` operator will get false result. So it should be exclude.
+# In this condition, `≈` operator will give false result.
 function test_3j_with_gsl(test_range::AbstractArray)
     for dj1 in test_range
     for dj2 in test_range
@@ -53,7 +53,7 @@ function test_3j_with_gsl(test_range::AbstractArray)
         if check_couple(dj1, dj2, dj3) & check_jm(dj3, dm3)
             gsl = gsl3j(dj1, dj2, dj3, dm1, dm2, dm3)
             my = float(d3j(dj1, dj2, dj3, dm1, dm2, dm3))
-            @test (my == 0) | (gsl ≈ my)
+            @test (my == 0 && gsl < 1e-10) || (gsl ≈ my)
         end
     end end end end end
 end
@@ -68,7 +68,7 @@ function test_6j_with_gsl(test_range::AbstractArray)
         if check_6j(j1, j2, j3, j4, j5, j6)
             gsl = gsl6j(j1, j2, j3, j4, j5, j6)
             my = float(d6j(j1,j2,j3,j4,j5,j6))
-            @test (my == 0) | (gsl ≈ my)
+            @test (my == 0 && gsl < 1e-10) || (gsl ≈ my)
         end
     end end end end end end
 end
@@ -86,7 +86,7 @@ function test_9j_with_gsl(test_range::AbstractArray)
         if check_9j(j1,j2,j3,j4,j5,j6,j7,j8,j9)
             gsl = gsl9j(j1,j2,j3,j4,j5,j6,j7,j8,j9)
             my = float(d9j(j1,j2,j3,j4,j5,j6,j7,j8,j9))
-            @test (my == 0) | (gsl ≈ my)
+            @test (my == 0 && gsl < 1e-10) | (gsl ≈ my)
         end
     end end end end end end end end end
 end

@@ -2,7 +2,7 @@
 
 [[中文](README_zh.md)]
 
-A Julia package to calculate CG-coefficient and Wigner 3j, 6j and 9j symbols exactly. All the calculations are down by `BigInt` to avoid overflow, and defines struct `SqrtRational` to store the exact results.
+A package to calculate CG-coefficient, Racah coefficient, and Wigner 3j, 6j, 9j symbols. It store the exact result with `SqrtRational` type.
 
 For more details and the calculation formula, please see the [Document](https://0382.github.io/CGcoefficient.jl-docs/).
 
@@ -18,9 +18,13 @@ pkg> add CGcoefficient
 
 ```julia-repl
 julia> CG(1,2,3,1,1,2)
-√2/√3
-julia> nineJ(1,2,3,4,5,6,3,6,9)
-√3/1274√5
+4√(1//24)
+
+julia> simplify(ans)
+√(2//3)
+
+julia> simplify(nineJ(1,2,3,4,5,6,3,6,9))
+1//1274√(3//5)
 ```
 
 More examples see: [Document](https://0382.github.io/CGcoefficient.jl-docs/).

@@ -18,7 +18,7 @@ Ref [^1], P236, Section 8.1.2, Formula (11).
 \begin{pmatrix}j_1 & j_2 & j_3 \\ m_1 & m_2 & m_3\end{pmatrix} = (-1)^{j_3+m_3+2j_1}\dfrac{1}{\sqrt{2j_3+1}}C_{j_1-m_1j_2-m_2}^{j_3m_3}
 ```
 
-In my code, I use CG coefficient to calculate 3j symbol.
+This package use the CG coefficient above to calculate 3j symbol.
 
 ## 6j symbol
 
@@ -64,6 +64,19 @@ So
 = \dfrac{1}{2j_4+1} \left[\dfrac{\begin{pmatrix}j_1j_2j_3+1 \\ 2j_1+1\end{pmatrix}\begin{pmatrix}2j_1 \\ j_1 + j_2 - j_3\end{pmatrix}}{\begin{pmatrix}j_1j_5j_6+1 \\ 2j_1+1\end{pmatrix}\begin{pmatrix}2j_1 \\ j_1+j_5-j_6\end{pmatrix}\begin{pmatrix}j_4j_5j_3+1\\2j_4+1\end{pmatrix}\begin{pmatrix}2j_4\\j_4+j_5-j_3\end{pmatrix}\begin{pmatrix}j_4j_2j_6+1 \\ 2j_4+1\end{pmatrix}\begin{pmatrix}2j_4 \\ j_4+j_2-j_6\end{pmatrix}}\right]^{\frac{1}{2}}
 ```
 
+## Racha coefficient
+
+Ref [^1], P291, Section 9.1.2, Formula (11)
+
+```math
+W(j_1j_2j_3j_4, j_5j_6) = (-1)^{j_1+j_2+j_3+j_4} \begin{Bmatrix}
+j_1 & j_2 & j_5 \\
+j_4 & j_3 & j_6
+\end{Bmatrix}
+```
+
+This package use the 6j symbol above to calculate Racha coefficient. 
+
 ## 9j symbol
 
 Ref [^1], P340, Section 10.2.4, Formula (20)
@@ -72,7 +85,7 @@ Ref [^1], P340, Section 10.2.4, Formula (20)
 \begin{Bmatrix}j_1 & j_2 & j_3 \\ j_4 & j_5 & j_6 \\ j_7 & j_8 & j_9\end{Bmatrix} = \sum\limits_{t}(-1)^{2t}(2t+1)\begin{Bmatrix}j_1 & j_2 & j_3 \\ j_6 & j_9 & t\end{Bmatrix} \begin{Bmatrix}j_4 & j_5 & j_6 \\ j_2 & t & j_8\end{Bmatrix} \begin{Bmatrix}j_7 & j_8 & j_9 \\ t & j_1 & j_4\end{Bmatrix}
 ```
 
-Use 6j symbol result above, we get
+Use the 6j symbol result above, we get
 
 ```math
 \dfrac{\Delta(j_1j_9t)\Delta(j_6j_9j_3)\Delta(j_6j_2t)}{\Delta(j_1j_2j_3)} \dfrac{\Delta(j_4tj_8)\Delta(j_2tj_6)\Delta(j_2j_5j_8)}{\Delta(j_4j_5j_6)} \dfrac{\Delta(j_7j_1j_4)\Delta(tj_1j_9)\Delta(tj_8j_4)}{\Delta(j_7j_8j_9)} \\
@@ -111,7 +124,7 @@ At last, we get
 \begin{Bmatrix}j_1 & j_2 & j_3 \\ j_4 & j_5 & j_6 \\ j_7 & j_8 & j_9\end{Bmatrix} = P_0\sum_t P(t) \left(\sum_x A(t,x)\right) \left(\sum_y B(t,y)\right) \left(\sum_z C(t,z)\right)
 ```
 
-It deserves to be mentioned that, although the formula has 4 $\sum$, the $\sum$ of $x,y,z$ are decoupled. So we can do the three `for loop`s respectively, which means the depth of `for loop` is not 4 but 2.
+It deserves to be mentioned that, although the formula has 4 $\sum$s, the $\sum$ of $x,y,z$ are decoupled. So we can do the three `for loop`s respectively, which means the depth of `for loop` is not 4 but 2.
 
 
 ----
