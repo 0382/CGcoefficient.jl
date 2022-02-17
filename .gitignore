@@ -2,3 +2,4 @@ temp*
 *.back
 .ipynb_checkpoints*
 build/
+Manifest.toml
