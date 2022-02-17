@@ -20,7 +20,6 @@ uuid = "d6f4376e-aef5-505a-96c1-9c027394607a"
 [[deps.Primes]]
 git-tree-sha1 = "984a3ee07d47d401e0b823b7d30546792439070a"
 uuid = "27ebfcd6-29c5-5fa9-bf4b-fb8fc14df3ae"
-version = "0.5.1"
 
 [[deps.Random]]
 deps = ["SHA", "Serialization"]
