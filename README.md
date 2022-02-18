@@ -1,14 +1,14 @@
 # CGcoefficient.jl
 
 [![CI](https://github.com/0382/CGcoefficient.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/0382/CGcoefficient.jl/actions/workflows/CI.yml)
-[![Coverage Status](https://coveralls.io/repos/0382/CGcoefficient.jl/badge.svg?branch=master)](https://coveralls.io/r/0382/CGcoefficient.jl?branch=master)
 [![codecov.io](http://codecov.io/github/0382/CGcoefficient.jl/coverage.svg?branch=master)](http://codecov.io/github/0382/CGcoefficient.jl?branch=master)
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://0382.github.io/CGcoefficient.jl/dev)
 
 [[中文](README_zh.md)]
 
 A package to calculate CG-coefficient, Racah coefficient, and Wigner 3j, 6j, 9j symbols. It store the exact result with `SqrtRational` type.
 
-For more details and the calculation formula, please see the [Document](https://0382.github.io/CGcoefficient.jl-docs/).
+For more details and the calculation formula, please see the document [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://0382.github.io/CGcoefficient.jl/dev).
 
 ### Install
 
@@ -28,10 +28,10 @@ julia> simplify(ans)
 √(2//3)
 
 julia> simplify(nineJ(1,2,3,4,5,6,3,6,9))
-1//1274√(3//5)
+(1//1274)√(3//5)
 ```
 
-More examples see: [Document](https://0382.github.io/CGcoefficient.jl-docs/).
+For more examples please see the document.
 
 ### Reference
 

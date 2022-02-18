@@ -109,7 +109,7 @@ Base.show(io::IO, ::MIME"text/plain", x::SqrtRational) = begin
     if denominator(x.s) == 1
         to_show = string(numerator(x.s))
     else
-        to_show = "$(x.s)"
+        to_show = "($(x.s))"
     end
     if denominator(x.r) == 1
         if numerator(x.r) != 1
