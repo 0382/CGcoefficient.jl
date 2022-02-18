@@ -1,8 +1,12 @@
 using Test
 using CGcoefficient
 
+include("test_sqrtrational.jl")
 include("test_special.jl")
 include("test_with_gsl.jl")
+
+@testset "test SqrtRational show" begin test_show() end
+@testset "test simplify" begin test_simplify() end
 
 @testset "special condition: CG" begin test_special_CG(1//2:1//2:10) end
 @testset "special condition: 3j" begin test_special_3j(1//2:1//2:10) end

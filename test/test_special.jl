@@ -1,4 +1,5 @@
-# this file test the self-consistency of my code
+# this file test the some special case if Wigner symbols
+# especially the when one of arguement is equal to zero
 
 # test special condition for CG coefficients
 function test_special_CG(test_range::AbstractArray)

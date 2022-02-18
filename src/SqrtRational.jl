@@ -97,6 +97,13 @@ Base.show(io::IO, ::MIME"text/plain", x::SqrtRational) = begin
     if iszero(x.s)
         print(io, 0)
         return
+    elseif isone(x.r)
+        if denominator(x.s) == 1
+            print(io, numerator(x.s))
+        else
+            print(io, x.s)
+        end
+        return
     elseif isone(x.s)
         if denominator(x.r) == 1
             print(io, "√$(numerator(x.r))")
@@ -112,9 +119,7 @@ Base.show(io::IO, ::MIME"text/plain", x::SqrtRational) = begin
         to_show = "($(x.s))"
     end
     if denominator(x.r) == 1
-        if numerator(x.r) != 1
-            to_show = "$to_show√$(numerator(x.r))"
-        end
+        to_show = "$to_show√$(numerator(x.r))"
     else
         to_show = "$to_show√($(x.r))"
     end
@@ -127,12 +132,20 @@ Base.show(io::IO, ::MIME"text/markdown", x::SqrtRational) = begin
     if iszero(x.s)
         show(io, "text/markdown", Markdown.parse("``0``"))
         return
+    elseif isone(x.r)
+        if denominator(x.s) == 1
+            show(io, "text/markdown", Markdown.parse("``$(numerator(x.s))``"))
+        else
+            show(io, "text/markdown", Markdown.parse("``\\frac{$(numerator(x.s))}{$(denominator(x.s))}``"))
+        end
+        return
     elseif isone(x.s)
         if denominator(x.r) == 1
             show(io, "text/markdown", Markdown.parse("``\\sqrt{$(numerator(x.r))}``"))
         else
             show(io, "text/markdown", Markdown.parse("``\\sqrt{\\frac{$(numerator(x.r))}{$(denominator(x.r))}}``"))
         end
+        return
     end
     to_show::String = ""
     if denominator(x.s) == 1
@@ -141,9 +154,7 @@ Base.show(io::IO, ::MIME"text/markdown", x::SqrtRational) = begin
         to_show = "\\frac{$(numerator(x.s))}{$(denominator(x.s))}"
     end
     if denominator(x.r) == 1
-        if numerator(x.r) != 1
-            to_show = "$to_show\\sqrt{$(numerator(x.r))}"
-        end
+        to_show = "$to_show\\sqrt{$(numerator(x.r))}"
     else
         to_show = "$to_show\\sqrt{\\frac{$(numerator(x.r))}{$(denominator(x.r))}}"
     end
