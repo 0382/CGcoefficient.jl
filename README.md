@@ -36,4 +36,4 @@ For more examples please see the document.
 ### Reference
 
 - [https://github.com/ManyBodyPhysics/CENS](https://github.com/ManyBodyPhysics/CENS)
-- D. A. Varshalovich, A. N. Moskalev and V. K. Khersonskii, Quantum Theory of Angular Momentum, (World Scientific, 1988).
+- D. A. Varshalovich, A. N. Moskalev and V. K. Khersonskii, *Quantum Theory of Angular Momentum*, (World Scientific, 1988).

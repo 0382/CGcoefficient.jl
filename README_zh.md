@@ -36,4 +36,4 @@ julia> simplify(nineJ(1,2,3,4,5,6,3,6,9))
 ### 参考
 
 - [https://github.com/ManyBodyPhysics/CENS](https://github.com/ManyBodyPhysics/CENS)
-- D. A. Varshalovich, A. N. Moskalev and V. K. Khersonskii, Quantum Theory of Angular Momentum, (World Scientific, 1988).
+- D. A. Varshalovich, A. N. Moskalev and V. K. Khersonskii, *Quantum Theory of Angular Momentum*, (World Scientific, 1988).

@@ -12,7 +12,8 @@ struct SqrtRational{T} <: Real
     s::Rational{T}
     r::Rational{T}
     SqrtRational{T}(s::Rational{T}, r::Rational{T}) where T = begin
-        r <= 0 && throw(ArgumentError("invalid SqrtRational $s√$r"))
+        r < 0 && throw(ArgumentError("invalid SqrtRational $s√$r"))
+        (iszero(s) || iszero(r)) && return new(zero(s), one(r))
         new(s, r)
     end
 end
@@ -65,9 +66,9 @@ we need to simplify it first, and then do the `+` operator.
 +(x::SqrtRational, y::Union{Integer, Rational}) = begin
     r = x.r
     t1 = isqrt(numerator(r))
-    t1 * t1 != numerator(r) && throw(ArgumentError("cannot simplify $(x.s)√$(x.r)"))
+    t1 * t1 != numerator(r) && throw(ArgumentError("cannot simplify $(x)"))
     t2 = isqrt(denominator(r))
-    t2 * t2 != denominator(r) && throw(ArgumentError("cannot simplify $(x.s)√$(x.r)"))
+    t2 * t2 != denominator(r) && throw(ArgumentError("cannot simplify $(x)"))
     return x.s * (t1//t2) + y
 end
 +(x::Union{Integer, Rational}, y::SqrtRational) = y + x
@@ -94,10 +95,7 @@ Base.float(x::SqrtRational) = Float64(x.s) * sqrt(Float64(x.r))
 
 # show
 Base.show(io::IO, ::MIME"text/plain", x::SqrtRational) = begin
-    if iszero(x.s)
-        print(io, 0)
-        return
-    elseif isone(x.r)
+    if isone(x.r)
         if denominator(x.s) == 1
             print(io, numerator(x.s))
         else
@@ -129,10 +127,7 @@ end
 Base.show(io::IO, x::SqrtRational) = show(io::IO, "text/plain", x)
 
 Base.show(io::IO, ::MIME"text/markdown", x::SqrtRational) = begin
-    if iszero(x.s)
-        show(io, "text/markdown", Markdown.parse("``0``"))
-        return
-    elseif isone(x.r)
+    if isone(x.r)
         if denominator(x.s) == 1
             show(io, "text/markdown", Markdown.parse("``$(numerator(x.s))``"))
         else
