@@ -7,9 +7,7 @@ But the parameter like `5//3`, who's denominator is not `2` while gives out erro
 """
 const HalfInt = Union{Integer,Rational}
 
-"""
-basic CG coefficient calculation function
-"""
+# basic CG coefficient calculation function
 function _dCG(dj1::Int64, dj2::Int64, dj3::Int64, dm1::Int64, dm2::Int64, dm3::Int64)
     check_jm(dj1, dm1) || error(jm_mismatching_msg(dj1, dm1))
     check_jm(dj2, dm2) || error(jm_mismatching_msg(dj2, dm2))
@@ -38,16 +36,12 @@ function _dCG(dj1::Int64, dj2::Int64, dj3::Int64, dm1::Int64, dm2::Int64, dm3::I
     return SqrtRational(iphase(high) * B, A)
 end
 
-"""
-use CG coefficient to calculate 3j-symbol
-"""
+# use CG coefficient to calculate 3j-symbol
 function _d3j(dj1::Int64, dj2::Int64, dj3::Int64, dm1::Int64, dm2::Int64, dm3::Int64)
     iphase(dj1 + div(dj3 + dm3, 2)) * exact_sqrt(1 // (dj3 + 1)) * _dCG(dj1, dj2, dj3, -dm1, -dm2, dm3)
 end
 
-"""
-basic 6j-symbol calculation funciton
-"""
+# basic 6j-symbol calculation funciton
 function _d6j(dj1::Int64, dj2::Int64, dj3::Int64, dj4::Int64, dj5::Int64, dj6::Int64)
     check_couple(dj1, dj2, dj3) || error(miss_couple_msg(dj1, dj2, dj3))
     check_couple(dj1, dj5, dj6) || error(miss_couple_msg(dj1, dj5, dj6))
@@ -74,25 +68,21 @@ function _d6j(dj1::Int64, dj2::Int64, dj3::Int64, dj4::Int64, dj5::Int64, dj6::I
     B::BigInt = zero(BigInt)
     low::Int64 = max(j123, j453, j426, j156)
     high::Int64 = min(jpm123 + j453, jpm132 + j426, jpm231 + j156)
-    for n = low:high
+    for x = low:high
         B = -B + widemul(
-            widemul(binomial(n + 1, j123 + 1), binomial(jpm123, n - j453)),
-            widemul(binomial(jpm132, n - j426), binomial(jpm231, n - j156))
+            widemul(binomial(x + 1, j123 + 1), binomial(jpm123, x - j453)),
+            widemul(binomial(jpm132, x - j426), binomial(jpm231, x - j156))
         )
     end
     return SqrtRational(iphase(high) * B//(dj4+1), A)
 end
 
-"""
-use 6j-symbol to calculate Racah coefficient
-"""
+# use 6j-symbol to calculate Racah coefficient
 function _dRacah(dj1::Int64, dj2::Int64, dj3::Int64, dj4::Int64, dj5::Int64, dj6::Int64)
     iphase(div(dj1+dj2+dj3+dj4, 2)) * _d6j(dj1, dj2, dj5, dj4, dj3, dj6)
 end
 
-"""
-basic 9j-symbol calculation funciton
-"""
+# basic 9j-symbol calculation funciton
 function _d9j(dj1::Int64, dj2::Int64, dj3::Int64,
               dj4::Int64, dj5::Int64, dj6::Int64,
               dj7::Int64, dj8::Int64, dj9::Int64)
