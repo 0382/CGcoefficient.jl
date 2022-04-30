@@ -12,7 +12,7 @@ end
 end
 
 """
-    fbinomial(n::Integer, k::Integer)::Float64
+    fbinomial(n::Integer, k::Integer)
 `binomial` with Float64 return value.
 """
 function fbinomial(n::Integer, k::Integer)::Float64
@@ -36,8 +36,40 @@ function _extent_fbinomial_data(n::Int)
         end
         global _fbinomial_nmax = n
     end
+    nothing
 end
 
+"""
+    reserve_fbinomial(n::Integer, mode::AbstractString, rank::Integer)
+This function reserves memory for fbinomial(n, k). In this code, the `fbinomial` function is only valid in the stored range. If you call a `fbinomial` function out of the range, it just gives you `0`. The `__init__()` function stores to `nmax = 67`.
+
+The parameters means
+
+|                                       |    Calculate range    |   CG & 3j   | 6j & Racah  |     9j      |
+| :-----------------------------------: | :-------------------: | :---------: | :---------: | :---------: |
+|          meaning of `type`            | `type`\\\\`rank`      |      3      |      6      |      9      |
+|        max angular momentum           |    `"Jmax"`           | `3*Jmax+1`  | `4*Jmax+1`  | `5*Jmax+1`  |
+| max two-body coupled angular momentum |   `"2bjmax"`          | `2*jmax+1`  | `3*jmax+1`  | `4*jmax+1`  |
+|            max binomial               |    `"nmax"`           |   `nmax`    |   `namx`    |   `nmax`    |
+
+The `"2bjmax"` mode means your calculation only consider two-body coupling, and no three-body coupling. This mode assumes that in all these coefficients, at least one of the angular momentun is just a single particle angular momentum. With this assumption, `"2bjmax"` mode will use less memory than `"Jmax"` mode.
+
+`"Jmax"` means the global maximum angular momentum, for every parameters. It is always safe with out any assumption.
+
+The `"nmax"` mode directly set `nmax`, and the `rank` parameter is ignored. 
+
+`rank = 6` means you only need to calculate CG and/or 6j symbols, you don't need to calculate 9j symbol.
+
+For example
+```julia
+reserve_fbinomial(21, "Jmax", 6)
+```
+means you calculate CG and 6j symbols, and donot calculate 9j symbol. The maximum angular momentum in your system is 21.
+
+You do not need to rememmber those values in the table. You just need to find the maximum angular momentum in you canculation, then call the function.
+
+The reserve_fbinomial function is **not** thread safe, so you should call it before you start your calculation.
+"""
 function reserve_fbinomial(n::Integer, mode::AbstractString, rank::Integer)
     if mode == "Jmax"
         rank == 3 && _extent_fbinomial_data(3 * n + 1)
@@ -58,6 +90,7 @@ function reserve_fbinomial(n::Integer, mode::AbstractString, rank::Integer)
     else
         throw(ArgumentError("invalid mode $mode"))
     end
+    nothing
 end
 
 
@@ -181,23 +214,23 @@ function _f9j(dj1::Int64, dj2::Int64, dj3::Int64,
 end
 
 """
-    fCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)::Float64
+    fCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
 float64 and fast CG coefficient.
 """
-function fCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)::Float64
+function fCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
     return _fCG(Int64.((dj1, dj2, dj3, dm1, dm2, dm3))...)
 end
 
 """
-    f3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)::Float64
+    f3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
 float64 and fast Wigner 3j symbol.
 """
-function f3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)::Float64
+function f3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
     return iphase(dj1 + div(dj3 + dm3, 2)) * fCG(dj1, dj2, dj3, -dm1, -dm2, dm3) / sqrt(dj3 + 1)
 end
 
 """
-    f6j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)::Float64
+    f6j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
 float64 and fast Wigner 6j symbol.
 """
 function f6j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
@@ -205,7 +238,7 @@ function f6j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Intege
 end
 
 """
-    Racah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)::Float64
+    Racah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
 float64 and fast Racah coefficient.
 """
 function fRacah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
@@ -213,7 +246,7 @@ function fRacah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Int
 end
 
 """
-    f9j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer, dj7::Integer, dj8::Integer, dj9::Integer)::Float64
+    f9j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer, dj7::Integer, dj8::Integer, dj9::Integer)
 float64 and fast Wigner 9j symbol.
 """
 function f9j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer, dj7::Integer, dj8::Integer, dj9::Integer)

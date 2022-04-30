@@ -19,7 +19,6 @@ include("WignerSymbols.jl")
 include("floatWignerSymbols.jl")
 
 function __init__()
-    println("call __init__()")
     global _fbinomial_nmax = 67
     global _fbinomial_data = Vector{Float64}(undef, _fbinomial_data_size(_fbinomial_nmax))
     for n = 0:_fbinomial_nmax
