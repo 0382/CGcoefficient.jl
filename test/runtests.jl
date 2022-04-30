@@ -5,6 +5,7 @@ include("test_sqrtrational.jl")
 include("test_special.jl")
 include("test_orthonormality.jl")
 include("test_with_gsl.jl")
+include("test_float_gsl.jl")
 
 @testset "test SqrtRational" begin test_sqrtrational() end
 @testset "test SqrtRational show" begin test_show() end
@@ -32,5 +33,8 @@ catch err
 end
 
 @testset "test with gsl: 3j" begin test_3j_with_gsl(1:5) end
-@testset "test_with gsl: 6j" begin test_6j_with_gsl(1:5) end
-@testset "test_with gsl: 9j" begin test_9j_with_gsl(1:5) end
+@testset "test with gsl: 6j" begin test_6j_with_gsl(1:5) end
+@testset "test with gsl: 9j" begin test_9j_with_gsl(1:5) end
+@testset "float version: f3j" begin test_f3j_with_gsl(1:5) end
+@testset "float version: f6j" begin test_f6j_with_gsl(1:5) end
+@testset "float version: f9j" begin test_f9j_with_gsl(1:5) end
