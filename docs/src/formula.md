@@ -5,10 +5,14 @@
 Ref [^1], P240, Section 8.2.4, Formula (20).
 
 ```math
-C_{j_1m_1j_2m_2}^{j_3m_3} = \delta_{m_3, m_1+m_2}\left[\dfrac{\begin{pmatrix}2j_1 \\ J-2j_3\end{pmatrix}\begin{pmatrix}2j_2\\J-2j_3\end{pmatrix}}{\begin{pmatrix}J+1\\J-2j_3\end{pmatrix}\begin{pmatrix}2j_1\\j_1-m_1\end{pmatrix}\begin{pmatrix}2j_2 \\ j_2 - m_2\end{pmatrix}\begin{pmatrix}2j_3 \\ j_3-m_3\end{pmatrix}}\right]^{1/2} \sum_{z} (-1)^{z}\begin{pmatrix}J-2j_3 \\ z\end{pmatrix}\begin{pmatrix}J-2j_2 \\ j_1-m_1-z\end{pmatrix}\begin{pmatrix}J-2j_1 \\ j_2 + m_2 - z\end{pmatrix}
+C_{j_1m_1j_2m_2}^{j_3m_3} = \delta_{m_3, m_1+m_2}
+\left[
+    \dfrac{\begin{pmatrix}2j_1 \\ J-2j_2\end{pmatrix}\begin{pmatrix}2j_2\\J-2j_3\end{pmatrix}}{\begin{pmatrix}J+1\\J-2j_3\end{pmatrix}\begin{pmatrix}2j_1\\j_1-m_1\end{pmatrix}\begin{pmatrix}2j_2 \\ j_2 - m_2\end{pmatrix}\begin{pmatrix}2j_3 \\ j_3-m_3\end{pmatrix}}
+\right]^{1/2} \\
+\times \sum_{z} (-1)^{z}\begin{pmatrix}J-2j_3 \\ z\end{pmatrix}\begin{pmatrix}J-2j_2 \\ j_1-m_1-z\end{pmatrix}\begin{pmatrix}J-2j_1 \\ j_2 + m_2 - z\end{pmatrix}
 ```
 
-where, $J = j_1+j_2+j_3$. It is already combination of binominals.
+where, $J = j_1+j_2+j_3$. It is already combination of binomials.
 
 ## 3j symbol
 
@@ -26,10 +30,10 @@ Ref [^1], P293, Section 9.2.1, Formula (1).
 
 ```math
 \begin{Bmatrix}j_1 & j_2 & j_3 \\ j_4 & j_5 & j_6\end{Bmatrix} = \Delta(j_1j_2j_3)\Delta(j_4j_5j_3)\Delta(j_1j_5j_6)\Delta(j_4j_2j_6) \\
-\times \sum\limits_n\dfrac{(-1)^n(n+1)!}{(n-j_1j_2j_3)!(n-j_4j_5j_3)!(n-j_1j_5j_6)!(n-j_4j_2j_6)!(j_1j_2j_4j_5-n)!(j_1j_3j_4j_6-n)!(j_2j_3j_5j_6-n)!}
+\times \sum\limits_x\dfrac{(-1)^x(x+1)!}{(x-j_{123})!(x-j_{453})!(x-j_{156})!(x-j_{426})!(j_{1245}-x)!(j_{1346}-x)!(j_{2356}-x)!}
 ```
 
-Here, I use $j_1j_2j_3$ to represent $j_1+j_2+j_2$. The symbol $\Delta(abc)$ is defined as
+Here, I use $j_{123} \equiv j_1+j_2+j_3$ for simplicity. The symbol $\Delta(abc)$ is defined as
 
 ```math
 \Delta(abc) = \left[\dfrac{(a+b-c)!(a-b+c)!(-a+b+c)!}{(a+b+c+1)!}\right]^{\frac{1}{2}}.
@@ -38,20 +42,20 @@ Here, I use $j_1j_2j_3$ to represent $j_1+j_2+j_2$. The symbol $\Delta(abc)$ is 
 We can find that
 
 ```math
-\begin{pmatrix}j_1+j_2-j_3 \\ n - j_4j_5j_3\end{pmatrix} = \dfrac{(j_1+j_2-j_3)!}{(n-j_4j_5j_3)!(j_1j_2j_4j_5-n)!} \\
-\begin{pmatrix}j_1-j_2+j_3 \\ n - j_4j_2j_6\end{pmatrix} = \dfrac{(j_1-j_2+j_3)!}{(n-j_4j_2j_6)!(j_1j_3j_4j_6-n)!} \\
-\begin{pmatrix}j_2+j_3-j_1 \\ n - j_1j_5j_6\end{pmatrix} = \dfrac{(j_2+j_3-j_1)!}{(n-j_1j_5j_6)!(j_2j_3j_5j_6-n)!} \\
-\begin{pmatrix}n+1 \\ j_1j_2j_3+1\end{pmatrix} = \dfrac{(n+1)!}{(n-j_1j_2j_3)(j_1j_2j_3+1)!}.
+\begin{pmatrix}j_1+j_2-j_3 \\ x - j_{453}\end{pmatrix} = \dfrac{(j_1+j_2-j_3)!}{(x-j_{453})!(j_{1245}-x)!} \\
+\begin{pmatrix}j_1-j_2+j_3 \\ x - j_{426}\end{pmatrix} = \dfrac{(j_1-j_2+j_3)!}{(x-j_{426})!(j_{1346}-x)!} \\
+\begin{pmatrix}j_2+j_3-j_1 \\ x - j_{156}\end{pmatrix} = \dfrac{(j_2+j_3-j_1)!}{(x-j_{156})!(j_{2356}-x)!} \\
+\begin{pmatrix}x+1 \\ j_{123}+1\end{pmatrix} = \dfrac{(x+1)!}{(x-j_{123})(j_{123}+1)!}.
 ```
 
 So, we have
 
 ```math
 \begin{Bmatrix}j_1 & j_2 & j_3 \\ j_4 & j_5 & j_6\end{Bmatrix} = \dfrac{\Delta(j_4j_5j_3)\Delta(j_1j_5j_6)\Delta(j_4j_2j_6)}{\Delta(j_1j_2j_3)} \\
-\times \sum\limits_n (-1)^n \begin{pmatrix}n+1 \\ j_1j_2j_3+1\end{pmatrix} \begin{pmatrix}j_1+j_2-j_3 \\ n - j_4j_5j_3\end{pmatrix} \begin{pmatrix}j_1-j_2+j_3 \\ n - j_4j_2j_6\end{pmatrix} \begin{pmatrix}j_2+j_3-j_1 \\ n - j_1j_5j_6\end{pmatrix}.
+\times \sum\limits_x (-1)^x \begin{pmatrix}x+1 \\ j_{123}+1\end{pmatrix} \begin{pmatrix}j_1+j_2-j_3 \\ x - j_{453}\end{pmatrix} \begin{pmatrix}j_1-j_2+j_3 \\ x - j_{426}\end{pmatrix} \begin{pmatrix}j_2+j_3-j_1 \\ x - j_{156}\end{pmatrix}.
 ```
 
-Rewrite $\Delta(abc)$ with binominals,
+Rewrite $\Delta(abc)$ with binomials,
 
 ```math
 \Delta(abc) = \left[\dfrac{1}{\begin{pmatrix}a+b+c+1 \\ 2a + 1\end{pmatrix} \begin{pmatrix}2a \\ a + b - c\end{pmatrix}(2a+1)}\right]^{\frac{1}{2}}.
@@ -61,7 +65,7 @@ So
 
 ```math
 \dfrac{\Delta(j_4j_5j_3)\Delta(j_1j_5j_6)\Delta(j_4j_2j_6)}{\Delta(j_1j_2j_3)} \\
-= \dfrac{1}{2j_4+1} \left[\dfrac{\begin{pmatrix}j_1j_2j_3+1 \\ 2j_1+1\end{pmatrix}\begin{pmatrix}2j_1 \\ j_1 + j_2 - j_3\end{pmatrix}}{\begin{pmatrix}j_1j_5j_6+1 \\ 2j_1+1\end{pmatrix}\begin{pmatrix}2j_1 \\ j_1+j_5-j_6\end{pmatrix}\begin{pmatrix}j_4j_5j_3+1\\2j_4+1\end{pmatrix}\begin{pmatrix}2j_4\\j_4+j_5-j_3\end{pmatrix}\begin{pmatrix}j_4j_2j_6+1 \\ 2j_4+1\end{pmatrix}\begin{pmatrix}2j_4 \\ j_4+j_2-j_6\end{pmatrix}}\right]^{\frac{1}{2}}
+= \dfrac{1}{2j_4+1} \left[\dfrac{\begin{pmatrix}j_{123}+1 \\ 2j_1+1\end{pmatrix}\begin{pmatrix}2j_1 \\ j_1 + j_2 - j_3\end{pmatrix}}{\begin{pmatrix}j_{156}+1 \\ 2j_1+1\end{pmatrix}\begin{pmatrix}2j_1 \\ j_1+j_5-j_6\end{pmatrix}\begin{pmatrix}j_{453}+1\\2j_4+1\end{pmatrix}\begin{pmatrix}2j_4\\j_4+j_5-j_3\end{pmatrix}\begin{pmatrix}j_{426}+1 \\ 2j_4+1\end{pmatrix}\begin{pmatrix}2j_4 \\ j_4+j_2-j_6\end{pmatrix}}\right]^{\frac{1}{2}}
 ```
 
 ## Racha coefficient
@@ -75,7 +79,7 @@ j_4 & j_3 & j_6
 \end{Bmatrix}
 ```
 
-This package use the 6j symbol above to calculate Racha coefficient. 
+This package uses the 6j symbol above to calculate Racha coefficient. 
 
 ## 9j symbol
 
@@ -92,18 +96,20 @@ Use the 6j symbol result above, we get
  = \dfrac{\Delta(j_3j_6j_9)\Delta(j_2j_5j_8)\Delta(j_1j_4j_7)}{\Delta(j_1j_2j_3)\Delta(j_4j_5j_6)\Delta(j_7j_8j_9)} \Delta^2(j_1j_9t)\Delta^2(j_2j_6t)\Delta^2(j_4j_8t).
 ```
 
-Define $j_{123} \equiv j_1+j_2+j_3$, and
+Define
 
 ```math
 P_0 \equiv \dfrac{\Delta(j_3j_6j_9)\Delta(j_2j_5j_8)\Delta(j_1j_4j_7)}{\Delta(j_1j_2j_3)\Delta(j_4j_5j_6)\Delta(j_7j_8j_9)} \\
 = \left[\dfrac{\begin{pmatrix}j_{123} + 1 \\ 2j_1+1\end{pmatrix}\begin{pmatrix}2j_1\\j_1+j_2-j_3\end{pmatrix}\begin{pmatrix}j_{456}+1\\2j_5+1\end{pmatrix}\begin{pmatrix}2j_5 \\ j_4+j_5-j_6\end{pmatrix}\begin{pmatrix}j_{789}+1 \\ 2j_9+1\end{pmatrix}\begin{pmatrix}2j_9 \\ j_7 + j_9 - j_8\end{pmatrix}}{\begin{pmatrix}j_{147} + 1\\ 2j_1 + 1\end{pmatrix}\begin{pmatrix}2j_1 \\ j_1+j_4-j_7\end{pmatrix}\begin{pmatrix}j_{258}+1 \\ 2j_5+1\end{pmatrix}\begin{pmatrix}2j_5 \\ j_2+j_5 - j_8\end{pmatrix}\begin{pmatrix}j_{369}+1 \\ 2j_9+1\end{pmatrix}\begin{pmatrix}2j_9 \\ j_3+j_9 - j_6\end{pmatrix}}\right]^{1/2}.
 ```
 
-Define
+and then define
 
 ```math
-P(t) \equiv (-1)^{2t}(2t+1)\Delta^2(j_1j_9t)\Delta^2(j_2j_6t)\Delta^2(j_4j_8t)  \\
- = (-1)^{2t} \dfrac{1}{\begin{pmatrix}j_1+j_9+t+1 \\ 2t+1\end{pmatrix}\begin{pmatrix}2t \\ j_1+t-j_9\end{pmatrix}\begin{pmatrix}j_2+j_6+t+1 \\ 2t+1\end{pmatrix}\begin{pmatrix}2t \\ j_2+t-j_6\end{pmatrix}\begin{pmatrix}j_4+j_8+t \\ 2t+1\end{pmatrix}\begin{pmatrix}2t \\ j_4+t-j_8\end{pmatrix}(2t+1)^2}.
+P(t) \equiv (-1)^{2t}(2t+1)\Delta^2(j_1j_9t)\Delta^2(j_2j_6t)\Delta^2(j_4j_8t)
+ = \dfrac{(-1)^{2t}}{(2t+1)^2} \times \\
+
+\dfrac{1}{\begin{pmatrix}j_1+j_9+t+1 \\ 2t+1\end{pmatrix}\begin{pmatrix}2t \\ j_1+t-j_9\end{pmatrix}\begin{pmatrix}j_2+j_6+t+1 \\ 2t+1\end{pmatrix}\begin{pmatrix}2t \\ j_2+t-j_6\end{pmatrix}\begin{pmatrix}j_4+j_8+t \\ 2t+1\end{pmatrix}\begin{pmatrix}2t \\ j_4+t-j_8\end{pmatrix}}.
 ```
 
 ```math
@@ -126,6 +132,85 @@ At last, we get
 
 It deserves to be mentioned that, although the formula has 4 $\sum$s, the $\sum$ of $x,y,z$ are decoupled. So we can do the three `for loop`s respectively, which means the depth of `for loop` is not 4 but 2.
 
+## Estimate the capacity
+
+Assume we are doing a calculation for a system, we will not calculate the Winger Symbols with very large angular momentum, because usually we will take some trunction. If in such truncated system, the max angular momentum is $J_{max}$, now we can estimate how many binomial coefficients we need to store to compute those Wigner Symbols.
+
+### With maximum $J_{max}$
+####  CG & 3j
+According to the formula, the max possible binomial is $\begin{pmatrix} J+1 \\ J-2j_3\end{pmatrix}$, where $J = j_1+j_2+j_3$. So we need at least store binomials to $\begin{pmatrix} n_{min} \\ k\end{pmatrix}$ where
+```math
+n_{min} \geq 3J_{max}+1
+```
+
+#### 6j & Racha
+For binomials in `sqrt`，the maximum possible $n = 3J_{max}+1$, and for those in the summation, we have to calculate the boundary of $x + 1$. According to the formula
+```math
+x \leq \min\{j_1+j_2+j_4+j_5, j_1+j_3+j_4+j_6, j_2+j_3+j_5+j_6\} \leq 4J_{max}
+```
+So we have to at least store to
+```math
+n_{min} \geq 4J_{max} + 1
+```
+
+#### 9j
+
+Similarly, according to $P_0$, we need $3J_{max}+1$. According to $P(t)$,
+```math
+t \leq \min\{j_2 + j_6, j_4 + j_8, j_1 + j_9\} \leq 2J_{max}
+```
+so we need $j_1 + j_9 + t + 1 \leq 4J_{max} + 1$. According to $A(t, x),\; B(t, y),\; C(t, z)$,
+```math
+x \leq \min\{j_1+j_2+j_6+j_9, j_1+j_3+j_6+t, j_2+j_3+j_9+t\} \leq 5J_{max}
+```
+so we need to at least store to
+```math
+n_{min} \geq 5J_{max} + 1
+```
+
+### With maximum single particle $j_{max}$
+
+Considering a quantum many body calculation, we can get a more optimistic estimation of the calculation capacity. In a quantum many body calculation, we often truncate single particle orbits, and in this condition we assume the maximum angular momentum of the single particle orbits is $j_{max}$.
+
+#### CG & 3j
+
+In this condition, the $j_1, j_2, j_3$ contains two single particle angular momentum, and the rest one is a coupled two body angular momentum. So
+```math
+n_{min} \geq 4j_{max} + 1
+```
+
+#### 6j & Racha
+
+Similarly
+```math
+x \leq \min\{j_1+j_2+j_4+j_5, j_1+j_3+j_4+j_6, j_2+j_3+j_5+j_6\}
+```
+These summations of four angular momentum can be split into two kinds, all single particle angular momentum, and two single particle with two two body angular momentum. Consider the worst condition
+```math
+n_{min} \geq 6j_{max} + 1
+```
+
+### 9j
+
+We assume the 9j symbol contains at least one single particle angular momentum, then according to the coupling rules, the 9j symbol can be split into kinds
+```math
+\begin{Bmatrix}
+1 & 1 & 2 \\
+1 & 1 & 2 \\
+2 & 2 & 2
+\end{Bmatrix}
+\quad
+\begin{Bmatrix}
+1 & 1 & 2 \\
+1 & 2 & 1 \\
+2 & 1 & 1
+\end{Bmatrix}
+```
+where $1$ represents single particle and $2$ for two body angular momentum.
+In both cases, we can deduce that
+```math
+n_{min} \geq 8j_{max} + 1
+```
 
 ----
 Reference

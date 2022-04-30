@@ -6,7 +6,7 @@ A package to calculate CG-coefficient, Racha coefficient, and Wigner 3j, 6j, 9j 
 
 This package is inspired by Ref [^1]. See [CENS-MBPT](https://github.com/ManyBodyPhysics/CENS/blob/master/MBPT/VEffective/bhf-modules.f90) for details.
 
-The idea is to simplify 3nj Symbols to sum combinations of binominal coefficients. We can calculate binominal coefficients by Pascal's Triangle, and store them first. Then we calculate 3nj Symbols using the stored binominal coefficients. However, in current version, I just use the builtin `binominal` function, and calculation with large integer will overflow.
+The idea is to simplify 3nj Symbols to sum combinations of binomial coefficients. We can calculate binomial coefficients by Pascal's Triangle, and store them first. Then we calculate 3nj Symbols using the stored binomial coefficients. However, in current version, I just use the builtin `binomial` function, and calculation with large integer will overflow.
 
 ## Install
 
