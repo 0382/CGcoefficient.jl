@@ -16,10 +16,10 @@ include("test_float_gsl.jl")
 @testset "special condition: Racah" begin test_special_Racah(1//2:1//2:5) end
 @testset "special condition: 9j" begin test_special_9j(1//2:1//2:3) end
 
-@testset "test orthonormality: CG" begin test_orthonormality_CG(1//2:1//2:4) end
-@testset "test summation: 3j" begin test_summation_3j(0:1//2:20) end
-@testset "test orthonormality: 6j" begin test_orthonormality_6j(1//2:1//2:3) end
-@testset "test orthonormality: 9j" begin test_orthonormality_9j(1//2:1//2:2) end
+@testset "test orthonormality: dCG" begin test_orthonormality_dCG(0:8) end
+@testset "test summation: d3j" begin test_summation_d3j(0:40) end
+@testset "test orthonormality: d6j" begin test_orthonormality_d6j(0:6) end
+@testset "test orthonormality: d9j" begin test_orthonormality_d9j(0:4) end
 
 try
     gsl3j(1, 1, 1, 0, 0, 0)
