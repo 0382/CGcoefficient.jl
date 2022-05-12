@@ -40,10 +40,8 @@ function check_9j(dj1::Int, dj2::Int, dj3::Int, dj4::Int, dj5::Int, dj6::Int, dj
     check_couple(dj1, dj4, dj7) & check_couple(dj2, dj5, dj8) & check_couple(dj3, dj6, dj9)
 end
 
-# Because the gsl compute wigner 3nj symbols using float point number,
-# sometimes my code give out zero, but gsl give out a very small number.
-# In this condition, `≈` operator will give false result.
 function test_f3j_with_gsl(test_range::AbstractArray)
+    reserve_fbinomial(cld(maximum(test_range), 2), "Jmax", 3)
     for dj1 in test_range
     for dj2 in test_range
     for dj3 in test_range
@@ -59,6 +57,7 @@ function test_f3j_with_gsl(test_range::AbstractArray)
 end
 
 function test_f6j_with_gsl(test_range::AbstractArray)
+    reserve_fbinomial(cld(maximum(test_range), 2), "Jmax", 6)
     for j1 in test_range
     for j2 in test_range
     for j3 in test_range
@@ -74,6 +73,7 @@ function test_f6j_with_gsl(test_range::AbstractArray)
 end
 
 function test_f9j_with_gsl(test_range::AbstractArray)
+    reserve_fbinomial(cld(maximum(test_range), 2), "Jmax", 9)
     for j1 in test_range
     for j2 in test_range
     for j3 in test_range

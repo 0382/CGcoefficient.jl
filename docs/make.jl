@@ -4,6 +4,7 @@ using CGcoefficient
 makedocs(
     modules = [CGcoefficient],
     sitename = "CGcoefficient.jl",
+    clean = false,
     pages = [
         "Home" => "index.md",
         "Formula" => "formula.md",

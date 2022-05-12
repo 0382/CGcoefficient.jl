@@ -35,6 +35,6 @@ end
 @testset "test with gsl: 3j" begin test_3j_with_gsl(1:5) end
 @testset "test with gsl: 6j" begin test_6j_with_gsl(1:5) end
 @testset "test with gsl: 9j" begin test_9j_with_gsl(1:5) end
-@testset "float version: f3j" begin test_f3j_with_gsl(1:5) end
-@testset "float version: f6j" begin test_f6j_with_gsl(1:5) end
-@testset "float version: f9j" begin test_f9j_with_gsl(1:5) end
+@testset "float version: f3j" begin test_f3j_with_gsl(50:55) end
+@testset "float version: f6j" begin test_f6j_with_gsl(50:55) end
+@testset "float version: f9j" begin test_f9j_with_gsl(50:52) end

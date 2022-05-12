@@ -1,12 +1,15 @@
-_fbinomial_data = Float64[]
-_fbinomial_nmax = 0
+const _fbinomial_data = Ref(Float64[])
+const _fbinomial_nmax = Ref{Int64}(0)
 
-@inline function _fbinomial_data_size(n::Int)
+@inline get_fbinomial_data() = _fbinomial_data[]
+@inline get_fbinomial_nmax() = _fbinomial_nmax[]
+
+@inline function fbinomial_data_size(n::Int)
     x = div(n, 2) + 1
     return x * (x + isodd(n))
 end
 
-@inline function _fbinomial_index(n::Int, k::Int)
+@inline function fbinomial_index(n::Int, k::Int)
     x = div(n, 2) + 1
     return x * (x - iseven(n)) + k + 1
 end
@@ -16,25 +19,26 @@ end
 `binomial` with Float64 return value.
 """
 function fbinomial(n::Integer, k::Integer)::Float64
-    n < 0 || n > _fbinomial_nmax || k < 0 || k > n && return 0.0
+    n < 0 || n > get_fbinomial_nmax() || k < 0 || k > n && return 0.0
     if k > div(n, 2)
         k = n - k
     end
-    return @inbounds _fbinomial_data[_fbinomial_index(n, k)]
+    return @inbounds get_fbinomial_data()[fbinomial_index(n, k)]
 end
 
 function _extent_fbinomial_data(n::Int)
-    if n > _fbinomial_nmax
-        old_data = copy(_fbinomial_data)
-        _fbinomial_data = Vector{Float64}(undef, _fbinomial_data_size(n))
-        copyto!(_fbinomial_data, old_data)
-        for m = _fbinomial_nmax+1:n
-            for k = 0:div(m, 2)
-                _fbinomial_data[_fbinomial_index(m, k)] = fbinomial(m - 1, k) + fbinomial(m - 1, k - 1)
+    if n > get_fbinomial_nmax()
+        old_data = copy(get_fbinomial_data())
+        global _fbinomial_data[] = Vector{Float64}(undef, fbinomial_data_size(n))
+        copyto!(get_fbinomial_data(), old_data)
+        for m = get_fbinomial_nmax()+1:n
+            get_fbinomial_data()[fbinomial_index(m, 0)] = 1.0
+            for k = 1:div(m, 2)
+                get_fbinomial_data()[fbinomial_index(m, k)] = fbinomial(m - 1, k) + fbinomial(m - 1, k - 1)
             end
-            global _fbinomial_nmax += 1
+            global _fbinomial_nmax[] = get_fbinomial_nmax() + 1
         end
-        global _fbinomial_nmax = n
+        global _fbinomial_nmax[] = n
     end
     nothing
 end

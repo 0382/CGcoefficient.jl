@@ -19,11 +19,11 @@ include("WignerSymbols.jl")
 include("floatWignerSymbols.jl")
 
 function __init__()
-    global _fbinomial_nmax = 67
-    global _fbinomial_data = Vector{Float64}(undef, _fbinomial_data_size(_fbinomial_nmax))
-    for n = 0:_fbinomial_nmax
+    global _fbinomial_nmax[] = 67
+    global _fbinomial_data[] = Vector{Float64}(undef, fbinomial_data_size(get_fbinomial_nmax()))
+    for n = 0:get_fbinomial_nmax()
         for k = 0:div(n, 2)
-            global _fbinomial_data[_fbinomial_index(n, k)] = binomial(UInt64(n), UInt64(k))
+            get_fbinomial_data()[fbinomial_index(n, k)] = binomial(UInt64(n), UInt64(k))
         end
     end
     nothing
