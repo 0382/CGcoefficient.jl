@@ -206,7 +206,7 @@ d9j(dj1::Integer, dj2::Integer, dj3::Integer,
     CG(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt)
 CG coefficient ``\langle j_1m_1 j_2m_2 | j_3m_3 \rangle``
 """
-CG(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = _dCG(Int64.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...)
+CG(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = simplify(_dCG(Int64.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...))
 
 @doc raw"""
     threeJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt)
@@ -218,7 +218,7 @@ m_1 & m_2 & m_3
 \end{pmatrix}
 ```
 """
-threeJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = _d3j(Int64.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...)
+threeJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = simplify(_d3j(Int64.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...))
 
 @doc raw"""
     sixJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt)
@@ -230,7 +230,7 @@ j_4 & j_5 & j_6
 \end{Bmatrix}
 ```
 """
-sixJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt) = _d6j(Int64.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...)
+sixJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt) = simplify(_d6j(Int64.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...))
 
 @doc raw"""
     Racah(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt)
@@ -242,7 +242,7 @@ j_4 & j_3 & j_6
 \end{Bmatrix}
 ```
 """
-Racah(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt) = _dRacah(Int64.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...)
+Racah(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt) = simplify(_dRacah(Int64.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...))
 
 @doc raw"""
     nineJ(j1::HalfInt, j2::HalfInt, j3::HalfInt,
@@ -259,4 +259,4 @@ j_7 & j_8 & j_9
 """
 nineJ(j1::HalfInt, j2::HalfInt, j3::HalfInt,
       j4::HalfInt, j5::HalfInt, j6::HalfInt,
-      j7::HalfInt, j8::HalfInt, j9::HalfInt) = _d9j(Int64.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))...)
+      j7::HalfInt, j8::HalfInt, j9::HalfInt) = simplify(_d9j(Int64.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))...))

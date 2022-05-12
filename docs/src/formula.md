@@ -170,7 +170,9 @@ n_{min} \geq 5J_{max} + 1
 
 ### With maximum single particle $j_{max}$
 
-Considering a quantum many body calculation, we can get a more optimistic estimation of the calculation capacity. In a quantum many body calculation, we often truncate single particle orbits, and in this condition we assume the maximum angular momentum of the single particle orbits is $j_{max}$.
+Considering a quantum many body calculation, we can get a more optimistic estimation of the calculation capacity. In a quantum many body calculation, we often truncate single particle orbits, and in this condition we assume that we only need to consider two-body coupled angular momentum.
+
+The maximum angular momentum of the single particle orbits defined as $j_{max}$. If for each function, there are at least one of the parameters is single particle angular momentum, then we can get the following estimation.
 
 #### CG & 3j
 
@@ -216,4 +218,3 @@ n_{min} \geq 8j_{max} + 1
 Reference
 
 [^1]: A. N. Moskalev D. A. Varshalovich and V. K. Khersonskii, *Quantum theory of angular momentum*.
-

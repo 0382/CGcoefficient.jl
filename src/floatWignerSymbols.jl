@@ -251,9 +251,13 @@ function fRacah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Int
 end
 
 """
-    f9j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer, dj7::Integer, dj8::Integer, dj9::Integer)
+    f9j(dj1::Integer, dj2::Integer, dj3::Integer,
+        dj4::Integer, dj5::Integer, dj6::Integer,
+        dj7::Integer, dj8::Integer, dj9::Integer)
 float64 and fast Wigner 9j symbol.
 """
-function f9j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer, dj7::Integer, dj8::Integer, dj9::Integer)
+function f9j(dj1::Integer, dj2::Integer, dj3::Integer,
+             dj4::Integer, dj5::Integer, dj6::Integer,
+             dj7::Integer, dj8::Integer, dj9::Integer)
     return _f9j(Int64.((dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))...)
 end
