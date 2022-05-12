@@ -23,13 +23,13 @@ pkg> add CGcoefficient
 
 ```julia-repl
 julia> CG(1,2,3,1,1,2)
-4√(1//24)
-
-julia> simplify(ans)
 √(2//3)
 
-julia> simplify(nineJ(1,2,3,4,5,6,3,6,9))
+julia> nineJ(1,2,3,4,5,6,3,6,9)
 (1//1274)√(3//5)
+
+julia> f6j(6,6,6,6,6,6)
+-0.07142857142857142
 ```
 
 For more examples please see the document.
