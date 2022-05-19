@@ -7,7 +7,11 @@
 
 [[English](README.md)]
 
-计算CG系数，Racah系数和Wigner 3j, 6j, 9j系数，并使用定义的`SqrtRational`类型以保存准确结果。同时提供浮点数运算的快速版本，比[GNU Scientific Library](https://www.gnu.org/software/gsl/)快一倍。
+计算CG系数，Racah系数和Wigner 3j, 6j, 9j系数。
+
+你可以使用定义的`SqrtRational`类型以保存准确结果，它内部使用`BigInt`计算以避免溢出。同时我们也提供浮点数运算的快速版本，比[GNU Scientific Library](https://www.gnu.org/software/gsl/)快一倍。
+
+我也用c++重写了浮点数版本，用于数值计算：[WignerSymbol](https://github.com/0382/WignerSymbol).
 
 关于更多更多细节以及计算公式，请看文档[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://0382.github.io/CGcoefficient.jl/dev)。
 

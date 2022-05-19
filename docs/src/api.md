@@ -44,6 +44,7 @@ is_same_parity
 check_jm
 check_couple
 exact_sqrt
+float(::SqrtRational)
 simplify(::Integer)
 simplify(::SqrtRational)
 ```

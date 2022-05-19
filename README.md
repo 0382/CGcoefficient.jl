@@ -7,7 +7,11 @@
 
 [[中文](README_zh.md)]
 
-A package to calculate CG-coefficient, Racah coefficient, and Wigner 3j, 6j, 9j symbols. It store the exact result with `SqrtRational` type. We also offer float version for numeric calculation, which is about twice faster than [GNU Scientific Library](https://www.gnu.org/software/gsl/).
+A package to calculate CG-coefficient, Racah coefficient, and Wigner 3j, 6j, 9j symbols.
+
+One can get the exact result with `SqrtRational` type, which use `BigInt` to avoid overflow. And we also offer float version for numeric calculation, which is about twice faster than [GNU Scientific Library](https://www.gnu.org/software/gsl/).
+
+I also rewrite the float version with c++ for numeric calculation: [WignerSymbol](https://github.com/0382/WignerSymbol).
 
 For more details and the calculation formula, please see the document [![](https://img.shields.io/badge/docs-dev-blue.svg)](https://0382.github.io/CGcoefficient.jl/dev).
 

@@ -58,11 +58,9 @@ end
 ==(x::SqrtRational, y::Union{Integer, Rational}) = (x == SqrtRational(y))
 ==(x::Union{Integer, Rational}, y::SqrtRational) = (SqrtRational(x) == y)
 
-"""
-Only if `r == 1` in `s√r`, the add operator can work.
-We do not simplify `s√r` every time, but in this function,
-we need to simplify it first, and then do the `+` operator.
-"""
+# Only if `r == 1` in `s√r`, the add operator can work.
+# We do not simplify `s√r` every time, but in this function,
+# we need to simplify it first, and then do the `+` operator.
 +(x::SqrtRational, y::Union{Integer, Rational}) = begin
     r = x.r
     t1 = isqrt(numerator(r))
@@ -88,6 +86,7 @@ Base.widen(x::SqrtRational) = SqrtRational(widen(x.s), widen(x.r))
 
 # convert
 """
+    float(x::SqrtRational)::Float64
 Although we use `BigInt` in calculation, we do not convert it to `BigFloat`.
 Because this package is designed for numeric calculation, `BigFloat` is unnecessary.
 """
@@ -160,11 +159,11 @@ end
     simplify(n::Integer)
 Simplify a integer `n = x * t^2` to `(x, t)`
 """
-function simplify(n::T) where T<:Integer
+function simplify(n::Integer)
     s = sign(n)
     n = s * n
-    t = one(T)
-    i = convert(T, 2)
+    t = one(typeof(n))
+    i = convert(typeof(n), 2)
     while i <= isqrt(n)
         i2 = i * i
         temp = div(n, i2)
