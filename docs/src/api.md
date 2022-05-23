@@ -29,6 +29,7 @@ dRacah
 Float version functions is always used for numeric calculation, so the parameters of all these functions (except `reserve_fbinomial`) are double of the exact angular momentum quantum number.
 ```@docs
 fbinomial
+unsafe_fbinomial
 fCG
 f3j
 f6j

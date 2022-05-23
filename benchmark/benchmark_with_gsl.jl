@@ -110,6 +110,8 @@ println("diff = ", calculate_3j(f3j, test_range) - calculate_3j(gsl3j, test_rang
 println("f3j time = $(t1)s")
 println("gsl3j time = $(t2)s")
 
+test_range = 45:60
+
 t1 = @belapsed calculate_6j(f6j, test_range)
 t2 = @belapsed calculate_6j(gsl6j, test_range)
 

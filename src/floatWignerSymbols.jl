@@ -19,12 +19,20 @@ end
 `binomial` with Float64 return value.
 """
 function fbinomial(n::Integer, k::Integer)::Float64
-    if n < 0 || n > get_fbinomial_nmax() || k < 0 || k > n
+    if n > get_fbinomial_nmax() || k < 0 || k > n
         return 0.0
     end
-    if k > div(n, 2)
-        k = n - k
-    end
+    k = min(k, n - k)
+    return @inbounds get_fbinomial_data()[fbinomial_index(n, k)]
+end
+
+"""
+    function unsafe_fbinomial(n::Int, k::Int)
+Same as fbinomial, but without bounds check. Thus for `n < 0` or `n > _nmax` or `k < 0` or `k > n`, the result is undefined.
+In Wigner symbol calculation, the mathematics guarantee that `unsafe_fbinomial(n, k)` is always safe.
+"""
+function unsafe_fbinomial(n::Int, k::Int)::Float64
+    k = min(k, n - k)
     return @inbounds get_fbinomial_data()[fbinomial_index(n, k)]
 end
 
@@ -35,7 +43,7 @@ function _extent_fbinomial_data(n::Int)
         copyto!(get_fbinomial_data(), old_data)
         for m = get_fbinomial_nmax()+1:n
             for k = 0:div(m, 2)
-                get_fbinomial_data()[fbinomial_index(m, k)] = fbinomial(m - 1, k) + fbinomial(m - 1, k - 1)
+                get_fbinomial_data()[fbinomial_index(m, k)] = binomial(BigInt(m), BigInt(k))
             end
             global _fbinomial_nmax[] = get_fbinomial_nmax() + 1
         end
@@ -113,15 +121,15 @@ function _fCG(dj1::Int64, dj2::Int64, dj3::Int64, dm1::Int64, dm2::Int64, dm3::I
     j2mm2::Int64 = div(dj2 - dm2, 2)
     j3mm3::Int64 = div(dj3 - dm3, 2)
     j2pm2::Int64 = div(dj2 + dm2, 2)
-    A = sqrt(fbinomial(dj1, Jm2) * fbinomial(dj2, Jm3) / (
-        fbinomial(J + 1, Jm3) * fbinomial(dj1, j1mm1) *
-        fbinomial(dj2, j2mm2) * fbinomial(dj3, j3mm3)
+    A = sqrt(unsafe_fbinomial(dj1, Jm2) * unsafe_fbinomial(dj2, Jm3) / (
+        unsafe_fbinomial(J + 1, Jm3) * unsafe_fbinomial(dj1, j1mm1) *
+        unsafe_fbinomial(dj2, j2mm2) * unsafe_fbinomial(dj3, j3mm3)
     ))
     B = zero(Float64)
     low::Int64 = max(zero(Int64), j1mm1 - Jm2, j2pm2 - Jm1)
     high::Int64 = min(Jm3, j1mm1, j2pm2)
     for z in low:high
-        B = -B + fbinomial(Jm3, z) * fbinomial(Jm2, j1mm1 - z) * binomial(Jm1, j2pm2 - z)
+        B = -B + unsafe_fbinomial(Jm3, z) * unsafe_fbinomial(Jm2, j1mm1 - z) * binomial(Jm1, j2pm2 - z)
     end
     return iphase(high) * A * B
 end
@@ -138,17 +146,17 @@ function _f6j(dj1::Int64, dj2::Int64, dj3::Int64, dj4::Int64, dj5::Int64, dj6::I
     jpm156::Int64 = div(dj1 + dj5 - dj6, 2)
     jpm426::Int64 = div(dj4 + dj2 - dj6, 2)
     jpm453::Int64 = div(dj4 + dj5 - dj3, 2)
-    A = sqrt(fbinomial(j123 + 1, dj1 + 1) * fbinomial(dj1, jpm123) / (
-        fbinomial(j156 + 1, dj1 + 1) * fbinomial(dj1, jpm156) *
-        fbinomial(j453 + 1, dj4 + 1) * fbinomial(dj4, jpm453) *
-        fbinomial(j426 + 1, dj4 + 1) * fbinomial(dj4, jpm426)
+    A = sqrt(unsafe_fbinomial(j123 + 1, dj1 + 1) * unsafe_fbinomial(dj1, jpm123) / (
+        unsafe_fbinomial(j156 + 1, dj1 + 1) * unsafe_fbinomial(dj1, jpm156) *
+        unsafe_fbinomial(j453 + 1, dj4 + 1) * unsafe_fbinomial(dj4, jpm453) *
+        unsafe_fbinomial(j426 + 1, dj4 + 1) * unsafe_fbinomial(dj4, jpm426)
     ))
     B = zero(Float64)
     low::Int64 = max(j123, j453, j426, j156)
     high::Int64 = min(jpm123 + j453, jpm132 + j426, jpm231 + j156)
     for x = low:high
-        B = -B + fbinomial(x + 1, j123 + 1) * fbinomial(jpm123, x - j453) *
-                 fbinomial(jpm132, x - j426) * fbinomial(jpm231, x - j156)
+        B = -B + unsafe_fbinomial(x + 1, j123 + 1) * unsafe_fbinomial(jpm123, x - j453) *
+                 unsafe_fbinomial(jpm132, x - j426) * unsafe_fbinomial(jpm231, x - j156)
     end
     return iphase(high) * A * B / (dj4 + 1)
 end
@@ -174,12 +182,12 @@ function _f9j(dj1::Int64, dj2::Int64, dj3::Int64,
     pm798::Int64 = div(dj7 + dj9 - dj8, 2)
     pm897::Int64 = div(dj8 + dj9 - dj7, 2)
     # value in sqrt
-    P0_nu = fbinomial(j123 + 1, dj1 + 1) * fbinomial(dj1, pm123) *
-            fbinomial(j456 + 1, dj5 + 1) * fbinomial(dj5, pm456) *
-            fbinomial(j789 + 1, dj9 + 1) * fbinomial(dj9, pm798)
-    P0_de = fbinomial(j147 + 1, dj1 + 1) * fbinomial(dj1, div(dj1 + dj4 - dj7, 2)) *
-            fbinomial(j258 + 1, dj5 + 1) * fbinomial(dj5, div(dj2 + dj5 - dj8, 2)) *
-            fbinomial(j369 + 1, dj9 + 1) * fbinomial(dj9, div(dj3 + dj9 - dj6, 2))
+    P0_nu = unsafe_fbinomial(j123 + 1, dj1 + 1) * unsafe_fbinomial(dj1, pm123) *
+            unsafe_fbinomial(j456 + 1, dj5 + 1) * unsafe_fbinomial(dj5, pm456) *
+            unsafe_fbinomial(j789 + 1, dj9 + 1) * unsafe_fbinomial(dj9, pm798)
+    P0_de = unsafe_fbinomial(j147 + 1, dj1 + 1) * unsafe_fbinomial(dj1, div(dj1 + dj4 - dj7, 2)) *
+            unsafe_fbinomial(j258 + 1, dj5 + 1) * unsafe_fbinomial(dj5, div(dj2 + dj5 - dj8, 2)) *
+            unsafe_fbinomial(j369 + 1, dj9 + 1) * unsafe_fbinomial(dj9, div(dj3 + dj9 - dj6, 2))
     P0 = P0_nu / P0_de
     dtl::Int64 = max(abs(dj2 - dj6), abs(dj4 - dj8), abs(dj1 - dj9))
     dth::Int64 = min(dj2 + dj6, dj4 + dj8, dj1 + dj9)
@@ -188,30 +196,30 @@ function _f9j(dj1::Int64, dj2::Int64, dj3::Int64,
         j19t::Int64 = div(dj1 + dj9 + dt, 2)
         j26t::Int64 = div(dj2 + dj6 + dt, 2)
         j48t::Int64 = div(dj4 + dj8 + dt, 2)
-        Pt_de = fbinomial(j19t + 1, dt + 1) * fbinomial(dt, div(dj1 + dt - dj9, 2)) *
-                fbinomial(j26t + 1, dt + 1) * fbinomial(dt, div(dj2 + dt - dj6, 2)) *
-                fbinomial(j48t + 1, dt + 1) * fbinomial(dt, div(dj4 + dt - dj8, 2))
+        Pt_de = unsafe_fbinomial(j19t + 1, dt + 1) * unsafe_fbinomial(dt, div(dj1 + dt - dj9, 2)) *
+                unsafe_fbinomial(j26t + 1, dt + 1) * unsafe_fbinomial(dt, div(dj2 + dt - dj6, 2)) *
+                unsafe_fbinomial(j48t + 1, dt + 1) * unsafe_fbinomial(dt, div(dj4 + dt - dj8, 2))
         Pt_de *= (dt + 1)^2
         xl::Int64 = max(j123, j369, j26t, j19t)
         xh::Int64 = min(pm123 + j369, pm132 + j26t, pm231 + j19t)
         At = zero(Float64)
         for x = xl:xh
-            At = -At + fbinomial(x + 1, j123 + 1) * fbinomial(pm123, x - j369) *
-                       fbinomial(pm132, x - j26t) * fbinomial(pm231, x - j19t)
+            At = -At + unsafe_fbinomial(x + 1, j123 + 1) * unsafe_fbinomial(pm123, x - j369) *
+                       unsafe_fbinomial(pm132, x - j26t) * unsafe_fbinomial(pm231, x - j19t)
         end
         yl::Int64 = max(j456, j26t, j258, j48t)
         yh::Int64 = min(pm456 + j26t, pm465 + j258, pm564 + j48t)
         Bt = zero(Float64)
         for y = yl:yh
-            Bt = -Bt + fbinomial(y + 1, j456 + 1) * fbinomial(pm456, y - j26t) *
-                       fbinomial(pm465, y - j258) * fbinomial(pm564, y - j48t)
+            Bt = -Bt + unsafe_fbinomial(y + 1, j456 + 1) * unsafe_fbinomial(pm456, y - j26t) *
+                       unsafe_fbinomial(pm465, y - j258) * unsafe_fbinomial(pm564, y - j48t)
         end
         zl::Int64 = max(j789, j19t, j48t, j147)
         zh::Int64 = min(pm789 + j19t, pm798 + j48t, pm897 + j147)
         Ct = zero(Float64)
         for z = zl:zh
-            Ct = -Ct + fbinomial(z + 1, j789 + 1) * fbinomial(pm789, z - j19t) *
-                       fbinomial(pm798, z - j48t) * fbinomial(pm897, z - j147)
+            Ct = -Ct + unsafe_fbinomial(z + 1, j789 + 1) * unsafe_fbinomial(pm789, z - j19t) *
+                       unsafe_fbinomial(pm798, z - j48t) * unsafe_fbinomial(pm897, z - j147)
         end
         PABC += (iphase(xh + yh + zh) * At * Bt * Ct) / Pt_de
     end

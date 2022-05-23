@@ -10,7 +10,8 @@ export CG, threeJ, sixJ, nineJ, Racah,
        is_same_parity,
        check_jm,
        check_couple,
-       fCG, f3j, f6j, f9j, fRacah, fbinomial,
+       fCG, f3j, f6j, f9j, fRacah,
+       fbinomial, unsafe_fbinomial,
        reserve_fbinomial
 
 include("SqrtRational.jl")
