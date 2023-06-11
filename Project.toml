@@ -1,7 +1,7 @@
 name = "CGcoefficient"
 uuid = "c862aa61-d51e-47d1-b396-b1e789b4e0b6"
 authors = ["jinshaoliang <18322825326@163.com>"]
-version = "0.2.6"
+version = "0.2.5"
 
 [deps]
 Markdown = "d6f4376e-aef5-505a-96c1-9c027394607a"
