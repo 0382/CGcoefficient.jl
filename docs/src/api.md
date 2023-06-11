@@ -6,16 +6,25 @@ HalfInt
 SqrtRational
 ```
 
-## Core functions
+## Exact functions
+
+The default functions give out exact result in the format of `SqrtRational`.
+The results are simplified to give out shotest possible result.
+Their arguments are `HalfInt` (aka Integer or Rational with denomiator 2).
 ```@docs
 CG
+CG0
 threeJ
 sixJ
 nineJ
 Racah
+Moshinsky
 ```
 
 People often use double of angular momentum quantum number as parameters, so we can use integer as parameters. This package also offers such functions, where the `d` letter means *double*.
+These functions also give out exact `SqrtRational` results, but are not simplified.
+Because the `simplify` function is quite slow, if you want to do some calculation for the result,
+we suggest to use `d`-precedent functions first and `simplify` after call calculations.
 ```@docs
 dCG
 d3j
@@ -26,15 +35,23 @@ dRacah
 
 ## float version functions
 
-Float version functions is always used for numeric calculation, so the parameters of all these functions (except `wigner_init_float`) are double of the exact angular momentum quantum number.
+Float version functions is always used for numeric calculation. They are designed for fast calculation.
+You should call `wigner_init_float` to reserve the inner **binomial table**.
+They only resive `Integer` arguments, thus `fCG, f3j, f6j, fRacha, f9j` only resive arguements which are
+double of the exact quantum number. The rest functions do not need to do so.
+The difference is labeled with the arguement name: `dj` means of double of the quantum number, while `j` means
+the exact quantum number.
 ```@docs
 fbinomial
 unsafe_fbinomial
 fCG
+fCG0
 f3j
 f6j
-f9j
 fRacah
+f9j
+fMoshinsky
+dfunc
 wigner_init_float
 ```
 
@@ -44,6 +61,8 @@ iphase
 is_same_parity
 check_jm
 check_couple
+binomial_data_size
+binomial_index
 exact_sqrt
 float(::SqrtRational)
 simplify(::Integer)

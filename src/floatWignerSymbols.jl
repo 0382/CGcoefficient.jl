@@ -128,7 +128,7 @@ function _fCG0(j1::Int64, j2::Int64, j3::Int64)
     J = j1 + j2 + j3
     isodd(J) && return zero(Float64)
     g = div(J, 2)
-    return iphase(g-j3) * unsafe_fbinomial(g, j3) * unsafe_fbinomial(j3, g - j1) / sqrt(unsafe_fbinomial(J + 1, 2j3 + 1) * unsafe_fbinomial(2j3, J - 2j1))
+    return iphase(g - j3) * unsafe_fbinomial(g, j3) * unsafe_fbinomial(j3, g - j1) / sqrt(unsafe_fbinomial(J + 1, 2j3 + 1) * unsafe_fbinomial(2j3, J - 2j1))
 end
 
 function _f6j(dj1::Int64, dj2::Int64, dj3::Int64, dj4::Int64, dj5::Int64, dj6::Int64)
@@ -223,6 +223,90 @@ function _f9j(dj1::Int64, dj2::Int64, dj3::Int64,
     return iphase(dth) * sqrt(P0) * PABC
 end
 
+function _fMoshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l2::Int, Λ::Int, tanβ::Float64)
+    f1 = 2 * n1 + l1
+    f2 = 2 * n2 + l2
+    F = 2 * N + L
+    f = 2 * n + l
+    f1 + f2 == F + f || return zero(Float64)
+
+    secβ = √(1 + tanβ * tanβ)
+    cosβ = 1 / secβ
+    sinβ = tanβ / secβ
+
+    nl1 = n1 + l1
+    nl2 = n2 + l2
+    NL = N + L
+    nl = n + l
+    r1 = unsafe_fbinomial(2nl1 + 1, nl1) / (unsafe_fbinomial(f1 + 2, n1) * ((nl1 + 2) << l1))
+    r2 = unsafe_fbinomial(2nl2 + 1, nl2) / (unsafe_fbinomial(f2 + 2, n2) * ((nl2 + 2) << l2))
+    R = unsafe_fbinomial(2NL + 1, NL) / (unsafe_fbinomial(F + 2, N) * ((NL + 2) << L))
+    r = unsafe_fbinomial(2nl + 1, nl) / (unsafe_fbinomial(f + 2, n) * ((nl + 2) << l))
+    pre_sum = √(r1 * r2 * R * r)
+    sum = zero(Float64)
+    for fa = 0:min(f1, F)
+        fb = f1 - fa
+        fc = F - fa
+        fd = f2 - fc
+        fd >= 0 || continue
+        t = sinβ^(fa + fd) * cosβ^(fb + fc)
+        t = t * √(unsafe_fbinomial(f1 + 2, fa + 1) * unsafe_fbinomial(f2 + 2, fc + 1) * unsafe_fbinomial(F + 2, fa + 1) * unsafe_fbinomial(f + 2, fb + 1))
+        for la = (fa&0x01):2:fa
+            na = div(fa - la, 2)
+            nla = na + la
+            ta = (((2 * la + 1) << la) * unsafe_fbinomial(fa + 1, na)) / unsafe_fbinomial(2nla + 1, nla)
+            for lb = abs(l1 - la):2:min(la + l1, fb)
+                nb = div(fb - lb, 2)
+                nlb = nb + lb
+                tb = (((2 * lb + 1) << lb) * unsafe_fbinomial(fb + 1, nb)) / unsafe_fbinomial(2nlb + 1, nlb)
+                g1 = div(la + lb + l1, 2)
+                CGab = unsafe_fbinomial(g1, l1) * unsafe_fbinomial(l1, g1 - la) / √(unsafe_fbinomial(2g1 + 1, 2(g1 - l1)) * unsafe_fbinomial(2l1, 2(g1 - la)))
+                for lc = abs(L - la):2:min(la + L, fc)
+                    nc = div(fc - lc, 2)
+                    nlc = nc + lc
+                    tc = (((2 * lc + 1) << lc) * unsafe_fbinomial(fc + 1, nc)) / unsafe_fbinomial(2nlc + 1, nlc)
+                    G = div(la + lc + L, 2)
+                    CGac = unsafe_fbinomial(G, L) * unsafe_fbinomial(L, G - la) / √(unsafe_fbinomial(2G + 1, 2(G - L)) * unsafe_fbinomial(2L, 2(G - la)))
+                    ld_min = max(abs(l2 - lc), abs(l - lb))
+                    ld_max = min(fd, lb + l, lc + l2)
+                    for ld = ld_min:2:ld_max
+                        nd = div(fd - ld, 2)
+                        nld = nd + ld
+                        td = (((2 * ld + 1) << ld) * unsafe_fbinomial(fd + 1, nd)) / unsafe_fbinomial(2nld + 1, nld)
+                        g2 = div(lc + ld + l2, 2)
+                        CGcd = unsafe_fbinomial(g2, l2) * unsafe_fbinomial(l2, g2 - lc) / √(unsafe_fbinomial(2g2 + 1, 2(g2 - l2)) * unsafe_fbinomial(2l2, 2(g2 - lc)))
+                        g = div(lb + ld + l, 2)
+                        CGbd = unsafe_fbinomial(g, l) * unsafe_fbinomial(l, g - lb) / √(unsafe_fbinomial(2g + 1, 2(g - l)) * unsafe_fbinomial(2l, 2(g - lb)))
+                        phase = iphase(ld)
+                        ninej = f9j(2 * la, 2 * lb, 2 * l1, 2 * lc, 2 * ld, 2 * l2, 2 * L, 2 * l, 2 * Λ)
+                        sum = sum + phase * t * ta * tb * tc * td * CGab * CGac * CGbd * CGcd * ninej
+                    end
+                end
+            end
+        end
+    end
+    return pre_sum * sum
+end
+
+
+function _dfunc(dj::Int, dm1::Int, dm2::Int, β::Float64)
+    check_jm(dj, dm1) && check_jm(dj, dm2) || return zero(Float64)
+    jm1 = div(dj - dm1, 2)
+    jp1 = div(dj + dm1, 2)
+    jm2 = div(dj - dm2, 2)
+    mm = div(dm1 + dm2, 2)
+    s, c = sincos(β)
+    kmin = max(0, -mm)
+    kmax = min(jm1, jm2)
+    sum = 0.0
+    for k = kmin:kmax
+        sum = -sum + unsafe_fbinomial(jm1, k) * unsafe_fbinomial(jp1, mm+k) * c^(mm + 2k) * s^(jm1 + jm2 - 2k)
+    end
+    sum = iphase(jm2 + kmax) * sum
+    sum = sum * √(unsafe_fbinomial(dj, jm1) / unsafe_fbinomial(dj, jm2))
+    return sum
+end
+
 """
     fCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
 float64 and fast CG coefficient.
@@ -269,7 +353,23 @@ end
 float64 and fast Wigner 9j symbol.
 """
 @inline function f9j(dj1::Integer, dj2::Integer, dj3::Integer,
-             dj4::Integer, dj5::Integer, dj6::Integer,
-             dj7::Integer, dj8::Integer, dj9::Integer)
+    dj4::Integer, dj5::Integer, dj6::Integer,
+    dj7::Integer, dj8::Integer, dj9::Integer)
     return _f9j(Int64.((dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))...)
+end
+
+"""
+    fMoshinsky(N::Integer, L::Integer, n::Integer, l::Integer, n1::Integer, l1::Integer, n2::Integer, l2::Integer, tanβ::Float64 = 1.0)
+float64 and fast Moshinsky bracket.
+"""
+@inline function fMoshinsky(N::Integer, L::Integer, n::Integer, l::Integer, n1::Integer, l1::Integer, n2::Integer, l2::Integer, Λ::Integer, tanβ::Float64=1.0)
+    return _fMoshinsky(Int.((N, L, n, l, n1, l1, n2, l2, Λ))..., tanβ)
+end
+
+"""
+    dfunc(dj::Integer, dm1::Integer, dm2::Integer, β::Float64)
+Wigner-d function.
+"""
+@inline function dfunc(dj::Integer, dm1::Integer, dm2::Integer, β::Float64)
+    return _dfunc(Int.((dj, dm1, dm2))..., β)
 end

@@ -24,5 +24,6 @@ const Moshinsky_test_set_result = [
 function test_Moshinsky()
     for i = eachindex(Moshinsky_test_set_result)
         @test Moshinsky(Moshinsky_test_set[i, :]...) == Moshinsky_test_set_result[i]
+        @test fMoshinsky(Moshinsky_test_set[i, :]...) ≈ float(Moshinsky_test_set_result[i])
     end
 end

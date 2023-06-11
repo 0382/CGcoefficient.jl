@@ -13,6 +13,7 @@ export CG, CG0, threeJ, sixJ, nineJ, Racah,
        check_couple,
        fCG, f3j, f6j, f9j, fRacah,
        fbinomial, unsafe_fbinomial,
+       fMoshinsky, dfunc,
        wigner_init_float
 
 include("SqrtRational.jl")
