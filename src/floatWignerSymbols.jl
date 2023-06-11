@@ -98,32 +98,32 @@ end
 
 # basic CG coefficient calculation function with Float64 return value
 # unlike the SqrtRational version, this function gives out zero when the parameters are not valid
-function _fCG(dj1::Int64, dj2::Int64, dj3::Int64, dm1::Int64, dm2::Int64, dm3::Int64)
+function _fCG(dj1::Int, dj2::Int, dj3::Int, dm1::Int, dm2::Int, dm3::Int)
     check_jm(dj1, dm1) && check_jm(dj2, dm2) && check_jm(dj3, dm3) || return zero(Float64)
     check_couple(dj1, dj2, dj3) || return zero(Float64)
     dm1 + dm2 == dm3 || return zero(Float64)
-    J::Int64 = div(dj1 + dj2 + dj3, 2)
-    Jm1::Int64 = J - dj1
-    Jm2::Int64 = J - dj2
-    Jm3::Int64 = J - dj3
-    j1mm1::Int64 = div(dj1 - dm1, 2)
-    j2mm2::Int64 = div(dj2 - dm2, 2)
-    j3mm3::Int64 = div(dj3 - dm3, 2)
-    j2pm2::Int64 = div(dj2 + dm2, 2)
+    J::Int = div(dj1 + dj2 + dj3, 2)
+    Jm1::Int = J - dj1
+    Jm2::Int = J - dj2
+    Jm3::Int = J - dj3
+    j1mm1::Int = div(dj1 - dm1, 2)
+    j2mm2::Int = div(dj2 - dm2, 2)
+    j3mm3::Int = div(dj3 - dm3, 2)
+    j2pm2::Int = div(dj2 + dm2, 2)
     A = sqrt(unsafe_fbinomial(dj1, Jm2) * unsafe_fbinomial(dj2, Jm3) / (
         unsafe_fbinomial(J + 1, Jm3) * unsafe_fbinomial(dj1, j1mm1) *
         unsafe_fbinomial(dj2, j2mm2) * unsafe_fbinomial(dj3, j3mm3)
     ))
     B = zero(Float64)
-    low::Int64 = max(zero(Int64), j1mm1 - Jm2, j2pm2 - Jm1)
-    high::Int64 = min(Jm3, j1mm1, j2pm2)
+    low::Int = max(zero(Int), j1mm1 - Jm2, j2pm2 - Jm1)
+    high::Int = min(Jm3, j1mm1, j2pm2)
     for z in low:high
         B = -B + unsafe_fbinomial(Jm3, z) * unsafe_fbinomial(Jm2, j1mm1 - z) * binomial(Jm1, j2pm2 - z)
     end
     return iphase(high) * A * B
 end
 
-function _fCG0(j1::Int64, j2::Int64, j3::Int64)
+function _fCG0(j1::Int, j2::Int, j3::Int)
     check_couple(2j1, 2j2, 2j3) || return zero(Float64)
     J = j1 + j2 + j3
     isodd(J) && return zero(Float64)
@@ -131,26 +131,26 @@ function _fCG0(j1::Int64, j2::Int64, j3::Int64)
     return iphase(g - j3) * unsafe_fbinomial(g, j3) * unsafe_fbinomial(j3, g - j1) / sqrt(unsafe_fbinomial(J + 1, 2j3 + 1) * unsafe_fbinomial(2j3, J - 2j1))
 end
 
-function _f6j(dj1::Int64, dj2::Int64, dj3::Int64, dj4::Int64, dj5::Int64, dj6::Int64)
+function _f6j(dj1::Int, dj2::Int, dj3::Int, dj4::Int, dj5::Int, dj6::Int)
     check_couple(dj1, dj2, dj3) && check_couple(dj1, dj5, dj6) & check_couple(dj4, dj2, dj6) && check_couple(dj4, dj5, dj3) || return zero(Float64)
-    j123::Int64 = div(dj1 + dj2 + dj3, 2)
-    j156::Int64 = div(dj1 + dj5 + dj6, 2)
-    j426::Int64 = div(dj4 + dj2 + dj6, 2)
-    j453::Int64 = div(dj4 + dj5 + dj3, 2)
-    jpm123::Int64 = div(dj1 + dj2 - dj3, 2)
-    jpm132::Int64 = div(dj1 + dj3 - dj2, 2)
-    jpm231::Int64 = div(dj2 + dj3 - dj1, 2)
-    jpm156::Int64 = div(dj1 + dj5 - dj6, 2)
-    jpm426::Int64 = div(dj4 + dj2 - dj6, 2)
-    jpm453::Int64 = div(dj4 + dj5 - dj3, 2)
+    j123::Int = div(dj1 + dj2 + dj3, 2)
+    j156::Int = div(dj1 + dj5 + dj6, 2)
+    j426::Int = div(dj4 + dj2 + dj6, 2)
+    j453::Int = div(dj4 + dj5 + dj3, 2)
+    jpm123::Int = div(dj1 + dj2 - dj3, 2)
+    jpm132::Int = div(dj1 + dj3 - dj2, 2)
+    jpm231::Int = div(dj2 + dj3 - dj1, 2)
+    jpm156::Int = div(dj1 + dj5 - dj6, 2)
+    jpm426::Int = div(dj4 + dj2 - dj6, 2)
+    jpm453::Int = div(dj4 + dj5 - dj3, 2)
     A = sqrt(unsafe_fbinomial(j123 + 1, dj1 + 1) * unsafe_fbinomial(dj1, jpm123) / (
         unsafe_fbinomial(j156 + 1, dj1 + 1) * unsafe_fbinomial(dj1, jpm156) *
         unsafe_fbinomial(j453 + 1, dj4 + 1) * unsafe_fbinomial(dj4, jpm453) *
         unsafe_fbinomial(j426 + 1, dj4 + 1) * unsafe_fbinomial(dj4, jpm426)
     ))
     B = zero(Float64)
-    low::Int64 = max(j123, j453, j426, j156)
-    high::Int64 = min(jpm123 + j453, jpm132 + j426, jpm231 + j156)
+    low::Int = max(j123, j453, j426, j156)
+    high::Int = min(jpm123 + j453, jpm132 + j426, jpm231 + j156)
     for x = low:high
         B = -B + unsafe_fbinomial(x + 1, j123 + 1) * unsafe_fbinomial(jpm123, x - j453) *
                  unsafe_fbinomial(jpm132, x - j426) * unsafe_fbinomial(jpm231, x - j156)
@@ -158,26 +158,26 @@ function _f6j(dj1::Int64, dj2::Int64, dj3::Int64, dj4::Int64, dj5::Int64, dj6::I
     return iphase(high) * A * B / (dj4 + 1)
 end
 
-function _f9j(dj1::Int64, dj2::Int64, dj3::Int64,
-    dj4::Int64, dj5::Int64, dj6::Int64,
-    dj7::Int64, dj8::Int64, dj9::Int64)
+function _f9j(dj1::Int, dj2::Int, dj3::Int,
+    dj4::Int, dj5::Int, dj6::Int,
+    dj7::Int, dj8::Int, dj9::Int)
     check_couple(dj1, dj2, dj3) && check_couple(dj4, dj5, dj6) && check_couple(dj7, dj8, dj9) || return zero(Float64)
     check_couple(dj1, dj4, dj7) && check_couple(dj2, dj5, dj8) && check_couple(dj3, dj6, dj9) || return zero(Float64)
-    j123::Int64 = div(dj1 + dj2 + dj3, 2)
-    j456::Int64 = div(dj4 + dj5 + dj6, 2)
-    j789::Int64 = div(dj7 + dj8 + dj9, 2)
-    j147::Int64 = div(dj1 + dj4 + dj7, 2)
-    j258::Int64 = div(dj2 + dj5 + dj8, 2)
-    j369::Int64 = div(dj3 + dj6 + dj9, 2)
-    pm123::Int64 = div(dj1 + dj2 - dj3, 2)
-    pm132::Int64 = div(dj1 + dj3 - dj2, 2)
-    pm231::Int64 = div(dj2 + dj3 - dj1, 2)
-    pm456::Int64 = div(dj4 + dj5 - dj6, 2)
-    pm465::Int64 = div(dj4 + dj6 - dj5, 2)
-    pm564::Int64 = div(dj5 + dj6 - dj4, 2)
-    pm789::Int64 = div(dj7 + dj8 - dj9, 2)
-    pm798::Int64 = div(dj7 + dj9 - dj8, 2)
-    pm897::Int64 = div(dj8 + dj9 - dj7, 2)
+    j123::Int = div(dj1 + dj2 + dj3, 2)
+    j456::Int = div(dj4 + dj5 + dj6, 2)
+    j789::Int = div(dj7 + dj8 + dj9, 2)
+    j147::Int = div(dj1 + dj4 + dj7, 2)
+    j258::Int = div(dj2 + dj5 + dj8, 2)
+    j369::Int = div(dj3 + dj6 + dj9, 2)
+    pm123::Int = div(dj1 + dj2 - dj3, 2)
+    pm132::Int = div(dj1 + dj3 - dj2, 2)
+    pm231::Int = div(dj2 + dj3 - dj1, 2)
+    pm456::Int = div(dj4 + dj5 - dj6, 2)
+    pm465::Int = div(dj4 + dj6 - dj5, 2)
+    pm564::Int = div(dj5 + dj6 - dj4, 2)
+    pm789::Int = div(dj7 + dj8 - dj9, 2)
+    pm798::Int = div(dj7 + dj9 - dj8, 2)
+    pm897::Int = div(dj8 + dj9 - dj7, 2)
     # value in sqrt
     P0_nu = unsafe_fbinomial(j123 + 1, dj1 + 1) * unsafe_fbinomial(dj1, pm123) *
             unsafe_fbinomial(j456 + 1, dj5 + 1) * unsafe_fbinomial(dj5, pm456) *
@@ -186,33 +186,33 @@ function _f9j(dj1::Int64, dj2::Int64, dj3::Int64,
             unsafe_fbinomial(j258 + 1, dj5 + 1) * unsafe_fbinomial(dj5, div(dj2 + dj5 - dj8, 2)) *
             unsafe_fbinomial(j369 + 1, dj9 + 1) * unsafe_fbinomial(dj9, div(dj3 + dj9 - dj6, 2))
     P0 = P0_nu / P0_de
-    dtl::Int64 = max(abs(dj2 - dj6), abs(dj4 - dj8), abs(dj1 - dj9))
-    dth::Int64 = min(dj2 + dj6, dj4 + dj8, dj1 + dj9)
+    dtl::Int = max(abs(dj2 - dj6), abs(dj4 - dj8), abs(dj1 - dj9))
+    dth::Int = min(dj2 + dj6, dj4 + dj8, dj1 + dj9)
     PABC = zero(Float64)
-    for dt::Int64 = dtl:2:dth
-        j19t::Int64 = div(dj1 + dj9 + dt, 2)
-        j26t::Int64 = div(dj2 + dj6 + dt, 2)
-        j48t::Int64 = div(dj4 + dj8 + dt, 2)
+    for dt::Int = dtl:2:dth
+        j19t::Int = div(dj1 + dj9 + dt, 2)
+        j26t::Int = div(dj2 + dj6 + dt, 2)
+        j48t::Int = div(dj4 + dj8 + dt, 2)
         Pt_de = unsafe_fbinomial(j19t + 1, dt + 1) * unsafe_fbinomial(dt, div(dj1 + dt - dj9, 2)) *
                 unsafe_fbinomial(j26t + 1, dt + 1) * unsafe_fbinomial(dt, div(dj2 + dt - dj6, 2)) *
                 unsafe_fbinomial(j48t + 1, dt + 1) * unsafe_fbinomial(dt, div(dj4 + dt - dj8, 2))
         Pt_de *= (dt + 1)^2
-        xl::Int64 = max(j123, j369, j26t, j19t)
-        xh::Int64 = min(pm123 + j369, pm132 + j26t, pm231 + j19t)
+        xl::Int = max(j123, j369, j26t, j19t)
+        xh::Int = min(pm123 + j369, pm132 + j26t, pm231 + j19t)
         At = zero(Float64)
         for x = xl:xh
             At = -At + unsafe_fbinomial(x + 1, j123 + 1) * unsafe_fbinomial(pm123, x - j369) *
                        unsafe_fbinomial(pm132, x - j26t) * unsafe_fbinomial(pm231, x - j19t)
         end
-        yl::Int64 = max(j456, j26t, j258, j48t)
-        yh::Int64 = min(pm456 + j26t, pm465 + j258, pm564 + j48t)
+        yl::Int = max(j456, j26t, j258, j48t)
+        yh::Int = min(pm456 + j26t, pm465 + j258, pm564 + j48t)
         Bt = zero(Float64)
         for y = yl:yh
             Bt = -Bt + unsafe_fbinomial(y + 1, j456 + 1) * unsafe_fbinomial(pm456, y - j26t) *
                        unsafe_fbinomial(pm465, y - j258) * unsafe_fbinomial(pm564, y - j48t)
         end
-        zl::Int64 = max(j789, j19t, j48t, j147)
-        zh::Int64 = min(pm789 + j19t, pm798 + j48t, pm897 + j147)
+        zl::Int = max(j789, j19t, j48t, j147)
+        zh::Int = min(pm789 + j19t, pm798 + j48t, pm897 + j147)
         Ct = zero(Float64)
         for z = zl:zh
             Ct = -Ct + unsafe_fbinomial(z + 1, j789 + 1) * unsafe_fbinomial(pm789, z - j19t) *
@@ -300,7 +300,7 @@ function _dfunc(dj::Int, dm1::Int, dm2::Int, β::Float64)
     kmax = min(jm1, jm2)
     sum = 0.0
     for k = kmin:kmax
-        sum = -sum + unsafe_fbinomial(jm1, k) * unsafe_fbinomial(jp1, mm+k) * c^(mm + 2k) * s^(jm1 + jm2 - 2k)
+        sum = -sum + unsafe_fbinomial(jm1, k) * unsafe_fbinomial(jp1, mm + k) * c^(mm + 2k) * s^(jm1 + jm2 - 2k)
     end
     sum = iphase(jm2 + kmax) * sum
     sum = sum * √(unsafe_fbinomial(dj, jm1) / unsafe_fbinomial(dj, jm2))
@@ -312,14 +312,14 @@ end
 float64 and fast CG coefficient.
 """
 @inline function fCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
-    return _fCG(Int64.((dj1, dj2, dj3, dm1, dm2, dm3))...)
+    return _fCG(Int.((dj1, dj2, dj3, dm1, dm2, dm3))...)
 end
 
 """
     fCG0(dj1::Integer, dj2::Integer, dj3::Integer)
 """
 @inline function fCG0(dj1::Integer, dj2::Integer, dj3::Integer)
-    return _fCG0(Int64.((dj1, dj2, dj3))...)
+    return _fCG0(Int.((dj1, dj2, dj3))...)
 end
 
 """
@@ -335,7 +335,7 @@ end
 float64 and fast Wigner 6j symbol.
 """
 @inline function f6j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
-    return _f6j(Int64.((dj1, dj2, dj3, dj4, dj5, dj6))...)
+    return _f6j(Int.((dj1, dj2, dj3, dj4, dj5, dj6))...)
 end
 
 """
@@ -355,7 +355,7 @@ float64 and fast Wigner 9j symbol.
 @inline function f9j(dj1::Integer, dj2::Integer, dj3::Integer,
     dj4::Integer, dj5::Integer, dj6::Integer,
     dj7::Integer, dj8::Integer, dj9::Integer)
-    return _f9j(Int64.((dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))...)
+    return _f9j(Int.((dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))...)
 end
 
 """
