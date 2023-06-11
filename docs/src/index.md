@@ -4,7 +4,7 @@ A package to calculate CG-coefficient, Racha coefficient, and Wigner 3j, 6j, 9j 
 
 - **normal version**: `CG, threeJ, SixJ, Racah, nineJ`. Their parameters can be `Integer` or `Rational` (half integer), and their result is simplified by default.
 - **double parameters version**: `dCG, d3j, d6j, dRacah d9j`. Their parameters means double of the real angular momentum, so can only be `Integer`. The result is not simplified. We will explain what is `simplify` later.
-- **float version**: `fCG, f3j, f6j, fRacah, f9j`. Their parameters is same as double parameter version. They use `Float64` for calculation, so they are not exact but are fast for numeric calculation. Because these function use stored `binomial` result for speed up calculation, you should reserve space before calculate large angular momentum coefficients. See `reserve_fbinomial` function for details.
+- **float version**: `fCG, f3j, f6j, fRacah, f9j`. Their parameters is same as double parameter version. They use `Float64` for calculation, so they are not exact but are fast for numeric calculation. Because these function use stored `binomial` result for speed up calculation, you should reserve space before calculate large angular momentum coefficients. See `wigner_init_float` function for details.
 
 ## Install
 

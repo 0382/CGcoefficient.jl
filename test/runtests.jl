@@ -6,6 +6,7 @@ include("test_special.jl")
 include("test_orthonormality.jl")
 include("test_with_gsl.jl")
 include("test_float_gsl.jl")
+include("test_Moshinsky.jl")
 
 @testset "test SqrtRational" begin test_sqrtrational() end
 @testset "test SqrtRational show" begin test_show() end
@@ -20,6 +21,8 @@ include("test_float_gsl.jl")
 @testset "test summation: d3j" begin test_summation_d3j(0:40) end
 @testset "test orthonormality: d6j" begin test_orthonormality_d6j(0:6) end
 @testset "test orthonormality: d9j" begin test_orthonormality_d9j(0:4) end
+
+@testset "test Moshinsky" begin test_Moshinsky() end
 
 try
     gsl3j(1, 1, 1, 0, 0, 0)

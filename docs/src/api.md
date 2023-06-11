@@ -26,7 +26,7 @@ dRacah
 
 ## float version functions
 
-Float version functions is always used for numeric calculation, so the parameters of all these functions (except `reserve_fbinomial`) are double of the exact angular momentum quantum number.
+Float version functions is always used for numeric calculation, so the parameters of all these functions (except `wigner_init_float`) are double of the exact angular momentum quantum number.
 ```@docs
 fbinomial
 unsafe_fbinomial
@@ -35,7 +35,7 @@ f3j
 f6j
 f9j
 fRacah
-reserve_fbinomial
+wigner_init_float
 ```
 
 ## Some useful function

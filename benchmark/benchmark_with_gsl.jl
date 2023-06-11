@@ -34,19 +34,9 @@ function gsl9j(dj1::Int, dj2::Int, dj3::Int,
     )
 end
 
-function check_6j(dj1::Int, dj2::Int, dj3::Int, dj4::Int, dj5::Int, dj6::Int)
-    check_couple(dj1, dj2, dj3) & check_couple(dj1, dj5, dj6) &
-    check_couple(dj4, dj2, dj6) & check_couple(dj4, dj5, dj3)
-end
-
-function check_9j(dj1::Int, dj2::Int, dj3::Int, dj4::Int, dj5::Int, dj6::Int, dj7::Int, dj8::Int, dj9::Int)
-    check_couple(dj1, dj2, dj3) & check_couple(dj4, dj5, dj6) & check_couple(dj7, dj8, dj9) &
-    check_couple(dj1, dj4, dj7) & check_couple(dj2, dj5, dj8) & check_couple(dj3, dj6, dj9)
-end
-
 function calculate_3j(func::Function, test_range::AbstractArray)
     if func == f3j
-        reserve_fbinomial(cld(maximum(test_range), 2), "Jmax", 3)
+        wigner_init_float(cld(maximum(test_range), 2), "Jmax", 3)
     end
     sum = 0.0
     for dj1 in test_range
@@ -55,16 +45,14 @@ function calculate_3j(func::Function, test_range::AbstractArray)
     for dm1 in -dj1:2:dj1
     for dm2 in -dj2:2:dj2
         dm3 = -dm1-dm2
-        if check_couple(dj1, dj2, dj3) & check_jm(dj3, dm3)
-            sum += func(dj1, dj2, dj3, dm1, dm2, dm3)
-        end
+        sum += func(dj1, dj2, dj3, dm1, dm2, dm3)
     end end end end end
     return sum
 end
 
 function calculate_6j(func::Function, test_range::AbstractArray)
     if func == f6j
-        reserve_fbinomial(cld(maximum(test_range), 2), "Jmax", 6)
+        wigner_init_float(cld(maximum(test_range), 2), "Jmax", 6)
     end
     sum = 0.0
     for j1 in test_range
@@ -73,16 +61,14 @@ function calculate_6j(func::Function, test_range::AbstractArray)
     for j4 in test_range
     for j5 in test_range
     for j6 in test_range
-        if check_6j(j1, j2, j3, j4, j5, j6)
-            sum += func(j1, j2, j3, j4, j5, j6)
-        end
+        sum += func(j1, j2, j3, j4, j5, j6)
     end end end end end end
     return sum
 end
 
 function calculate_9j(func::Function, test_range::AbstractArray)
     if func == f9j
-        reserve_fbinomial(cld(maximum(test_range), 2), "Jmax", 9)
+        wigner_init_float(cld(maximum(test_range), 2), "Jmax", 9)
     end
     sum = 0.0
     for j1 in test_range
@@ -94,9 +80,7 @@ function calculate_9j(func::Function, test_range::AbstractArray)
     for j7 in test_range
     for j8 in test_range
     for j9 in test_range
-        if check_9j(j1,j2,j3,j4,j5,j6,j7,j8,j9)
-            sum += func(j1,j2,j3,j4,j5,j6,j7,j8,j9)
-        end
+        sum += func(j1,j2,j3,j4,j5,j6,j7,j8,j9)
     end end end end end end end end end
     return sum
 end

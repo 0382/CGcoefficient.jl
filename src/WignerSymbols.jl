@@ -35,6 +35,15 @@ function _dCG(dj1::BigInt, dj2::BigInt, dj3::BigInt, dm1::BigInt, dm2::BigInt, d
     return SqrtRational(iphase(high) * B, A)
 end
 
+# spaecial case: m1 == m2 == m3 == 0
+function _CG0(j1::BigInt, j2::BigInt, j3::BigInt)
+    check_couple(2j1, 2j2, 2j3) || error(miss_couple_msg(2j1, 2j2, 2j3))
+    J = j1 + j2 + j3
+    isodd(J) && return zero(SqrtRational)
+    g = div(J, 2)
+    return SqrtRational(iphase(g - j3) * binomial(g, j3) * binomial(j3, g - j1), big(1) // (binomial(J + 1, 2j3 + 1) * binomial(2j3, J - 2j1)))
+end
+
 # use CG coefficient to calculate 3j-symbol
 function _d3j(dj1::BigInt, dj2::BigInt, dj3::BigInt, dm1::BigInt, dm2::BigInt, dm3::BigInt)
     iphase(dj1 + div(dj3 + dm3, 2)) * exact_sqrt(1 // (dj3 + 1)) * _dCG(dj1, dj2, dj3, -dm1, -dm2, dm3)
@@ -144,30 +153,93 @@ function _d9j(dj1::BigInt, dj2::BigInt, dj3::BigInt,
     return SqrtRational(iphase(dth) * PABC, P0)
 end
 
+function _Moshinsky(N::BigInt, L::BigInt, n::BigInt, l::BigInt, n1::BigInt, l1::BigInt, n2::BigInt, l2::BigInt, Λ::BigInt)
+    f1 = 2 * n1 + l1
+    f2 = 2 * n2 + l2
+    F = 2 * N + L
+    f = 2 * n + l
+    f1 + f2 == F + f || return zero(SqrtRational)
+    χ = f1 + f2
+    nl1 = n1 + l1
+    nl2 = n2 + l2
+    NL = N + L
+    nl = n + l
+    r1 = binomial(2nl1 + 1, nl1) // (binomial(f1 + 2, n1) * (nl1 + 2))
+    r2 = binomial(2nl2 + 1, nl2) // (binomial(f2 + 2, n2) * (nl2 + 2))
+    R = binomial(2NL + 1, NL) // (binomial(F + 2, N) * (NL + 2))
+    r = binomial(2nl + 1, nl) // (binomial(f + 2, n) * (nl + 2))
+    pre_sum = exact_sqrt(r1 * r2 * R * r // big(2)^χ)
+    half_lsum = div(l1 + l2 + L + l, 2)
+    sum = zero(SqrtRational)
+    for fa = 0:min(f1, F)
+        fb = f1 - fa
+        fc = F - fa
+        fd = f2 - fc
+        fd >= 0 || continue
+        t = exact_sqrt(binomial(f1 + 2, fa + 1) * binomial(f2 + 2, fc + 1) * binomial(F + 2, fa + 1) * binomial(f + 2, fb + 1))
+        for la = (fa&0x01):2:fa
+            na = div(fa - la, 2)
+            nla = na + la
+            ta = ((2 * la + 1) * binomial(fa + 1, na)) // binomial(2nla + 1, nla)
+            for lb = abs(l1 - la):2:min(la + l1, fb)
+                nb = div(fb - lb, 2)
+                nlb = nb + lb
+                tb = ((2 * lb + 1) * binomial(fb + 1, nb)) // binomial(2nlb + 1, nlb)
+                g1 = div(la + lb + l1, 2)
+                pCG_ab = SqrtRational(binomial(g1, l1) * binomial(l1, g1 - la), big(1) // (binomial(2g1 + 1, 2(g1 - l1)) * binomial(2l1, 2(g1 - la))))
+                for lc = abs(L - la):2:min(la + L, fc)
+                    nc = div(fc - lc, 2)
+                    nlc = nc + lc
+                    tc = ((2 * lc + 1) * binomial(fc+1, nc)) // binomial(2nlc+1, nlc)
+                    G = div(la + lc + L, 2)
+                    pCG_ac = SqrtRational(binomial(G, L) * binomial(L, G - la), big(1) // (binomial(2G + 1, 2(G - L)) * binomial(2L, 2(G - la))))
+                    ld_min = max(abs(l2 - lc), abs(l - lb))
+                    ld_max = min(fd, lb + l, lc + l2)
+                    for ld = ld_min:2:ld_max
+                        nd = div(fd - ld, 2)
+                        nld = nd + ld
+                        td = ((2 * ld + 1) * binomial(fd+1, nd)) // binomial(2nld+1, nld)
+                        g2 = div(lc + ld + l2, 2)
+                        pCG_cd = SqrtRational(binomial(g2, l2) * binomial(l2, g2 - lc), big(1) // (binomial(2g2 + 1, 2(g2 - l2)) * binomial(2l2, 2(g2 - lc))))
+                        g = div(lb + ld + l, 2)
+                        pCG_bd = SqrtRational(binomial(g, l) * binomial(l, g - lb), big(1) // (binomial(2g + 1, 2(g - l)) * binomial(2l, 2(g - lb))))
+                        l_diff = la + lb + lc + ld - half_lsum
+                        phase = l_diff >= 0 ? iphase(ld) * 2^l_diff : iphase(ld) // 2^(-l_diff)
+                        ninej = d9j(2*la, 2*lb, 2*l1, 2*lc, 2*ld, 2*l2, 2*L, 2*l, 2*Λ)
+                        sum = sum + phase * t * ta * tb * tc * td * pCG_ab * pCG_ac * pCG_bd * pCG_cd * ninej
+                    end
+                end
+            end
+        end
+    end
+    return pre_sum * sum
+end
+
+
 """
     dCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
 CG coefficient function with double angular monentum number parameters, so that the parameters can be integer.
 You can calculate `dCG(1, 1, 2, 1, 1, 2)` to calculate the real `CG(1//2, 1//2, 1, 1/2, 1//2, 1)`
 """
-dCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer) = _dCG(BigInt.((dj1, dj2, dj3, dm1, dm2, dm3))...)
+@inline dCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer) = _dCG(BigInt.((dj1, dj2, dj3, dm1, dm2, dm3))...)
 
 """
     d3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
 3j-symbol function with double angular monentum number parameters, so that the parameters can be integer.
 """
-d3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer) = _d3j(BigInt.((dj1, dj2, dj3, dm1, dm2, dm3))...)
+@inline d3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer) = _d3j(BigInt.((dj1, dj2, dj3, dm1, dm2, dm3))...)
 
 """
     d6j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
 6j-symbol function with double angular monentum number parameters, so that the parameters can be integer.
 """
-d6j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer) = _d6j(BigInt.((dj1, dj2, dj3, dj4, dj5, dj6))...)
+@inline d6j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer) = _d6j(BigInt.((dj1, dj2, dj3, dj4, dj5, dj6))...)
 
 """
     dRacah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
 Racah coefficient function with double angular momentum parameters, so that the parameters can be integer.
 """
-dRacah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer) = _dRacah(BigInt.((dj1, dj2, dj3, dj4, dj5, dj6))...)
+@inline dRacah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer) = _dRacah(BigInt.((dj1, dj2, dj3, dj4, dj5, dj6))...)
 
 """
     d9j(dj1::Integer, dj2::Integer, dj3::Integer,
@@ -175,7 +247,7 @@ dRacah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6
         dj7::Integer, dj8::Integer, dj9::Integer)
 9j-symbol function with double angular monentum number parameters, so that the parameters can be integer.
 """
-d9j(dj1::Integer, dj2::Integer, dj3::Integer,
+@inline d9j(dj1::Integer, dj2::Integer, dj3::Integer,
     dj4::Integer, dj5::Integer, dj6::Integer,
     dj7::Integer, dj8::Integer, dj9::Integer) = _d9j(BigInt.((dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))...)
 
@@ -183,7 +255,13 @@ d9j(dj1::Integer, dj2::Integer, dj3::Integer,
     CG(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt)
 CG coefficient ``\langle j_1m_1 j_2m_2 | j_3m_3 \rangle``
 """
-CG(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = simplify(_dCG(BigInt.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...))
+@inline CG(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = simplify(_dCG(BigInt.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...))
+
+@doc raw"""
+    CG0(j1::Integer, j2::Integer, j3::Integer)
+CG coefficient special case: ``\langle j1 0 j2 0 | j3 0 \rangle``.
+"""
+@inline CG0(j1::Integer, j2::Integer, j3::Integer) = simplify(_CG0(big(j1), big(j2), big(j3)))
 
 @doc raw"""
     threeJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt)
@@ -195,7 +273,7 @@ m_1 & m_2 & m_3
 \end{pmatrix}
 ```
 """
-threeJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = simplify(_d3j(BigInt.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...))
+@inline threeJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = simplify(_d3j(BigInt.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...))
 
 @doc raw"""
     sixJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt)
@@ -207,7 +285,7 @@ j_4 & j_5 & j_6
 \end{Bmatrix}
 ```
 """
-sixJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt) = simplify(_d6j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...))
+@inline sixJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt) = simplify(_d6j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...))
 
 @doc raw"""
     Racah(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt)
@@ -219,7 +297,7 @@ j_4 & j_3 & j_6
 \end{Bmatrix}
 ```
 """
-Racah(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt) = simplify(_dRacah(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...))
+@inline Racah(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt) = simplify(_dRacah(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...))
 
 @doc raw"""
     nineJ(j1::HalfInt, j2::HalfInt, j3::HalfInt,
@@ -234,6 +312,14 @@ j_7 & j_8 & j_9
 \end{Bmatrix}
 ```
 """
-nineJ(j1::HalfInt, j2::HalfInt, j3::HalfInt,
+@inline nineJ(j1::HalfInt, j2::HalfInt, j3::HalfInt,
     j4::HalfInt, j5::HalfInt, j6::HalfInt,
     j7::HalfInt, j8::HalfInt, j9::HalfInt) = simplify(_d9j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))...))
+
+@doc raw"""
+    Moshinsky(N,L,n,l,n1,l1,n2,l2,Λ)
+Moshinsky bracket，Ref: Buck et al. Nuc. Phys. A 600 (1996) 387-402.
+Since this function is designed for demonstration the exact result,
+It only calculate the case of ``\tan(\beta) = 1``.
+"""
+@inline Moshinsky(N,L,n,l,n1,l1,n2,l2,Λ) = simplify(_Moshinsky(BigInt.((N,L,n,l,n1,l1,n2,l2,Λ))...))

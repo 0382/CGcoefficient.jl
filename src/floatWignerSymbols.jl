@@ -1,29 +1,18 @@
-const _fbinomial_data = Ref(Float64[])
-const _fbinomial_nmax = Ref{Int}(0)
-
-@inline get_fbinomial_data() = _fbinomial_data[]
-@inline get_fbinomial_nmax() = _fbinomial_nmax[]
-
-@inline function fbinomial_data_size(n::Int)
-    x = div(n, 2) + 1
-    return x * (x + isodd(n))
-end
-
-@inline function fbinomial_index(n::Int, k::Int)
-    x = div(n, 2) + 1
-    return x * (x - iseven(n)) + k + 1
-end
+_fbinomial_data = Float64[]
+_fbinomial_nmax = Int(0)
+@inline get_fbinomial_data()::Vector{Float64} = _fbinomial_data::Vector{Float64}
+@inline get_fbinomial_nmax()::Int = _fbinomial_nmax::Int
 
 """
     fbinomial(n::Integer, k::Integer)
 `binomial` with Float64 return value.
 """
-function fbinomial(n::Integer, k::Integer)::Float64
-    if n > get_fbinomial_nmax() || k < 0 || k > n
+@inline function fbinomial(n::Integer, k::Integer)::Float64
+    if n < 0 || n > get_fbinomial_nmax() || k < 0 || k > n
         return 0.0
     end
     k = min(k, n - k)
-    return @inbounds get_fbinomial_data()[fbinomial_index(n, k)]
+    return @inbounds get_fbinomial_data()[binomial_index(n, k)]
 end
 
 """
@@ -31,29 +20,29 @@ end
 Same as fbinomial, but without bounds check. Thus for `n < 0` or `n > _nmax` or `k < 0` or `k > n`, the result is undefined.
 In Wigner symbol calculation, the mathematics guarantee that `unsafe_fbinomial(n, k)` is always safe.
 """
-function unsafe_fbinomial(n::Int, k::Int)::Float64
+@inline function unsafe_fbinomial(n::Int, k::Int)::Float64
     k = min(k, n - k)
-    return @inbounds get_fbinomial_data()[fbinomial_index(n, k)]
+    return @inbounds get_fbinomial_data()[binomial_index(n, k)]
 end
 
 function _extent_fbinomial_data(n::Int)
     if n > get_fbinomial_nmax()
         old_data = copy(get_fbinomial_data())
-        global _fbinomial_data[] = Vector{Float64}(undef, fbinomial_data_size(n))
+        resize!(get_fbinomial_data(), binomial_data_size(n))
         copyto!(get_fbinomial_data(), old_data)
         for m = get_fbinomial_nmax()+1:n
             for k = 0:div(m, 2)
-                get_fbinomial_data()[fbinomial_index(m, k)] = binomial(BigInt(m), BigInt(k))
+                get_fbinomial_data()[binomial_index(m, k)] = binomial(BigInt(m), BigInt(k))
             end
-            global _fbinomial_nmax[] = get_fbinomial_nmax() + 1
+            global _fbinomial_nmax = get_fbinomial_nmax() + 1
         end
-        global _fbinomial_nmax[] = n
+        global _fbinomial_nmax = n
     end
     nothing
 end
 
 """
-    reserve_fbinomial(n::Integer, mode::AbstractString, rank::Integer)
+    wigner_init_float(n::Integer, mode::AbstractString, rank::Integer)
 This function reserves memory for fbinomial(n, k). In this code, the `fbinomial` function is only valid in the stored range. If you call a `fbinomial` function out of the range, it just gives you `0`. The `__init__()` function stores to `nmax = 67`.
 
 The parameters means
@@ -75,15 +64,15 @@ The `"nmax"` mode directly set `nmax`, and the `rank` parameter is ignored.
 
 For example
 ```julia
-reserve_fbinomial(21, "Jmax", 6)
+wigner_init_float(21, "Jmax", 6)
 ```
 means you calculate CG and 6j symbols, and donot calculate 9j symbol. The maximum angular momentum in your system is 21.
 
 You do not need to rememmber those values in the table. You just need to find the maximum angular momentum in you canculation, then call the function.
 
-The reserve_fbinomial function is **not** thread safe, so you should call it before you start your calculation.
+The wigner_init_float function is **not** thread safe, so you should call it before you start your calculation.
 """
-function reserve_fbinomial(n::Integer, mode::AbstractString, rank::Integer)
+function wigner_init_float(n::Integer, mode::AbstractString, rank::Integer)
     if mode == "Jmax"
         rank == 3 && _extent_fbinomial_data(3 * n + 1)
         rank == 6 && _extent_fbinomial_data(4 * n + 1)
@@ -132,6 +121,14 @@ function _fCG(dj1::Int64, dj2::Int64, dj3::Int64, dm1::Int64, dm2::Int64, dm3::I
         B = -B + unsafe_fbinomial(Jm3, z) * unsafe_fbinomial(Jm2, j1mm1 - z) * binomial(Jm1, j2pm2 - z)
     end
     return iphase(high) * A * B
+end
+
+function _fCG0(j1::Int64, j2::Int64, j3::Int64)
+    check_couple(2j1, 2j2, 2j3) || return zero(Float64)
+    J = j1 + j2 + j3
+    isodd(J) && return zero(Float64)
+    g = div(J, 2)
+    return iphase(g-j3) * unsafe_fbinomial(g, j3) * unsafe_fbinomial(j3, g - j1) / sqrt(unsafe_fbinomial(J + 1, 2j3 + 1) * unsafe_fbinomial(2j3, J - 2j1))
 end
 
 function _f6j(dj1::Int64, dj2::Int64, dj3::Int64, dj4::Int64, dj5::Int64, dj6::Int64)
@@ -230,15 +227,22 @@ end
     fCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
 float64 and fast CG coefficient.
 """
-function fCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
+@inline function fCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
     return _fCG(Int64.((dj1, dj2, dj3, dm1, dm2, dm3))...)
+end
+
+"""
+    fCG0(dj1::Integer, dj2::Integer, dj3::Integer)
+"""
+@inline function fCG0(dj1::Integer, dj2::Integer, dj3::Integer)
+    return _fCG0(Int64.((dj1, dj2, dj3))...)
 end
 
 """
     f3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
 float64 and fast Wigner 3j symbol.
 """
-function f3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
+@inline function f3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
     return iphase(dj1 + div(dj3 + dm3, 2)) * fCG(dj1, dj2, dj3, -dm1, -dm2, dm3) / sqrt(dj3 + 1)
 end
 
@@ -246,7 +250,7 @@ end
     f6j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
 float64 and fast Wigner 6j symbol.
 """
-function f6j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
+@inline function f6j(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
     return _f6j(Int64.((dj1, dj2, dj3, dj4, dj5, dj6))...)
 end
 
@@ -254,7 +258,7 @@ end
     Racah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
 float64 and fast Racah coefficient.
 """
-function fRacah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
+@inline function fRacah(dj1::Integer, dj2::Integer, dj3::Integer, dj4::Integer, dj5::Integer, dj6::Integer)
     return iphase(div(dj1 + dj2 + dj3 + dj4, 2)) * f6j(dj1, dj2, dj5, dj4, dj3, dj6)
 end
 
@@ -264,7 +268,7 @@ end
         dj7::Integer, dj8::Integer, dj9::Integer)
 float64 and fast Wigner 9j symbol.
 """
-function f9j(dj1::Integer, dj2::Integer, dj3::Integer,
+@inline function f9j(dj1::Integer, dj2::Integer, dj3::Integer,
              dj4::Integer, dj5::Integer, dj6::Integer,
              dj7::Integer, dj8::Integer, dj9::Integer)
     return _f9j(Int64.((dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))...)

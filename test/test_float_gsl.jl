@@ -41,7 +41,7 @@ function check_9j(dj1::Int, dj2::Int, dj3::Int, dj4::Int, dj5::Int, dj6::Int, dj
 end
 
 function test_f3j_with_gsl(test_range::AbstractArray)
-    reserve_fbinomial(cld(maximum(test_range), 2), "Jmax", 3)
+    wigner_init_float(cld(maximum(test_range), 2), "Jmax", 3)
     for dj1 in test_range
     for dj2 in test_range
     for dj3 in test_range
@@ -57,7 +57,7 @@ function test_f3j_with_gsl(test_range::AbstractArray)
 end
 
 function test_f6j_with_gsl(test_range::AbstractArray)
-    reserve_fbinomial(cld(maximum(test_range), 2), "Jmax", 6)
+    wigner_init_float(cld(maximum(test_range), 2), "Jmax", 6)
     for j1 in test_range
     for j2 in test_range
     for j3 in test_range
@@ -73,7 +73,7 @@ function test_f6j_with_gsl(test_range::AbstractArray)
 end
 
 function test_f9j_with_gsl(test_range::AbstractArray)
-    reserve_fbinomial(cld(maximum(test_range), 2), "Jmax", 9)
+    wigner_init_float(cld(maximum(test_range), 2), "Jmax", 9)
     for j1 in test_range
     for j2 in test_range
     for j3 in test_range
