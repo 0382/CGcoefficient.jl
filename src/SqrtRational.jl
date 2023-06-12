@@ -162,19 +162,14 @@ Simplify a integer `n = x * t^2` to `(x, t)`
 function simplify(n::Integer)
     s = sign(n)
     n = s * n
-    t = one(typeof(n))
-    i = convert(typeof(n), 2)
-    while i <= isqrt(n)
-        i2 = i * i
-        temp = div(n, i2)
-        if temp * i2 == n
-            t *= i
-            n = temp
-        else
-            i = nextprime(i, 2)
-        end
+    x = one(n)
+    t = one(n)
+    for (f, i) in factor(n)
+        ti, xi = divrem(i, 2)
+        xi == 1 && (x = x * f)
+        ti != 0 && (t = t * f^ti)
     end
-    return s * n, t
+    return s * x, t
 end
 
 """

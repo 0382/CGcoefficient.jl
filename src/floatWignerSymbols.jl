@@ -118,7 +118,7 @@ function _fCG(dj1::Int, dj2::Int, dj3::Int, dm1::Int, dm2::Int, dm3::Int)
     low::Int = max(zero(Int), j1mm1 - Jm2, j2pm2 - Jm1)
     high::Int = min(Jm3, j1mm1, j2pm2)
     for z in low:high
-        B = -B + unsafe_fbinomial(Jm3, z) * unsafe_fbinomial(Jm2, j1mm1 - z) * binomial(Jm1, j2pm2 - z)
+        B = -B + unsafe_fbinomial(Jm3, z) * unsafe_fbinomial(Jm2, j1mm1 - z) * unsafe_fbinomial(Jm1, j2pm2 - z)
     end
     return iphase(high) * A * B
 end
