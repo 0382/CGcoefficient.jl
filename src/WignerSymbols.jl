@@ -190,7 +190,7 @@ function _Moshinsky(N::BigInt, L::BigInt, n::BigInt, l::BigInt, n1::BigInt, l1::
                 for lc = abs(L - la):2:min(la + L, fc)
                     nc = div(fc - lc, 2)
                     nlc = nc + lc
-                    tc = ((2 * lc + 1) * binomial(fc+1, nc)) // binomial(2nlc+1, nlc)
+                    tc = ((2 * lc + 1) * binomial(fc + 1, nc)) // binomial(2nlc + 1, nlc)
                     G = div(la + lc + L, 2)
                     pCG_ac = SqrtRational(binomial(G, L) * binomial(L, G - la), big(1) // (binomial(2G + 1, 2(G - L)) * binomial(2L, 2(G - la))))
                     ld_min = max(abs(l2 - lc), abs(l - lb))
@@ -198,14 +198,14 @@ function _Moshinsky(N::BigInt, L::BigInt, n::BigInt, l::BigInt, n1::BigInt, l1::
                     for ld = ld_min:2:ld_max
                         nd = div(fd - ld, 2)
                         nld = nd + ld
-                        td = ((2 * ld + 1) * binomial(fd+1, nd)) // binomial(2nld+1, nld)
+                        td = ((2 * ld + 1) * binomial(fd + 1, nd)) // binomial(2nld + 1, nld)
                         g2 = div(lc + ld + l2, 2)
                         pCG_cd = SqrtRational(binomial(g2, l2) * binomial(l2, g2 - lc), big(1) // (binomial(2g2 + 1, 2(g2 - l2)) * binomial(2l2, 2(g2 - lc))))
                         g = div(lb + ld + l, 2)
                         pCG_bd = SqrtRational(binomial(g, l) * binomial(l, g - lb), big(1) // (binomial(2g + 1, 2(g - l)) * binomial(2l, 2(g - lb))))
                         l_diff = la + lb + lc + ld - half_lsum
                         phase = l_diff >= 0 ? iphase(ld) * 2^l_diff : iphase(ld) // 2^(-l_diff)
-                        ninej = d9j(2*la, 2*lb, 2*l1, 2*lc, 2*ld, 2*l2, 2*L, 2*l, 2*Λ)
+                        ninej = d9j(2 * la, 2 * lb, 2 * l1, 2 * lc, 2 * ld, 2 * l2, 2 * L, 2 * l, 2 * Λ)
                         sum = sum + phase * t * ta * tb * tc * td * pCG_ab * pCG_ac * pCG_bd * pCG_cd * ninej
                     end
                 end
@@ -322,4 +322,4 @@ Moshinsky bracket，Ref: Buck et al. Nuc. Phys. A 600 (1996) 387-402.
 Since this function is designed for demonstration the exact result,
 It only calculate the case of ``\tan(\beta) = 1``.
 """
-@inline Moshinsky(N,L,n,l,n1,l1,n2,l2,Λ) = simplify(_Moshinsky(BigInt.((N,L,n,l,n1,l1,n2,l2,Λ))...))
+@inline Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ) = simplify(_Moshinsky(BigInt.((N, L, n, l, n1, l1, n2, l2, Λ))...))

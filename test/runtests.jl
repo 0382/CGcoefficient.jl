@@ -13,6 +13,7 @@ include("test_Moshinsky.jl")
 @testset "test simplify" begin test_simplify() end
 
 @testset "special condition: CG" begin test_special_CG(1//2:1//2:10) end
+@testset "special condition: CG0" begin test_CG0(1:10) end
 @testset "special condition: 6j" begin test_special_6j(1//2:1//2:5) end
 @testset "special condition: Racah" begin test_special_Racah(1//2:1//2:5) end
 @testset "special condition: 9j" begin test_special_9j(1//2:1//2:3) end

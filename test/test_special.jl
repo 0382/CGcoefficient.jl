@@ -15,6 +15,16 @@ function test_special_CG(test_range::AbstractArray)
     end
 end
 
+function test_CG0(test_range::AbstractArray)
+    for j1 = test_range, j2 = test_range, j3 = test_range
+        if check_couple(Int(2j1), Int(2j2), Int(2j3))
+            cg0 = CG0(j1, j2, j3)
+            tj = threeJ(j1, j2, j3, 0, 0, 0) * iphase(2j1 + j3) * exact_sqrt(2j3 + 1)
+            @test cg0 == tj
+        end
+    end
+end
+
 # test special condition for 6j symbols
 # Ref[1], P299, Sec 9.5, Formula (1)
 function test_special_6j(test_range::AbstractArray)
@@ -32,7 +42,7 @@ end
 function test_special_Racah(test_range::AbstractArray)
     for j1 in test_range, j2 in test_range, j3 in test_range
         if check_couple(Int(2j1), Int(2j2), Int(2j3))
-            rc = Racah(0,j1,j2,j3,j1,j2)
+            rc = Racah(0, j1, j2, j3, j1, j2)
             myrc = 1 / exact_sqrt((2j1 + 1) * (2j2 + 1))
             @test rc == myrc
         end
@@ -41,7 +51,7 @@ end
 
 
 function check_6j(j1::HalfInt, j2::HalfInt, j3::HalfInt,
-                  j4::HalfInt, j5::HalfInt, j6::HalfInt)
+    j4::HalfInt, j5::HalfInt, j6::HalfInt)
     dj1, dj2, dj3, dj4, dj5, dj6 = Int64.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))
     check_couple(dj1, dj2, dj3) & check_couple(dj1, dj5, dj6) &
     check_couple(dj4, dj2, dj6) & check_couple(dj4, dj5, dj3)
@@ -52,6 +62,7 @@ end
 function test_special_9j(test_range::AbstractArray)
     for j1 in test_range, j2 in test_range, j3 in test_range,
         j4 in test_range, j5 in test_range, j7 in test_range
+
         if check_6j(j1, j2, j3, j5, j4, j7)
             nj = nineJ(j1, j2, j3, j4, j5, j3, j7, j7, 0)
             snj = iphase(Int(j2 + j3 + j4 + j7)) / exact_sqrt((2j3 + 1) * (2j7 + 1))
