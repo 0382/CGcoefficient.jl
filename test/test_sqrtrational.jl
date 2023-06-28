@@ -24,9 +24,11 @@ function test_show()
     @test string(one(x)) == "1"
     @test string(2//3*one(x)) == "2//3"
     @test string(x) == "√3"
+    @test string(-x) == "-√3"
+    @test string(-y) == "-√(3//5)"
     @test string(y) == "√(3//5)"
     @test string(3*x) == "3√3"
-    @test string(2//3*y) == "(2//3)√(3//5)"
+    @test string(2//3*y) == "2//3√(3//5)"
     
     io = IOBuffer()
     show(io, "text/markdown", zero(x))
@@ -39,6 +41,10 @@ function test_show()
     @test String(take!(io)) == raw"$\sqrt{3}$" * "\n"
     show(io, "text/markdown", y)
     @test String(take!(io)) == raw"$\sqrt{\frac{3}{5}}$" * "\n"
+    show(io, "text/markdown", -x)
+    @test String(take!(io)) == raw"$-\sqrt{3}$" * "\n"
+    show(io, "text/markdown", -y)
+    @test String(take!(io)) == raw"$-\sqrt{\frac{3}{5}}$" * "\n"
     show(io, "text/markdown", 3*x)
     @test String(take!(io)) == raw"$3\sqrt{3}$" * "\n"
     show(io, "text/markdown", 2//3*y)
@@ -59,11 +65,11 @@ function test_simplify_with_6j()
     for j4 in test_range
     for j5 in test_range
     for j6 in test_range
-        try
+        dj1, dj2, dj3, dj4, dj5, dj6 = Int.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))
+        if check_couple(dj1, dj2, dj3) & check_couple(dj1, dj5, dj6) &
+           check_couple(dj4, dj2, dj6) & check_couple(dj4, dj5, dj3)
             x = sixJ(j1,j2,j3,j4,j5,j6)
             @test simplify(x) == x
-        catch err
-            @test isa(err, ErrorException)
         end
     end end end end end end
 end

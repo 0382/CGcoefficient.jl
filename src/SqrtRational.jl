@@ -1,4 +1,4 @@
-import Base:+,-,*,/,==
+import Base: +, -, *, /, ==
 using Markdown
 using Primes
 
@@ -11,28 +11,28 @@ You can use the `simplify` function to simplify it.
 struct SqrtRational{T} <: Real
     s::Rational{T}
     r::Rational{T}
-    SqrtRational{T}(s::Rational{T}, r::Rational{T}) where T = begin
+    SqrtRational{T}(s::Rational{T}, r::Rational{T}) where {T} = begin
         r < 0 && throw(ArgumentError("invalid SqrtRational $s√$r"))
         (iszero(s) || iszero(r)) && return new(zero(s), one(r))
         new(s, r)
     end
 end
 
-SqrtRational(s::Rational{T1}, r::Rational{T2}) where {T1, T2} = SqrtRational{promote_type(T1, T2)}(promote(s, r)...)
-SqrtRational(s::Integer, r::Rational{T}) where T = SqrtRational(promote(s, r)...)
-SqrtRational(s::Rational{T}, r::Integer) where T = SqrtRational(promote(s, r)...)
+SqrtRational(s::Rational{T1}, r::Rational{T2}) where {T1,T2} = SqrtRational{promote_type(T1, T2)}(promote(s, r)...)
+SqrtRational(s::Integer, r::Rational{T}) where {T} = SqrtRational(promote(s, r)...)
+SqrtRational(s::Rational{T}, r::Integer) where {T} = SqrtRational(promote(s, r)...)
 SqrtRational(s::Integer, r::Integer) = SqrtRational(promote(Rational(s), r)...)
-SqrtRational(s::Union{Integer, Rational}) = SqrtRational(s, one(s))
+SqrtRational(s::Union{Integer,Rational}) = SqrtRational(s, one(s))
 
 """
     exact_sqrt(r::Union{Integer, Rational})
 Get exact `√r` using `SqrtRational` type.
 """
-exact_sqrt(r::Union{Integer, Rational}) = SqrtRational(one(r), r)
+exact_sqrt(r::Union{Integer,Rational}) = SqrtRational(one(r), r)
 
 # some basic functions
-Base.zero(::Type{SqrtRational{T}}) where T = SqrtRational(zero(T), one(T))
-Base.one(::Type{SqrtRational{T}}) where T = SqrtRational(one(T), one(T))
+Base.zero(::Type{SqrtRational{T}}) where {T} = SqrtRational(zero(T), one(T))
+Base.one(::Type{SqrtRational{T}}) where {T} = SqrtRational(one(T), one(T))
 Base.zero(x::SqrtRational) = zero(typeof(x))
 Base.one(x::SqrtRational) = one(typeof(x))
 Base.sign(x::SqrtRational) = sign(x.s)
@@ -43,42 +43,42 @@ Base.inv(x::SqrtRational) = SqrtRational(inv(x.s), inv(x.r))
 +(x::SqrtRational) = x
 -(x::SqrtRational) = SqrtRational(-x.s, x.r)
 *(x::SqrtRational, y::SqrtRational) = SqrtRational(x.s * y.s, x.r * y.r)
-*(x::SqrtRational, y::Union{Integer, Rational}) = SqrtRational(x.s * y, x.r)
-*(x::Union{Integer, Rational}, y::SqrtRational) = y * x
-/(x::SqrtRational, y::SqrtRational) = SqrtRational(x.s/y.s, x.r/y.r)
-/(x::SqrtRational, y::Union{Integer, Rational}) = SqrtRational(x.s/y, x.r)
-/(x::Union{Integer, Rational}, y::SqrtRational) = SqrtRational(x/y.s, inv(y.r))
+*(x::SqrtRational, y::Union{Integer,Rational}) = SqrtRational(x.s * y, x.r)
+*(x::Union{Integer,Rational}, y::SqrtRational) = y * x
+/(x::SqrtRational, y::SqrtRational) = SqrtRational(x.s / y.s, x.r / y.r)
+/(x::SqrtRational, y::Union{Integer,Rational}) = SqrtRational(x.s / y, x.r)
+/(x::Union{Integer,Rational}, y::SqrtRational) = SqrtRational(x / y.s, inv(y.r))
 ==(x::SqrtRational, y::SqrtRational) = begin
     if y.s == 0
         return x.s == 0
     else
-        isone((x.s/y.s)^2 * (x.r/y.r))
+        isone((x.s / y.s)^2 * (x.r / y.r))
     end
 end
-==(x::SqrtRational, y::Union{Integer, Rational}) = (x == SqrtRational(y))
-==(x::Union{Integer, Rational}, y::SqrtRational) = (SqrtRational(x) == y)
+==(x::SqrtRational, y::Union{Integer,Rational}) = (x == SqrtRational(y))
+==(x::Union{Integer,Rational}, y::SqrtRational) = (SqrtRational(x) == y)
 
 # Only if `r == 1` in `s√r`, the add operator can work.
 # We do not simplify `s√r` every time, but in this function,
 # we need to simplify it first, and then do the `+` operator.
-+(x::SqrtRational, y::Union{Integer, Rational}) = begin
++(x::SqrtRational, y::Union{Integer,Rational}) = begin
     r = x.r
     t1 = isqrt(numerator(r))
     t1 * t1 != numerator(r) && throw(ArgumentError("cannot simplify $(x)"))
     t2 = isqrt(denominator(r))
     t2 * t2 != denominator(r) && throw(ArgumentError("cannot simplify $(x)"))
-    return x.s * (t1//t2) + y
+    return x.s * (t1 // t2) + y
 end
-+(x::Union{Integer, Rational}, y::SqrtRational) = y + x
-+(x::SqrtRational{T1}, y::SqrtRational{T2}) where {T1, T2} = begin
++(x::Union{Integer,Rational}, y::SqrtRational) = y + x
++(x::SqrtRational{T1}, y::SqrtRational{T2}) where {T1,T2} = begin
     if x == 0
         return y
     else
-        return x * (one(promote_type(T1, T2)) + y/x)
+        return x * (one(promote_type(T1, T2)) + y / x)
     end
 end
--(x::SqrtRational, y::Union{Integer, Rational}) = (x + (-y))
--(x::Union{Integer, Rational}, y::SqrtRational) = (x + (-y))
+-(x::SqrtRational, y::Union{Integer,Rational}) = (x + (-y))
+-(x::Union{Integer,Rational}, y::SqrtRational) = (x + (-y))
 -(x::SqrtRational, y::SqrtRational) = (x + (-y))
 
 # widen
@@ -108,17 +108,24 @@ Base.show(io::IO, ::MIME"text/plain", x::SqrtRational) = begin
             print(io, "√($(x.r))")
         end
         return
+    elseif isone(-x.s)
+        if denominator(x.r) == 1
+            print(io, "-√$(numerator(x.r))")
+        else
+            print(io, "-√($(x.r))")
+        end
+        return
     end
     to_show::String = ""
     if denominator(x.s) == 1
         to_show = string(numerator(x.s))
     else
-        to_show = "($(x.s))"
+        to_show = "$(x.s)"
     end
     if denominator(x.r) == 1
-        to_show = "$to_show√$(numerator(x.r))"
+        to_show *= "√$(numerator(x.r))"
     else
-        to_show = "$to_show√($(x.r))"
+        to_show *= "√($(x.r))"
     end
     print(io, to_show)
 end
@@ -140,6 +147,13 @@ Base.show(io::IO, ::MIME"text/markdown", x::SqrtRational) = begin
             show(io, "text/markdown", Markdown.parse("``\\sqrt{\\frac{$(numerator(x.r))}{$(denominator(x.r))}}``"))
         end
         return
+    elseif isone(-x.s)
+        if denominator(x.r) == 1
+            show(io, "text/markdown", Markdown.parse("``-\\sqrt{$(numerator(x.r))}``"))
+        else
+            show(io, "text/markdown", Markdown.parse("``-\\sqrt{\\frac{$(numerator(x.r))}{$(denominator(x.r))}}``"))
+        end
+        return
     end
     to_show::String = ""
     if denominator(x.s) == 1
@@ -148,9 +162,9 @@ Base.show(io::IO, ::MIME"text/markdown", x::SqrtRational) = begin
         to_show = "\\frac{$(numerator(x.s))}{$(denominator(x.s))}"
     end
     if denominator(x.r) == 1
-        to_show = "$to_show\\sqrt{$(numerator(x.r))}"
+        to_show *= "\\sqrt{$(numerator(x.r))}"
     else
-        to_show = "$to_show\\sqrt{\\frac{$(numerator(x.r))}{$(denominator(x.r))}}"
+        to_show *= "\\sqrt{\\frac{$(numerator(x.r))}{$(denominator(x.r))}}"
     end
     show(io, "text/markdown", Markdown.parse("``$to_show``"))
 end
@@ -190,5 +204,5 @@ function simplify(x::SqrtRational)
     nt = div(nt, a2)
     dx = div(dx, a2) * a1
     nx = div(nx, a1) * a2
-    return SqrtRational(nt//dt, nx//dx)
+    return SqrtRational(nt // dt, nx // dx)
 end
