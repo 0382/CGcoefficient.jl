@@ -25,6 +25,17 @@ function test_CG0(test_range::AbstractArray)
     end
 end
 
+function test_CGspin()
+    @test fCGspin(1, 1, 1) ≈ fCG(1, 1, 2, 1, 1, 2) ≈ 1.0
+    @test fCGspin(1, 1, 0) ≈ fCG(1, 1, 0, 1, 1, 2) ≈ 0.0
+    @test fCGspin(1, -1, 1) ≈ fCG(1, 1, 2, 1, -1, 0) ≈ 1/√2
+    @test fCGspin(1, -1, 0) ≈ fCG(1, 1, 0, 1, -1, 0) ≈ 1/√2
+    @test fCGspin(-1, 1, 1) ≈ fCG(1, 1, 2, -1, 1, 0) ≈ 1/√2
+    @test fCGspin(-1, 1, 0) ≈ fCG(1, 1, 0, -1, 1, 0) ≈ -1/√2
+    @test fCGspin(-1, -1, 1) ≈ fCG(1, 1, 2, -1, -1, -2) ≈ 1.0
+    @test fCGspin(-1, -1, 0) ≈ fCG(1, 1, 0, -1, -1, -2) ≈ 0.0
+end
+
 # test special condition for 6j symbols
 # Ref[1], P299, Sec 9.5, Formula (1)
 function test_special_6j(test_range::AbstractArray)
@@ -68,6 +79,34 @@ function test_special_9j(test_range::AbstractArray)
             snj = iphase(Int(j2 + j3 + j4 + j7)) / exact_sqrt((2j3 + 1) * (2j7 + 1))
             snj *= sixJ(j1, j2, j3, j5, j4, j7)
             @test nj == snj
+        end
+    end
+end
+
+function test_lsjj(test_range::AbstractArray)
+    for l1 in test_range
+        for l2 in test_range
+            for L in abs(l1-l2):(l1+l2)
+                for (j1, j2) in [(l1+1//2, l2+1//2), (l1+1//2, l2-1//2), (l1-1//2, l2+1//2), (l1-1//2, l2-1//2)]
+                    for (S, J) in [(0, L), (1, L-1), (1, L), (1, L+1)]
+                        @test lsjj(l1, l2, j1, j2, L, S, J) == norm9J(l1, 1//2, j1, l2, 1//2, j2, L, S, J)
+                    end
+                end
+            end
+        end
+    end
+end
+
+function test_flsjj(test_range::AbstractArray)
+    for l1 in test_range
+        for l2 in test_range
+            for L in abs(l1-l2):(l1+l2)
+                for (dj1, dj2) in [(2l1+1, 2l2+1), (2l1+1, 2l2-1), (2l1-1, 2l2+1), (2l1-1, 2l2-1)]
+                    for (S, J) in [(0, L), (1, L-1), (1, L), (1, L+1)]
+                        @test flsjj(l1, l2, dj1, dj2, L, S, J) ≈ fnorm9j(2l1, 1, dj1, 2l2, 1, dj2, 2L, 2S, 2J)
+                    end
+                end
+            end
         end
     end
 end

@@ -288,7 +288,6 @@ function _fMoshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, 
     return pre_sum * sum
 end
 
-
 function _dfunc(dj::Int, dm1::Int, dm2::Int, β::Float64)
     check_jm(dj, dm1) && check_jm(dj, dm2) || return zero(Float64)
     jm1 = div(dj - dm1, 2)
@@ -307,6 +306,62 @@ function _dfunc(dj::Int, dm1::Int, dm2::Int, β::Float64)
     return sum
 end
 
+function _flsjj_helper(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
+    iphase(div(dj2 + 1, 2) + l1 + J) * _f6j(2l1, 1, dj1, dj2, 2J, 2l2)
+end
+
+# S = 0
+function _flsjj_S0(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
+    sqrt((dj1 + 1) * (dj2 + 1) / 2) * _flsjj_helper(l1, l2, dj1, dj2, J)
+end
+
+# S = 1, J = L - 1
+function _flsjj_S1_m1(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
+    L = J + 1
+    f0 = ((dj1 + 1) * (dj2 + 1)) / (2L * (2L - 1))
+    mj = div(dj1 - dj2, 2)
+    pj = div(dj1 + dj2, 2) + 1
+    fL = (L + mj) * (L - mj) * (L + pj) * (pj - L)
+    ml = l1 - l2
+    pl = l1 + l2 + 1
+    fJ = (L + ml) * (L - ml) * (L + pl) * (pl - L)
+    sqrt(fJ * f0) * _flsjj_helper(l1, l2, dj1, dj2, J) - sqrt(fL * f0) * _flsjj_helper(l1, l2, dj1, dj2, L)
+end
+
+# S = 1, J = L
+function _flsjj_S1_0(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
+    factor = div(dj1 - dj2, 2) * div(dj1 + dj2 + 2, 2) - (l1 - l2) * (l1 + l2 + 1)
+    factor * sqrt((dj1 + 1) * (dj2 + 1) / (2J * (J + 1))) * _flsjj_helper(l1, l2, dj1, dj2, J)
+end
+
+# S = 1, J = L + 1
+function _flsjj_S1_p1(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
+    f0 = ((dj1 + 1) * (dj2 + 1)) / (2J * (2J + 1))
+    mj = div(dj1 - dj2, 2)
+    pj = div(dj1 + dj2, 2) + 1
+    fL = (J + mj) * (J - mj) * (J + pj) * (pj - J)
+    ml = l1 - l2
+    pl = l1 + l2 + 1
+    fJ = (J + ml) * (J - ml) * (J + pl) * (pl - J)
+    sqrt(fL * f0) * _flsjj_helper(l1, l2, dj1, dj2, J - 1) - sqrt(fJ * f0) * _flsjj_helper(l1, l2, dj1, dj2, J)
+end
+
+function _flsjj(l1::Int, l2::Int, dj1::Int, dj2::Int, L::Int, S::Int, J::Int)
+    if abs(dj1 - 2l1) != 1 || abs(dj2 - 2l2) != 1
+        return zero(Float64)
+    end
+    check_couple(dj1, dj2, 2J) || return zero(Float64)
+    check_couple(2l1, 2l2, 2L) || return zero(Float64)
+    check_couple(2L, 2S, 2J) || return zero(Float64)
+    S == 0 && return _flsjj_S0(l1, l2, dj1, dj2, J)
+    if S == 1
+        J == L - 1 && return _flsjj_S1_m1(l1, l2, dj1, dj2, J)
+        J == L && return _flsjj_S1_0(l1, l2, dj1, dj2, J)
+        J == L + 1 && return _flsjj_S1_p1(l1, l2, dj1, dj2, J)
+    end
+    return zero(Float64)
+end
+
 """
     fCG(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
 float64 and fast CG coefficient.
@@ -321,6 +376,20 @@ float64 and fast CG coefficient for `m1 == m2 == m3 == 0`.
 """
 @inline function fCG0(dj1::Integer, dj2::Integer, dj3::Integer)
     return _fCG0(Int.((dj1, dj2, dj3))...)
+end
+
+"""
+    fCGspin(ds1::Integer, ds2::Integer, S::Integer)
+float64 and fast CG coefficient for two spin-1/2 coupling.
+"""
+@inline function fCGspin(ds1::Integer, ds2::Integer, S::Integer)
+    unsigned(S) > 1 && return zero(Float64)
+    (abs(ds1) != 1 || abs(ds2) != 1) && return zero(Float64)
+    if iszero(S)
+        return ds1 == ds2 ? 0.0 : copysign(1 / √2, ds1)
+    else # S = 1
+        return ds1 == ds2 ? 1.0 : 1 / √2
+    end
 end
 
 """
@@ -358,6 +427,27 @@ float64 and fast Wigner 9j symbol.
     dj7::Integer, dj8::Integer, dj9::Integer)
     return _f9j(Int.((dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))...)
 end
+
+"""
+    fnorm9j(dj1::Integer, dj2::Integer, dj3::Integer,
+            dj4::Integer, dj5::Integer, dj6::Integer,
+            dj7::Integer, dj8::Integer, dj9::Integer)
+float64 and fast normalized Wigner 9j symbol.
+"""
+@inline function fnorm9j(dj1::Integer, dj2::Integer, dj3::Integer,
+    dj4::Integer, dj5::Integer, dj6::Integer,
+    dj7::Integer, dj8::Integer, dj9::Integer)
+    return sqrt((dj3 + 1.0) * (dj6 + 1.0) * (dj7 + 1.0) * (dj8 + 1.0)) * f9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9)
+end
+
+"""
+    lsjj(l1::Integer, l2::Integer, dj1::Integer, dj2::Integer, L::Integer, S::Integer, J::Integer)
+float64 and fast lsjj coefficient.
+"""
+@inline function flsjj(l1::Integer, l2::Integer, dj1::Integer, dj2::Integer, L::Integer, S::Integer, J::Integer)
+    return _flsjj(Int.((l1, l2, dj1, dj2, L, S, J))...)
+end
+
 
 """
     fMoshinsky(N::Integer, L::Integer, n::Integer, l::Integer, n1::Integer, l1::Integer, n2::Integer, l2::Integer, tanβ::Float64 = 1.0)

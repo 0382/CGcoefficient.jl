@@ -17,6 +17,8 @@ CG0
 threeJ
 sixJ
 nineJ
+norm9J
+lsjj
 Racah
 Moshinsky
 ```
@@ -46,10 +48,13 @@ fbinomial
 unsafe_fbinomial
 fCG
 fCG0
+fCGspin
 f3j
 f6j
 fRacah
 f9j
+fnorm9j
+flsjj
 fMoshinsky
 dfunc
 wigner_init_float

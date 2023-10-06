@@ -9,10 +9,10 @@ const HalfInt = Union{Integer,Rational}
 
 # basic CG coefficient calculation function
 function _dCG(dj1::BigInt, dj2::BigInt, dj3::BigInt, dm1::BigInt, dm2::BigInt, dm3::BigInt)
-    check_jm(dj1, dm1) || error(jm_mismatching_msg(dj1, dm1))
-    check_jm(dj2, dm2) || error(jm_mismatching_msg(dj2, dm2))
-    check_jm(dj3, dm3) || error(jm_mismatching_msg(dj3, dm3))
-    check_couple(dj1, dj2, dj3) || error(miss_couple_msg(dj1, dj2, dj3))
+    check_jm(dj1, dm1) || return zero(SqrtRational)
+    check_jm(dj2, dm2) || return zero(SqrtRational)
+    check_jm(dj3, dm3) || return zero(SqrtRational)
+    check_couple(dj1, dj2, dj3) || return zero(SqrtRational)
     dm1 + dm2 == dm3 || return zero(SqrtRational)
     J::BigInt = div(dj1 + dj2 + dj3, 2)
     Jm1::BigInt = J - dj1
@@ -37,7 +37,7 @@ end
 
 # spaecial case: m1 == m2 == m3 == 0
 function _CG0(j1::BigInt, j2::BigInt, j3::BigInt)
-    check_couple(2j1, 2j2, 2j3) || error(miss_couple_msg(2j1, 2j2, 2j3))
+    check_couple(2j1, 2j2, 2j3) || return zero(SqrtRational)
     J = j1 + j2 + j3
     isodd(J) && return zero(SqrtRational)
     g = div(J, 2)
@@ -51,10 +51,10 @@ end
 
 # basic 6j-symbol calculation funciton
 function _d6j(dj1::BigInt, dj2::BigInt, dj3::BigInt, dj4::BigInt, dj5::BigInt, dj6::BigInt)
-    check_couple(dj1, dj2, dj3) || error(miss_couple_msg(dj1, dj2, dj3))
-    check_couple(dj1, dj5, dj6) || error(miss_couple_msg(dj1, dj5, dj6))
-    check_couple(dj4, dj2, dj6) || error(miss_couple_msg(dj4, dj2, dj6))
-    check_couple(dj4, dj5, dj3) || error(miss_couple_msg(dj4, dj5, dj3))
+    check_couple(dj1, dj2, dj3) || return zero(SqrtRational)
+    check_couple(dj1, dj5, dj6) || return zero(SqrtRational)
+    check_couple(dj4, dj2, dj6) || return zero(SqrtRational)
+    check_couple(dj4, dj5, dj3) || return zero(SqrtRational)
     j123::BigInt = div(dj1 + dj2 + dj3, 2)
     j156::BigInt = div(dj1 + dj5 + dj6, 2)
     j426::BigInt = div(dj4 + dj2 + dj6, 2)
@@ -90,12 +90,12 @@ end
 function _d9j(dj1::BigInt, dj2::BigInt, dj3::BigInt,
     dj4::BigInt, dj5::BigInt, dj6::BigInt,
     dj7::BigInt, dj8::BigInt, dj9::BigInt)
-    check_couple(dj1, dj2, dj3) || error(miss_couple_msg(dj1, dj2, dj3))
-    check_couple(dj4, dj5, dj6) || error(miss_couple_msg(dj4, dj5, dj6))
-    check_couple(dj7, dj8, dj9) || error(miss_couple_msg(dj7, dj8, dj9))
-    check_couple(dj1, dj4, dj7) || error(miss_couple_msg(dj1, dj4, dj7))
-    check_couple(dj2, dj5, dj8) || error(miss_couple_msg(dj2, dj5, dj8))
-    check_couple(dj3, dj6, dj9) || error(miss_couple_msg(dj3, dj6, dj9))
+    check_couple(dj1, dj2, dj3) || return zero(SqrtRational)
+    check_couple(dj4, dj5, dj6) || return zero(SqrtRational)
+    check_couple(dj7, dj8, dj9) || return zero(SqrtRational)
+    check_couple(dj1, dj4, dj7) || return zero(SqrtRational)
+    check_couple(dj2, dj5, dj8) || return zero(SqrtRational)
+    check_couple(dj3, dj6, dj9) || return zero(SqrtRational)
     j123::BigInt = div(dj1 + dj2 + dj3, 2)
     j456::BigInt = div(dj4 + dj5 + dj6, 2)
     j789::BigInt = div(dj7 + dj8 + dj9, 2)
@@ -151,6 +151,62 @@ function _d9j(dj1::BigInt, dj2::BigInt, dj3::BigInt,
         PABC += (iphase(xh + yh + zh) * At * Bt * Ct) // Pt_de
     end
     return SqrtRational(iphase(dth) * PABC, P0)
+end
+
+function _lsjj_helper(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
+    iphase(div(dj2 + 1, 2) + l1 + J) * _d6j(2l1, BigInt(1), dj1, dj2, 2J, 2l2)
+end
+
+# S = 0
+function _lsjj_S0(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
+    exact_sqrt((dj1 + 1) * (dj2 + 1) // 2) * _lsjj_helper(l1, l2, dj1, dj2, J)
+end
+
+# S = 1, J = L - 1
+function _lsjj_S1_m1(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
+    L = J + 1
+    f0 = ((dj1 + 1) * (dj2 + 1)) // (2L * (2L - 1))
+    mj = div(dj1 - dj2, 2)
+    pj = div(dj1 + dj2, 2) + 1
+    fL = (L + mj) * (L - mj) * (L + pj) * (pj - L)
+    ml = l1 - l2
+    pl = l1 + l2 + 1
+    fJ = (L + ml) * (L - ml) * (L + pl) * (pl - L)
+    exact_sqrt(fJ * f0) * _lsjj_helper(l1, l2, dj1, dj2, J) - exact_sqrt(fL * f0) * _lsjj_helper(l1, l2, dj1, dj2, L)
+end
+
+# S = 1, J = L
+function _lsjj_S1_0(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
+    factor = div(dj1 - dj2, 2) * div(dj1 + dj2 + 2, 2) - (l1 - l2) * (l1 + l2 + 1)
+    SqrtRational(factor, (dj1 + 1) * (dj2 + 1) // (2J * (J + 1))) * _lsjj_helper(l1, l2, dj1, dj2, J)
+end
+
+# S = 1, J = L + 1
+function _lsjj_S1_p1(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
+    f0 = ((dj1 + 1) * (dj2 + 1)) // (2J * (2J + 1))
+    mj = div(dj1 - dj2, 2)
+    pj = div(dj1 + dj2, 2) + 1
+    fL = (J + mj) * (J - mj) * (J + pj) * (pj - J)
+    ml = l1 - l2
+    pl = l1 + l2 + 1
+    fJ = (J + ml) * (J - ml) * (J + pl) * (pl - J)
+    exact_sqrt(fL * f0) * _lsjj_helper(l1, l2, dj1, dj2, J - 1) - exact_sqrt(fJ * f0) * _lsjj_helper(l1, l2, dj1, dj2, J)
+end
+
+function _lsjj(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, L::BigInt, S::BigInt, J::BigInt)
+    if abs(dj1 - 2l1) != 1 || abs(dj2 - 2l2) != 1
+        return zero(SqrtRational)
+    end
+    check_couple(2l1, 2l2, 2L) || return zero(SqrtRational)
+    check_couple(dj1, dj2, 2J) || return zero(SqrtRational)
+    check_couple(2L, 2S, 2J) || return zero(SqrtRational)
+    S == 0 && return _lsjj_S0(l1, l2, dj1, dj2, J)
+    if S == 1
+        J == L - 1 && return _lsjj_S1_m1(l1, l2, dj1, dj2, J)
+        J == L && return _lsjj_S1_0(l1, l2, dj1, dj2, J)
+        J == L + 1 && return _lsjj_S1_p1(l1, l2, dj1, dj2, J)
+    end
+    return zero(SqrtRational)
 end
 
 function _Moshinsky(N::BigInt, L::BigInt, n::BigInt, l::BigInt, n1::BigInt, l1::BigInt, n2::BigInt, l2::BigInt, Λ::BigInt)
@@ -315,6 +371,38 @@ j_7 & j_8 & j_9
 @inline nineJ(j1::HalfInt, j2::HalfInt, j3::HalfInt,
     j4::HalfInt, j5::HalfInt, j6::HalfInt,
     j7::HalfInt, j8::HalfInt, j9::HalfInt) = simplify(_d9j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))...))
+
+@doc raw"""
+    norm9J(j1::HalfInt, j2::HalfInt, j3::HalfInt,
+           j4::HalfInt, j5::HalfInt, j6::HalfInt,
+           j7::HalfInt, j8::HalfInt, j9::HalfInt)
+normalized Wigner 9j-symbol
+```math
+\begin{bmatrix}
+j_1 & j_2 & j_3 \\
+j_4 & j_5 & j_6 \\
+j_7 & j_8 & j_9
+\end{bmatrix} = \sqrt{(2j_3+1)(2j_6+1)(2j_7+1)(2j_8+1)} \begin{Bmatrix}
+j_1 & j_2 & j_3 \\
+j_4 & j_5 & j_6 \\
+j_7 & j_8 & j_9
+\end{Bmatrix}
+```
+"""
+@inline norm9J(j1::HalfInt, j2::HalfInt, j3::HalfInt,
+    j4::HalfInt, j5::HalfInt, j6::HalfInt,
+    j7::HalfInt, j8::HalfInt, j9::HalfInt) = simplify(exact_sqrt((2j3 + 1) * (2j6 + 1) * (2j7 + 1) * (2j8 + 1)) * _d9j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))...))
+
+
+@doc raw"""
+    lsjj(l1::Integer, l2::Integer, j1::HalfInt, j2::HalfInt, L::Integer, S::Integer, J::Integer)
+LS-coupling to jj-coupling transformation coefficient
+```math
+|l1 l2 j1 j2; J\rangle = \sum_{LS} \langle l1 l2 LSJ | l1 l2 j1 j2; J \rangle |l1 l2 LSJ \rangle
+```
+"""
+@inline lsjj(l1::Integer, l2::Integer, j1::HalfInt, j2::HalfInt, L::Integer, S::Integer, J::Integer) = simplify(_lsjj(BigInt.((l1, l2, 2j1, 2j2, L, S, J))...))
+
 
 @doc raw"""
     Moshinsky(N,L,n,l,n1,l1,n2,l2,Λ)

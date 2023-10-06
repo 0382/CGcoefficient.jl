@@ -2,6 +2,7 @@ module CGcoefficient
 
 export CG, CG0, threeJ, sixJ, nineJ, Racah,
        dCG, d3j, d6j, d9j, dRacah,
+       lsjj, norm9J,
        Moshinsky,
        SqrtRational,
        exact_sqrt,
@@ -15,6 +16,7 @@ export CG, CG0, threeJ, sixJ, nineJ, Racah,
        fCG, fCG0, f3j, f6j, f9j, fRacah,
        fbinomial, unsafe_fbinomial,
        fMoshinsky, dfunc,
+       flsjj, fCGspin, fnorm9j,
        wigner_init_float
 
 include("SqrtRational.jl")
