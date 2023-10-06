@@ -315,7 +315,7 @@ CG coefficient ``\langle j_1m_1 j_2m_2 | j_3m_3 \rangle``
 
 @doc raw"""
     CG0(j1::Integer, j2::Integer, j3::Integer)
-CG coefficient special case: ``\langle j1 0 j2 0 | j3 0 \rangle``.
+CG coefficient special case: ``\langle j_1 0 j_2 0 | j_3 0 \rangle``.
 """
 @inline CG0(j1::Integer, j2::Integer, j3::Integer) = simplify(_CG0(big(j1), big(j2), big(j3)))
 
@@ -398,16 +398,16 @@ j_7 & j_8 & j_9
     lsjj(l1::Integer, l2::Integer, j1::HalfInt, j2::HalfInt, L::Integer, S::Integer, J::Integer)
 LS-coupling to jj-coupling transformation coefficient
 ```math
-|l1 l2 j1 j2; J\rangle = \sum_{LS} \langle l1 l2 LSJ | l1 l2 j1 j2; J \rangle |l1 l2 LSJ \rangle
+|l_1 l_2 j_1 j_2; J\rangle = \sum_{LS} \langle l_1 l_2 LSJ | l_1 l_2 j_1 j_2; J \rangle |l_1 l_2 LSJ \rangle
 ```
 """
 @inline lsjj(l1::Integer, l2::Integer, j1::HalfInt, j2::HalfInt, L::Integer, S::Integer, J::Integer) = simplify(_lsjj(BigInt.((l1, l2, 2j1, 2j2, L, S, J))...))
 
 
 @doc raw"""
-    Moshinsky(N,L,n,l,n1,l1,n2,l2,Λ)
+    Moshinsky(N::Integer, L::Integer, n::Integer, l::Integer, n1::Integer, l1::Integer, n2::Integer, l2::Integer, Λ::Integer)
 Moshinsky bracket，Ref: Buck et al. Nuc. Phys. A 600 (1996) 387-402.
 Since this function is designed for demonstration the exact result,
 It only calculate the case of ``\tan(\beta) = 1``.
 """
-@inline Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ) = simplify(_Moshinsky(BigInt.((N, L, n, l, n1, l1, n2, l2, Λ))...))
+@inline Moshinsky(N::Integer, L::Integer, n::Integer, l::Integer, n1::Integer, l1::Integer, n2::Integer, l2::Integer, Λ::Integer) = simplify(_Moshinsky(BigInt.((N, L, n, l, n1, l1, n2, l2, Λ))...))

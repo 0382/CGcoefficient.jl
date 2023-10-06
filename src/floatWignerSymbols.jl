@@ -459,7 +459,7 @@ end
 
 """
     dfunc(dj::Integer, dm1::Integer, dm2::Integer, β::Float64)
-Wigner-d function.
+Wigner d-function.
 """
 @inline function dfunc(dj::Integer, dm1::Integer, dm2::Integer, β::Float64)
     return _dfunc(Int.((dj, dm1, dm2))..., β)
