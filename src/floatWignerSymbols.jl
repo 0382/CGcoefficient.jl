@@ -1,7 +1,7 @@
-_fbinomial_data = Float64[]
-_fbinomial_nmax = Int(0)
-@inline get_fbinomial_data()::Vector{Float64} = _fbinomial_data::Vector{Float64}
-@inline get_fbinomial_nmax()::Int = _fbinomial_nmax::Int
+const _fbinomial_data = Float64[]
+const _fbinomial_nmax = Ref(0)
+@inline get_fbinomial_data() = _fbinomial_data
+@inline get_fbinomial_nmax() = _fbinomial_nmax[]
 
 """
     fbinomial(n::Integer, k::Integer)
@@ -34,9 +34,9 @@ function _extent_fbinomial_data(n::Int)
             for k = 0:div(m, 2)
                 get_fbinomial_data()[binomial_index(m, k)] = binomial(BigInt(m), BigInt(k))
             end
-            global _fbinomial_nmax = get_fbinomial_nmax() + 1
+            _fbinomial_nmax[] = get_fbinomial_nmax() + 1
         end
-        global _fbinomial_nmax = n
+        _fbinomial_nmax[] = n
     end
     nothing
 end

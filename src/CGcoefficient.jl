@@ -24,15 +24,16 @@ include("util.jl")
 include("WignerSymbols.jl")
 include("floatWignerSymbols.jl")
 
-function __init__()
-    global _fbinomial_nmax = 67
-    global _fbinomial_data = Vector{Float64}(undef, binomial_data_size(get_fbinomial_nmax()))
+
+let
+    # Precompute at precompilation time
+    _fbinomial_nmax[] = 67
+    resize!(_fbinomial_data, binomial_data_size(get_fbinomial_nmax()))
     for n = 0:get_fbinomial_nmax()
         for k = 0:div(n, 2)
             get_fbinomial_data()[binomial_index(n, k)] = binomial(UInt64(n), UInt64(k))
         end
     end
-    nothing
 end
 
 end # module CGcoefficient
