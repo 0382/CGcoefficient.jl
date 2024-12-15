@@ -78,3 +78,4 @@ julia> f6j(6,6,6,6,6,6)
 
 - [https://github.com/ManyBodyPhysics/CENS](https://github.com/ManyBodyPhysics/CENS)
 - D. A. Varshalovich, A. N. Moskalev and V. K. Khersonskii, *Quantum Theory of Angular Momentum*, (World Scientific, 1988).
+- Buck et al. Nuc. Phys. A 600 (1996) 387-402.

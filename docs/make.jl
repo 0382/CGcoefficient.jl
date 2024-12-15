@@ -1,5 +1,5 @@
 using Documenter
-push!(LOAD_PATH, "../src/")
+push!(LOAD_PATH, "..")
 using CGcoefficient
 
 makedocs(
@@ -8,8 +8,11 @@ makedocs(
     clean = false,
     pages = [
         "Home" => "index.md",
-        "Formula" => "formula.md",
-        "API" => "api.md"
+        "API" => "api.md",
+        "Formula" => [
+            "Wigner Symbols" => "wigner.md",
+            "Moshinsky" => "moshinsky.md",
+        ],
     ]
 )
 

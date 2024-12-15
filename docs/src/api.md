@@ -2,7 +2,6 @@
 
 ## Types
 ```@docs
-HalfInt
 SqrtRational
 ```
 
@@ -49,6 +48,7 @@ unsafe_fbinomial
 fCG
 fCG0
 fCGspin
+fCG3spin
 f3j
 f6j
 fRacah
@@ -68,6 +68,10 @@ check_jm
 check_couple
 binomial_data_size
 binomial_index
+check_CG
+check_3j
+check_6j
+check_9j
 exact_sqrt
 float(::SqrtRational)
 simplify(::Integer)

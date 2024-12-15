@@ -1,4 +1,4 @@
-# Formula
+# CG coefficient and Wigner symbols
 
 ## CG coefficient
 

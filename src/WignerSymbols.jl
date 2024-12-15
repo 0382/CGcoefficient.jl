@@ -1,19 +1,8 @@
 # This file contains the core functions of WignerSymbols and CG-coefficient.
 
-"""
-    HalfInt = Union{Integer, Rational}
-Angular momentum quantum numbers may be half integers and integers. With `HalfInt` type, you can use both `2` and `3//2` as parameters.
-But the parameter like `5//3`, who's denominator is not `2` while gives out error.
-"""
-const HalfInt = Union{Integer,Rational}
-
 # basic CG coefficient calculation function
 function _dCG(dj1::BigInt, dj2::BigInt, dj3::BigInt, dm1::BigInt, dm2::BigInt, dm3::BigInt)
-    check_jm(dj1, dm1) || return zero(SqrtRational)
-    check_jm(dj2, dm2) || return zero(SqrtRational)
-    check_jm(dj3, dm3) || return zero(SqrtRational)
-    check_couple(dj1, dj2, dj3) || return zero(SqrtRational)
-    dm1 + dm2 == dm3 || return zero(SqrtRational)
+    check_CG(dj1, dj2, dj3, dm1, dm2, dm3) || return zero(SqrtRational)
     J::BigInt = div(dj1 + dj2 + dj3, 2)
     Jm1::BigInt = J - dj1
     Jm2::BigInt = J - dj2
@@ -51,10 +40,7 @@ end
 
 # basic 6j-symbol calculation funciton
 function _d6j(dj1::BigInt, dj2::BigInt, dj3::BigInt, dj4::BigInt, dj5::BigInt, dj6::BigInt)
-    check_couple(dj1, dj2, dj3) || return zero(SqrtRational)
-    check_couple(dj1, dj5, dj6) || return zero(SqrtRational)
-    check_couple(dj4, dj2, dj6) || return zero(SqrtRational)
-    check_couple(dj4, dj5, dj3) || return zero(SqrtRational)
+    check_6j(dj1, dj2, dj3, dj4, dj5, dj6) || return zero(SqrtRational)
     j123::BigInt = div(dj1 + dj2 + dj3, 2)
     j156::BigInt = div(dj1 + dj5 + dj6, 2)
     j426::BigInt = div(dj4 + dj2 + dj6, 2)
@@ -90,12 +76,7 @@ end
 function _d9j(dj1::BigInt, dj2::BigInt, dj3::BigInt,
     dj4::BigInt, dj5::BigInt, dj6::BigInt,
     dj7::BigInt, dj8::BigInt, dj9::BigInt)
-    check_couple(dj1, dj2, dj3) || return zero(SqrtRational)
-    check_couple(dj4, dj5, dj6) || return zero(SqrtRational)
-    check_couple(dj7, dj8, dj9) || return zero(SqrtRational)
-    check_couple(dj1, dj4, dj7) || return zero(SqrtRational)
-    check_couple(dj2, dj5, dj8) || return zero(SqrtRational)
-    check_couple(dj3, dj6, dj9) || return zero(SqrtRational)
+    check_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9) || return zero(SqrtRational)
     j123::BigInt = div(dj1 + dj2 + dj3, 2)
     j456::BigInt = div(dj4 + dj5 + dj6, 2)
     j789::BigInt = div(dj7 + dj8 + dj9, 2)
@@ -308,10 +289,10 @@ Racah coefficient function with double angular momentum parameters, so that the 
     dj7::Integer, dj8::Integer, dj9::Integer) = _d9j(BigInt.((dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9))...)
 
 @doc raw"""
-    CG(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt)
+    CG(j1::Real, j2::Real, j3::Real, m1::Real, m2::Real, m3::Real)
 CG coefficient ``\langle j_1m_1 j_2m_2 | j_3m_3 \rangle``
 """
-@inline CG(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = simplify(_dCG(BigInt.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...))
+@inline CG(j1::Real, j2::Real, j3::Real, m1::Real, m2::Real, m3::Real) = simplify(_dCG(BigInt.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...))
 
 @doc raw"""
     CG0(j1::Integer, j2::Integer, j3::Integer)
@@ -320,7 +301,7 @@ CG coefficient special case: ``\langle j_1 0 j_2 0 | j_3 0 \rangle``.
 @inline CG0(j1::Integer, j2::Integer, j3::Integer) = simplify(_CG0(big(j1), big(j2), big(j3)))
 
 @doc raw"""
-    threeJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt)
+    threeJ(j1::Real, j2::Real, j3::Real, m1::Real, m2::Real, m3::Real)
 Wigner 3j-symbol
 ```math
 \begin{pmatrix}
@@ -329,10 +310,10 @@ m_1 & m_2 & m_3
 \end{pmatrix}
 ```
 """
-@inline threeJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, m1::HalfInt, m2::HalfInt, m3::HalfInt) = simplify(_d3j(BigInt.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...))
+@inline threeJ(j1::Real, j2::Real, j3::Real, m1::Real, m2::Real, m3::Real) = simplify(_d3j(BigInt.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...))
 
 @doc raw"""
-    sixJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt)
+    sixJ(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real)
 Wigner 6j-symbol
 ```math
 \begin{Bmatrix}
@@ -341,10 +322,10 @@ j_4 & j_5 & j_6
 \end{Bmatrix}
 ```
 """
-@inline sixJ(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt) = simplify(_d6j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...))
+@inline sixJ(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real) = simplify(_d6j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...))
 
 @doc raw"""
-    Racah(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt)
+    Racah(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real)
 Racah coefficient
 ```math
 W(j_1j_2j_3j_4, j_5j_6) = (-1)^{j_1+j_2+j_3+j_4} \begin{Bmatrix}
@@ -353,12 +334,12 @@ j_4 & j_3 & j_6
 \end{Bmatrix}
 ```
 """
-@inline Racah(j1::HalfInt, j2::HalfInt, j3::HalfInt, j4::HalfInt, j5::HalfInt, j6::HalfInt) = simplify(_dRacah(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...))
+@inline Racah(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real) = simplify(_dRacah(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...))
 
 @doc raw"""
-    nineJ(j1::HalfInt, j2::HalfInt, j3::HalfInt,
-          j4::HalfInt, j5::HalfInt, j6::HalfInt,
-          j7::HalfInt, j8::HalfInt, j9::HalfInt)
+    nineJ(j1::Real, j2::Real, j3::Real,
+          j4::Real, j5::Real, j6::Real,
+          j7::Real, j8::Real, j9::Real)
 Wigner 9j-symbol
 ```math
 \begin{Bmatrix}
@@ -368,14 +349,14 @@ j_7 & j_8 & j_9
 \end{Bmatrix}
 ```
 """
-@inline nineJ(j1::HalfInt, j2::HalfInt, j3::HalfInt,
-    j4::HalfInt, j5::HalfInt, j6::HalfInt,
-    j7::HalfInt, j8::HalfInt, j9::HalfInt) = simplify(_d9j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))...))
+@inline nineJ(j1::Real, j2::Real, j3::Real,
+    j4::Real, j5::Real, j6::Real,
+    j7::Real, j8::Real, j9::Real) = simplify(_d9j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))...))
 
 @doc raw"""
-    norm9J(j1::HalfInt, j2::HalfInt, j3::HalfInt,
-           j4::HalfInt, j5::HalfInt, j6::HalfInt,
-           j7::HalfInt, j8::HalfInt, j9::HalfInt)
+    norm9J(j1::Real, j2::Real, j3::Real,
+           j4::Real, j5::Real, j6::Real,
+           j7::Real, j8::Real, j9::Real)
 normalized Wigner 9j-symbol
 ```math
 \begin{bmatrix}
@@ -389,19 +370,19 @@ j_7 & j_8 & j_9
 \end{Bmatrix}
 ```
 """
-@inline norm9J(j1::HalfInt, j2::HalfInt, j3::HalfInt,
-    j4::HalfInt, j5::HalfInt, j6::HalfInt,
-    j7::HalfInt, j8::HalfInt, j9::HalfInt) = simplify(exact_sqrt((2j3 + 1) * (2j6 + 1) * (2j7 + 1) * (2j8 + 1)) * _d9j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))...))
+@inline norm9J(j1::Real, j2::Real, j3::Real,
+    j4::Real, j5::Real, j6::Real,
+    j7::Real, j8::Real, j9::Real) = simplify(exact_sqrt((2j3 + 1) * (2j6 + 1) * (2j7 + 1) * (2j8 + 1)) * _d9j(BigInt.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))...))
 
 
 @doc raw"""
-    lsjj(l1::Integer, l2::Integer, j1::HalfInt, j2::HalfInt, L::Integer, S::Integer, J::Integer)
+    lsjj(l1::Integer, l2::Integer, j1::Real, j2::Real, L::Integer, S::Integer, J::Integer)
 LS-coupling to jj-coupling transformation coefficient
 ```math
 |l_1 l_2 j_1 j_2; J\rangle = \sum_{LS} \langle l_1 l_2 LSJ | l_1 l_2 j_1 j_2; J \rangle |l_1 l_2 LSJ \rangle
 ```
 """
-@inline lsjj(l1::Integer, l2::Integer, j1::HalfInt, j2::HalfInt, L::Integer, S::Integer, J::Integer) = simplify(_lsjj(BigInt.((l1, l2, 2j1, 2j2, L, S, J))...))
+@inline lsjj(l1::Integer, l2::Integer, j1::Real, j2::Real, L::Integer, S::Integer, J::Integer) = simplify(_lsjj(BigInt.((l1, l2, 2j1, 2j2, L, S, J))...))
 
 
 @doc raw"""

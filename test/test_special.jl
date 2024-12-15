@@ -26,6 +26,7 @@ function test_CG0(test_range::AbstractArray)
 end
 
 function test_CGspin()
+    wigner_init_float(2, "Jmax", 3)
     @test fCGspin(1, 1, 1) ≈ fCG(1, 1, 2, 1, 1, 2) ≈ 1.0
     @test fCGspin(1, 1, 0) ≈ fCG(1, 1, 0, 1, 1, 2) ≈ 0.0
     @test fCGspin(1, -1, 1) ≈ fCG(1, 1, 2, 1, -1, 0) ≈ 1/√2
@@ -34,6 +35,19 @@ function test_CGspin()
     @test fCGspin(-1, 1, 0) ≈ fCG(1, 1, 0, -1, 1, 0) ≈ -1/√2
     @test fCGspin(-1, -1, 1) ≈ fCG(1, 1, 2, -1, -1, -2) ≈ 1.0
     @test fCGspin(-1, -1, 0) ≈ fCG(1, 1, 0, -1, -1, -2) ≈ 0.0
+end
+
+function test_CG3spin()
+    wigner_init_float(3, "Jmax", 3)
+    for ds1 = (-1, 1) for ds2 = (-1, 1) for ds3 = (-1, 1)
+        for S12 = (0,1)
+            for dS = (1,3)
+                x = fCG3spin(ds1, ds2, ds3, S12, dS)
+                y = fCG(1, 1, 2S12, ds1, ds2, ds1+ds2) * fCG(2S12, 1, dS, ds1+ds2, ds3, ds1+ds2+ds3)
+                @test x ≈ y
+            end
+        end
+    end end end
 end
 
 # test special condition for 6j symbols
@@ -98,6 +112,7 @@ function test_lsjj(test_range::AbstractArray)
 end
 
 function test_flsjj(test_range::AbstractArray)
+    wigner_init_float(maximum(test_range), "Jmax", 9)
     for l1 in test_range
         for l2 in test_range
             for L in abs(l1-l2):(l1+l2)

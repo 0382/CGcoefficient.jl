@@ -10,7 +10,7 @@
     is_same_parity(x::T, y::T) where {T <: Integer}
 judge if two integers are same odd or same even
 """
-@inline is_same_parity(x::T, y::T) where {T <: Integer} = iseven(x ⊻ y)
+@inline is_same_parity(x::T, y::T) where {T <: Integer} = mod(x, 2) == mod(y, 2)
 
 """
     check_jm(dj::T, dm::T) where {T <: Integer}
@@ -54,4 +54,37 @@ Return the index of the binomial coefficient in the table.
 @inline function binomial_index(n::Int, k::Int)::Int
     x = div(n, 2) + 1
     return x * (x - iseven(n)) + k + 1
+end
+
+"""
+    check_CG(dj1::T, dj2::T, dj3::T, dm1::T, dm2::T, dm3::T) where {T <: Integer}
+Check if the Clebsch-Gordan coefficient is valid.
+"""
+@inline function check_CG(dj1::T, dj2::T, dj3::T, dm1::T, dm2::T, dm3::T) where {T <: Integer}
+    check_jm(dj1, dm1) && check_jm(dj2, dm2) && check_jm(dj3, dm3) && check_couple(dj1, dj2, dj3) && (dm1 + dm2 == dm3)
+end
+
+"""
+    check_3j(dj1::T, dj2::T, dj3::T, dm1::T, dm2::T, dm3::T) where {T <: Integer}
+Check if the Wigner 3-j symbol is valid.
+"""
+@inline function check_3j(dj1::T, dj2::T, dj3::T, dm1::T, dm2::T, dm3::T) where {T <: Integer}
+    check_jm(dj1, dm1) && check_jm(dj2, dm2) && check_jm(dj3, dm3) && check_couple(dj1, dj2, dj3) && (dm1 + dm2 + dm3 == 0)
+end
+
+"""
+    check_6j(dj1::T, dj2::T, dj3::T, dj4::T, dj5::T, dj6::T) where {T <: Integer}
+Check if the Wigner 6-j symbol is valid.
+"""
+@inline function check_6j(dj1::T, dj2::T, dj3::T, dj4::T, dj5::T, dj6::T) where {T <: Integer}
+    check_couple(dj1, dj2, dj3) && check_couple(dj1, dj5, dj6) && check_couple(dj4, dj2, dj6) && check_couple(dj4, dj5, dj3)
+end
+
+"""
+    check_9j(dj1::T, dj2::T, dj3::T, dj4::T, dj5::T, dj6::T, dj7::T, dj8::T, dj9::T) where {T <: Integer}
+Check if the Wigner 9-j symbol is valid.
+"""
+@inline function check_9j(dj1::T, dj2::T, dj3::T, dj4::T, dj5::T, dj6::T, dj7::T, dj8::T, dj9::T) where {T <: Integer}
+    check_couple(dj1, dj2, dj3) && check_couple(dj4, dj5, dj6) && check_couple(dj7, dj8, dj9) &&
+    check_couple(dj1, dj4, dj7) && check_couple(dj2, dj5, dj8) && check_couple(dj3, dj6, dj9)
 end

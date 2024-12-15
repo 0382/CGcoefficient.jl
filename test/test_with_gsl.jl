@@ -30,16 +30,6 @@ function gsl9j(dj1::Int, dj2::Int, dj3::Int,
     )
 end
 
-function check_6j(dj1::Int, dj2::Int, dj3::Int, dj4::Int, dj5::Int, dj6::Int)
-    check_couple(dj1, dj2, dj3) & check_couple(dj1, dj5, dj6) &
-    check_couple(dj4, dj2, dj6) & check_couple(dj4, dj5, dj3)
-end
-
-function check_9j(dj1::Int, dj2::Int, dj3::Int, dj4::Int, dj5::Int, dj6::Int, dj7::Int, dj8::Int, dj9::Int)
-    check_couple(dj1, dj2, dj3) & check_couple(dj4, dj5, dj6) & check_couple(dj7, dj8, dj9) &
-    check_couple(dj1, dj4, dj7) & check_couple(dj2, dj5, dj8) & check_couple(dj3, dj6, dj9)
-end
-
 # Because the gsl compute wigner 3nj symbols using float point number,
 # sometimes my code give out zero, but gsl give out a very small number.
 # In this condition, `≈` operator will give false result.

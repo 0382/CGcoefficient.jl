@@ -57,9 +57,5 @@ This package is inspired by Ref [^1]. See [CENS-MBPT](https://github.com/ManyBod
 The idea is to simplify 3nj Symbols to sum combinations of binomial coefficients. We can calculate binomial coefficients by Pascal's Triangle, and store them first. Then we calculate 3nj Symbols using the stored binomial coefficients.
 
 In this package, we just use the builtin `binomial` function for exact calculation. Only the float version uses stored `binomial`s.
-## Index
-
-- [Formula](formula.md)
-- [API](api.md)
 
 [^1]: T. Engeland and M. Hjorth-Jensen, the Oslo-FCI code. [https://github.com/ManyBodyPhysics/CENS](https://github.com/ManyBodyPhysics/CENS).

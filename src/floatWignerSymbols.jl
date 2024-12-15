@@ -1,4 +1,4 @@
-_fbinomial_data = Float64[]
+_fbinomial_data = Float64[1.0]
 _fbinomial_nmax = Int(0)
 @inline get_fbinomial_data()::Vector{Float64} = _fbinomial_data::Vector{Float64}
 @inline get_fbinomial_nmax()::Int = _fbinomial_nmax::Int
@@ -25,7 +25,7 @@ In Wigner symbol calculation, the mathematics guarantee that `unsafe_fbinomial(n
     return @inbounds get_fbinomial_data()[binomial_index(n, k)]
 end
 
-function _extent_fbinomial_data(n::Int)
+function _extend_fbinomial_data(n::Int)
     if n > get_fbinomial_nmax()
         old_data = copy(get_fbinomial_data())
         resize!(get_fbinomial_data(), binomial_data_size(n))
@@ -74,21 +74,21 @@ The wigner_init_float function is **not** thread safe, so you should call it bef
 """
 function wigner_init_float(n::Integer, mode::AbstractString, rank::Integer)
     if mode == "Jmax"
-        rank == 3 && _extent_fbinomial_data(3 * n + 1)
-        rank == 6 && _extent_fbinomial_data(4 * n + 1)
-        rank == 9 && _extent_fbinomial_data(5 * n + 1)
+        rank == 3 && _extend_fbinomial_data(3 * n + 1)
+        rank == 6 && _extend_fbinomial_data(4 * n + 1)
+        rank == 9 && _extend_fbinomial_data(5 * n + 1)
         if rank != 3 && rank != 6 && rank != 9
             throw(ArgumentError("invalid rank $rank"))
         end
     elseif mode == "2bjmax"
-        rank == 3 && _extent_fbinomial_data(2 * n + 1)
-        rank == 6 && _extent_fbinomial_data(3 * n + 1)
-        rank == 9 && _extent_fbinomial_data(4 * n + 1)
+        rank == 3 && _extend_fbinomial_data(2 * n + 1)
+        rank == 6 && _extend_fbinomial_data(3 * n + 1)
+        rank == 9 && _extend_fbinomial_data(4 * n + 1)
         if rank != 3 && rank != 6 && rank != 9
             throw(ArgumentError("invalid rank $rank"))
         end
     elseif mode == "nmax"
-        _extent_fbinomial_data(n)
+        _extend_fbinomial_data(n)
     else
         throw(ArgumentError("invalid mode $mode"))
     end
@@ -391,6 +391,48 @@ float64 and fast CG coefficient for two spin-1/2 coupling.
         return ds1 == ds2 ? 1.0 : 1 / √2
     end
 end
+
+# i1 = ds1 > 0, i2 = ds2 > 0, i3 = S > 0, is = (S12 + dS) / 2
+# (i1, i2, i3, is) -> 3 * (4 * i1 + 2 * i2 + i3) + is
+const CG3spin_data = [
+    0.0,                 # (-1/2, -1/2, -1/2,   0,  1/2) -> 0
+    0.0,                 # (-1/2, -1/2, -1/2,   1,  1/2) -> 0
+    1.0,                 # (-1/2, -1/2, -1/2,   1,  3/2) -> 1
+    0.0,                 # (-1/2, -1/2,  1/2,   0,  1/2) -> 0
+    -0.816496580927726,  # (-1/2, -1/2,  1/2,   1,  1/2) -> -sqrt(2/3)
+    0.5773502691896257,  # (-1/2, -1/2,  1/2,   1,  3/2) -> sqrt(1/3)
+    -0.7071067811865476, # (-1/2,  1/2, -1/2,   0,  1/2) -> -sqrt(1/2)
+    0.408248290463863,   # (-1/2,  1/2, -1/2,   1,  1/2) -> sqrt(1/6)
+    0.5773502691896257,  # (-1/2,  1/2, -1/2,   1,  3/2) -> sqrt(1/3)
+    -0.7071067811865476, # (-1/2,  1/2,  1/2,   0,  1/2) -> -sqrt(1/2)
+    -0.408248290463863,  # (-1/2,  1/2,  1/2,   1,  1/2) -> -sqrt(1/6)
+    0.5773502691896257,  # (-1/2,  1/2,  1/2,   1,  3/2) -> sqrt(1/3)
+    0.7071067811865476,  # ( 1/2, -1/2, -1/2,   0,  1/2) -> sqrt(1/2)
+    0.408248290463863,   # ( 1/2, -1/2, -1/2,   1,  1/2) -> sqrt(1/6)
+    0.5773502691896257,  # ( 1/2, -1/2, -1/2,   1,  3/2) -> sqrt(1/3)
+    0.7071067811865476,  # ( 1/2, -1/2,  1/2,   0,  1/2) -> sqrt(1/2)
+    -0.408248290463863,  # ( 1/2, -1/2,  1/2,   1,  1/2) -> -sqrt(1/6)
+    0.5773502691896257,  # ( 1/2, -1/2,  1/2,   1,  3/2) -> sqrt(1/3)
+    0.0,                 # ( 1/2,  1/2, -1/2,   0,  1/2) -> 0
+    0.816496580927726,   # ( 1/2,  1/2, -1/2,   1,  1/2) -> sqrt(2/3)
+    0.5773502691896257,  # ( 1/2,  1/2, -1/2,   1,  3/2) -> sqrt(1/3)
+    0.0,                 # ( 1/2,  1/2,  1/2,   0,  1/2) -> 0
+    0.0,                 # ( 1/2,  1/2,  1/2,   1,  1/2) -> 0
+    1.0                  # ( 1/2,  1/2,  1/2,   1,  3/2) -> 1
+]
+
+"""
+    fCG3spin(ds1::Integer, ds2::Integer, ds3::Integer, S12::Integer, dS::Integer)
+float64 and fast CG coefficient for three spin-1/2 coupling: <S12,M12|1/2,m1;1/2,m2><S,M|S12,M12;1/2,m3>
+"""
+function fCG3spin(ds1::Integer, ds2::Integer, ds3::Integer, S12::Integer, dS::Integer)::Float64
+    unsigned(S12) > 1 && return zero(Float64)
+    (S12 == 0 && dS != 1) && return zero(Float64)
+    (S12 == 1 && (dS != 1 && dS != 3)) && return zero(Float64)
+    (abs(ds1) != 1 || abs(ds2) != 1 || abs(ds3) != 1) && return zero(Float64)
+    return CG3spin_data[3 * (2ds1 + ds2 + div(ds3 + 1, 2)) + div(S12 + dS, 2) + 10]
+end
+
 
 """
     f3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
