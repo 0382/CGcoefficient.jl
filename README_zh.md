@@ -47,15 +47,17 @@ julia> f6j(6,6,6,6,6,6)
 
 #### 精确函数
 
-- `CG(j1, j2, j3, m1, m2, m3)`, CG系数，参数是所谓`HalfInt`，也就是整数或者`3//2`这样分数类型。
+精确函数仅用于演示，其中一些可以是`Real`参数，比如`1, 3//2, 0.5`，但是`4//3, 0.6`会报错。
+
+- `CG(j1, j2, j3, m1, m2, m3)`, CG系数，参数是均为`Real`。
 - `CG0(j1, j2, j3)`, CG系数特殊情况`m1 = m2 = m3 = 0`，此时当然角动量是整数才有意义。
-- `threeJ(j1, j2, j3, m1, m2, m3)`, Wigner 3j系数，参数均为`HalfInt`。
-- `sixJ(j1, j2, j3, j4, j5, j6)`, Wigner 6j系数，参数均为`HalfInt`。
-- `Racah(j1, j2, j3, j4, j5, j6)`, Racah系数，参数均为`HalfInt`。
-- `nineJ(j1, j2, j3, j4, j5, j6, j7, j8, j9)`, Wigner 9j系数，参数均为`HalfInt`。
-- `norm9J(j2, j3, j4, j5, j5, j6, j7, j8, j9)`, normalized 9j系数，参数均为`HalfInt`。
-- `lsjj(l1, l2, j1, j2, L, S, J)`, LS耦合到jj耦合的转换系数，它实际上等于一个normalized 9j系数，但更易于使用且更快。`j1, j2`是`HalfInt`，其余必须是整数。
-- `Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ)`, Moshinsky括号，参数均为`HalfInt`。
+- `threeJ(j1, j2, j3, m1, m2, m3)`, Wigner 3j系数，参数均为`Real`。
+- `sixJ(j1, j2, j3, j4, j5, j6)`, Wigner 6j系数，参数均为`Real`。
+- `Racah(j1, j2, j3, j4, j5, j6)`, Racah系数，参数均为`Real`。
+- `nineJ(j1, j2, j3, j4, j5, j6, j7, j8, j9)`, Wigner 9j系数，参数均为`Real`。
+- `norm9J(j2, j3, j4, j5, j5, j6, j7, j8, j9)`, normalized 9j系数，参数均为`Real`。
+- `lsjj(l1, l2, j1, j2, L, S, J)`, LS耦合到jj耦合的转换系数，它实际上等于一个normalized 9j系数，但更易于使用且更快。`j1, j2`是`Real`，其余必须是整数。
+- `Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ)`, Moshinsky括号，参数均为`Real`。
 
 #### 浮点数函数
 

@@ -9,7 +9,7 @@ SqrtRational
 
 The default functions give out exact result in the format of `SqrtRational`.
 The results are simplified to give out shotest possible result.
-Their arguments are `HalfInt` (aka Integer or Rational with denomiator 2).
+Their arguments are `Real` (but only allow twice of which can be convert into integer).
 ```@docs
 CG
 CG0

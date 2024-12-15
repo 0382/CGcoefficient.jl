@@ -75,8 +75,8 @@ function test_special_Racah(test_range::AbstractArray)
 end
 
 
-function check_6j(j1::HalfInt, j2::HalfInt, j3::HalfInt,
-    j4::HalfInt, j5::HalfInt, j6::HalfInt)
+function check_6j(j1::Real, j2::Real, j3::Real,
+    j4::Real, j5::Real, j6::Real)
     dj1, dj2, dj3, dj4, dj5, dj6 = Int64.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))
     check_couple(dj1, dj2, dj3) & check_couple(dj1, dj5, dj6) &
     check_couple(dj4, dj2, dj6) & check_couple(dj4, dj5, dj3)

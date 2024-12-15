@@ -47,14 +47,16 @@ This package contains two types of functions:
 
 #### Exact functions
 
-- `CG(j1, j2, j3, m1, m2, m3)`, CG-coefficient, arguments are `HalfInt`s, aka `Integer` or `Rational` like `3//2`.
+Exact function only for demonstration, some of them can be `Real` arguments, like `1, 3//2, 0.5`, but `4//3, 0.6` will throw error.
+
+- `CG(j1, j2, j3, m1, m2, m3)`, CG-coefficient, `Real` arguments.
 - `CG0(j1, j2, j3)`, CG-coefficient for `m1 = m2 = m3 = 0`, only integer angular momentum number is meaningful.
-- `threeJ(j1, j2, j3, m1, m2, m3)`, Wigner 3j-symbol, `HalfInt` arguments.
-- `sixJ(j1, j2, j3, j4, j5, j6)`, Wigner 6j-symbol, `HalfInt` arguments.
-- `Racah(j1, j2, j3, j4, j5, j6)`, Racah coefficient, `HalfInt` arguments.
-- `nineJ(j1, j2, j3, j4, j5, j6, j7, j8, j9)`, Wigner 9j-symbol, `HalfInt` arguments.
-- `norm9J(j2, j3, j4, j5, j5, j6, j7, j8, j9)`, normalized 9j-symbol, `HalfInt` arguments.
-- `lsjj(l1, l2, j1, j2, L, S, J)`, LS-coupling to jj-coupling transform coefficient. It actually equals to a normalized 9j-symbol, but easy to use and faster. `j1, j2` can be `HalfInt`.
+- `threeJ(j1, j2, j3, m1, m2, m3)`, Wigner 3j-symbol, `Real` arguments.
+- `sixJ(j1, j2, j3, j4, j5, j6)`, Wigner 6j-symbol, `Real` arguments.
+- `Racah(j1, j2, j3, j4, j5, j6)`, Racah coefficient, `Real` arguments.
+- `nineJ(j1, j2, j3, j4, j5, j6, j7, j8, j9)`, Wigner 9j-symbol, `Real` arguments.
+- `norm9J(j2, j3, j4, j5, j5, j6, j7, j8, j9)`, normalized 9j-symbol, `Real` arguments.
+- `lsjj(l1, l2, j1, j2, L, S, J)`, LS-coupling to jj-coupling transform coefficient. It actually equals to a normalized 9j-symbol, but easy to use and faster. `j1, j2` can be `Real`.
 - `Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ)`, Moshinsky brakets, `Integer` arguments.
 
 #### Float functions
