@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.6.7'
+          - '1.10.7'
           - '1' # automatically expands to the latest stable 1.x release of Julia
           - nightly
         os:
@@ -52,6 +52,8 @@ jobs:
       - uses: codecov/codecov-action@v5
         with:
           file: lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: false
   docs:
     name: Documentation
     runs-on: ubuntu-latest
