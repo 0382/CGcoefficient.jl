@@ -99,9 +99,7 @@ end
 # basic CG coefficient calculation function with Float64 return value
 # unlike the SqrtRational version, this function gives out zero when the parameters are not valid
 function _fCG(dj1::Int, dj2::Int, dj3::Int, dm1::Int, dm2::Int, dm3::Int)
-    check_jm(dj1, dm1) && check_jm(dj2, dm2) && check_jm(dj3, dm3) || return zero(Float64)
-    check_couple(dj1, dj2, dj3) || return zero(Float64)
-    dm1 + dm2 == dm3 || return zero(Float64)
+    check_CG(dj1, dj2, dj3, dm1, dm2, dm3) || return zero(Float64)
     J::Int = div(dj1 + dj2 + dj3, 2)
     Jm1::Int = J - dj1
     Jm2::Int = J - dj2
@@ -123,6 +121,29 @@ function _fCG(dj1::Int, dj2::Int, dj3::Int, dm1::Int, dm2::Int, dm3::Int)
     return iphase(high) * A * B
 end
 
+function _f3j(dj1::Int, dj2::Int, dj3::Int, dm1::Int, dm2::Int, dm3::Int)
+    check_3j(dj1, dj2, dj3, dm1, dm2, dm3) || return zero(Float64)
+    J::Int = div(dj1 + dj2 + dj3, 2)
+    Jm1::Int = J - dj1
+    Jm2::Int = J - dj2
+    Jm3::Int = J - dj3
+    j1mm1::Int = div(dj1 - dm1, 2)
+    j2mm2::Int = div(dj2 - dm2, 2)
+    j3mm3::Int = div(dj3 - dm3, 2)
+    j1pm1::Int = div(dj1 + dm1, 2)
+    A = sqrt(unsafe_fbinomial(dj1, Jm2) * unsafe_fbinomial(dj2, Jm1) / (
+        (J+1) * unsafe_fbinomial(J, Jm3) * unsafe_fbinomial(dj1, j1mm1) *
+        unsafe_fbinomial(dj2, j2mm2) * unsafe_fbinomial(dj3, j3mm3)
+    ))
+    B = zero(Float64)
+    low::Int = max(zero(Int), j1pm1 - Jm2, j2mm2 - Jm1)
+    high::Int = min(Jm3, j1pm1, j2mm2)
+    for z in low:high
+        B = -B + unsafe_fbinomial(Jm3, z) * unsafe_fbinomial(Jm2, j1pm1 - z) * unsafe_fbinomial(Jm1, j2mm2 - z)
+    end
+    return iphase(dj1 + div(dj3 + dm3, 2) + high) * A * B
+end
+
 function _fCG0(j1::Int, j2::Int, j3::Int)
     check_couple(2j1, 2j2, 2j3) || return zero(Float64)
     J = j1 + j2 + j3
@@ -132,7 +153,7 @@ function _fCG0(j1::Int, j2::Int, j3::Int)
 end
 
 function _f6j(dj1::Int, dj2::Int, dj3::Int, dj4::Int, dj5::Int, dj6::Int)
-    check_couple(dj1, dj2, dj3) && check_couple(dj1, dj5, dj6) & check_couple(dj4, dj2, dj6) && check_couple(dj4, dj5, dj3) || return zero(Float64)
+    check_6j(dj1, dj2, dj3, dj4, dj5, dj6) || return zero(Float64)
     j123::Int = div(dj1 + dj2 + dj3, 2)
     j156::Int = div(dj1 + dj5 + dj6, 2)
     j426::Int = div(dj4 + dj2 + dj6, 2)
@@ -161,8 +182,7 @@ end
 function _f9j(dj1::Int, dj2::Int, dj3::Int,
     dj4::Int, dj5::Int, dj6::Int,
     dj7::Int, dj8::Int, dj9::Int)
-    check_couple(dj1, dj2, dj3) && check_couple(dj4, dj5, dj6) && check_couple(dj7, dj8, dj9) || return zero(Float64)
-    check_couple(dj1, dj4, dj7) && check_couple(dj2, dj5, dj8) && check_couple(dj3, dj6, dj9) || return zero(Float64)
+    check_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9) || return zero(Float64)
     j123::Int = div(dj1 + dj2 + dj3, 2)
     j456::Int = div(dj4 + dj5 + dj6, 2)
     j789::Int = div(dj7 + dj8 + dj9, 2)
@@ -452,7 +472,7 @@ end
 float64 and fast Wigner 3j symbol.
 """
 @inline function f3j(dj1::Integer, dj2::Integer, dj3::Integer, dm1::Integer, dm2::Integer, dm3::Integer)
-    return iphase(dj1 + div(dj3 + dm3, 2)) * fCG(dj1, dj2, dj3, -dm1, -dm2, dm3) / sqrt(dj3 + 1)
+    return _f3j(Int.((dj1, dj2, dj3, dm1, dm2, dm3))...)
 end
 
 """

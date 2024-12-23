@@ -50,6 +50,30 @@ function test_CG3spin()
     end end end
 end
 
+function test_3j_as_CG(test_range::AbstractArray)
+    for dj1 in test_range, dj2 in test_range, dj3 in test_range
+        for dm1 in -dj1:2:dj1, dm2 in -dj2:2:dj2
+            dm3 = -dm1 - dm2
+            if check_couple(dj1, dj2, dj3) & check_jm(dj3, dm3)
+                tj = d3j(dj1, dj2, dj3, dm1, dm2, dm3)
+                cg = dCG(dj1, dj2, dj3, -dm1, -dm2, dm3)
+                @test tj == cg * SqrtRational(iphase(dj1 + div(dj3 + dm3, 2)), 1//(dj3 + 1))
+            end
+        end
+    end
+    wigner_init_float(cld(maximum(test_range), 2), "Jmax", 3)
+    for dj1 in test_range, dj2 in test_range, dj3 in test_range
+        for dm1 in -dj1:2:dj1, dm2 in -dj2:2:dj2
+            dm3 = -dm1 - dm2
+            if check_couple(dj1, dj2, dj3) & check_jm(dj3, dm3)
+                tj = f3j(dj1, dj2, dj3, dm1, dm2, dm3)
+                cg = fCG(dj1, dj2, dj3, -dm1, -dm2, dm3)
+                @test tj ≈ cg * iphase(dj1 + div(dj3 + dm3, 2)) / sqrt(dj3 + 1)
+            end
+        end
+    end
+end
+
 # test special condition for 6j symbols
 # Ref[1], P299, Sec 9.5, Formula (1)
 function test_special_6j(test_range::AbstractArray)
@@ -74,21 +98,13 @@ function test_special_Racah(test_range::AbstractArray)
     end
 end
 
-
-function check_6j(j1::Real, j2::Real, j3::Real,
-    j4::Real, j5::Real, j6::Real)
-    dj1, dj2, dj3, dj4, dj5, dj6 = Int64.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))
-    check_couple(dj1, dj2, dj3) & check_couple(dj1, dj5, dj6) &
-    check_couple(dj4, dj2, dj6) & check_couple(dj4, dj5, dj3)
-end
-
 # test special condition for 9j symbols
 # Ref[1], P357, Sec 10.9, Formula (1)
 function test_special_9j(test_range::AbstractArray)
     for j1 in test_range, j2 in test_range, j3 in test_range,
         j4 in test_range, j5 in test_range, j7 in test_range
 
-        if check_6j(j1, j2, j3, j5, j4, j7)
+        if check_6j(convert(Int, 2j1), convert(Int, 2j2), convert(Int, 2j3), convert(Int, 2j5), convert(Int, 2j4), convert(Int, 2j7))
             nj = nineJ(j1, j2, j3, j4, j5, j3, j7, j7, 0)
             snj = iphase(Int(j2 + j3 + j4 + j7)) / exact_sqrt((2j3 + 1) * (2j7 + 1))
             snj *= sixJ(j1, j2, j3, j5, j4, j7)

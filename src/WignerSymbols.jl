@@ -35,7 +35,25 @@ end
 
 # use CG coefficient to calculate 3j-symbol
 function _d3j(dj1::BigInt, dj2::BigInt, dj3::BigInt, dm1::BigInt, dm2::BigInt, dm3::BigInt)
-    iphase(dj1 + div(dj3 + dm3, 2)) * exact_sqrt(1 // (dj3 + 1)) * _dCG(dj1, dj2, dj3, -dm1, -dm2, dm3)
+    check_3j(dj1, dj2, dj3, dm1, dm2, dm3) || return zero(SqrtRational)
+    J::BigInt = div(dj1 + dj2 + dj3, 2)
+    Jm1::BigInt = J - dj1
+    Jm2::BigInt = J - dj2
+    Jm3::BigInt = J - dj3
+    j1mm1::BigInt = div(dj1 - dm1, 2)
+    j2mm2::BigInt = div(dj2 - dm2, 2)
+    j3mm3::BigInt = div(dj3 - dm3, 2)
+    j1pm1::BigInt = div(dj1 + dm1, 2)
+    A = (binomial(dj1, Jm2) * binomial(dj2, Jm1)) // (
+        (J + 1) * binomial(J, Jm3) * binomial(dj1, j1mm1) * binomial(dj2, j2mm2) * binomial(dj3, j3mm3)
+    )
+    B::BigInt = zero(BigInt)
+    low::BigInt = max(zero(BigInt), j1pm1 - Jm2, j2mm2 - Jm1)
+    high::BigInt = min(Jm3, j1pm1, j2mm2)
+    for z in low:high
+        B = -B + binomial(Jm3, z) * binomial(Jm2, j1pm1 - z) * binomial(Jm1, j2mm2 - z)
+    end
+    return SqrtRational(iphase(dj1 + div(dj3 + dm3, 2) + high) * B, A)
 end
 
 # basic 6j-symbol calculation funciton
@@ -171,7 +189,7 @@ function _lsjj_S1_0(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
     mj = div(dj1 - dj2, 2)
     pl = l1 + l2
     ml = l1 - l2
-    (mj * (pj + 1) - ml * (pl + 1)) * _lsjj_helper(l1, l2, dj1, dj2, J) / exact_sqrt(J * (J + 1))
+    _lsjj_helper(l1, l2, dj1, dj2, J) * SqrtRational(mj * (pj + 1) - ml * (pl + 1), 1//(J * (J + 1)))
 end
 
 # S = 1, J = L + 1
@@ -392,7 +410,7 @@ j_7 & j_8 & j_9
     lsjj(l1::Integer, l2::Integer, j1::Real, j2::Real, L::Integer, S::Integer, J::Integer)
 LS-coupling to jj-coupling transformation coefficient
 ```math
-|l_1 l_2 j_1 j_2; J\rangle = \sum_{LS} \langle l_1 l_2 LSJ | l_1 l_2 j_1 j_2; J \rangle |l_1 l_2 LSJ \rangle
+\langle l_1l_2L,s_1s_2S;J|l_1s_1j_1,l_2s_2j_2;J\rangle = \begin{bmatrix}l_1 & s_1 & j_1 \\ l_2 & s_2 & j_2 \\ L & S & J\end{bmatrix}
 ```
 """
 @inline lsjj(l1::Integer, l2::Integer, j1::Real, j2::Real, L::Integer, S::Integer, J::Integer) = simplify(_lsjj(BigInt.((l1, l2, 2j1, 2j2, L, S, J))...))

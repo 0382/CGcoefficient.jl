@@ -19,10 +19,13 @@ where, $J = j_1+j_2+j_3$. It is already combination of binomials.
 Ref [^1], P236, Section 8.1.2, Formula (11).
 
 ```math
-\begin{pmatrix}j_1 & j_2 & j_3 \\ m_1 & m_2 & m_3\end{pmatrix} = (-1)^{j_3+m_3+2j_1}\dfrac{1}{\sqrt{2j_3+1}}C_{j_1-m_1j_2-m_2}^{j_3m_3}
+\begin{aligned}
+\begin{pmatrix}j_1 & j_2 & j_3 \\ m_1 & m_2 & m_3\end{pmatrix} &= (-1)^{j_3+m_3+2j_1}\dfrac{1}{\sqrt{2j_3+1}}C_{j_1-m_1j_2-m_2}^{j_3m_3} \\
+&= (-1)^{j_3+m_3+2j_1} \dfrac{\delta_{-m_3, m_1+m_2}}{\sqrt{J+1}} \sum_{z} (-1)^{z}\begin{pmatrix}J-2j_3 \\ z\end{pmatrix}\begin{pmatrix}J-2j_2 \\ j_1 + m_1-z\end{pmatrix}\begin{pmatrix}J-2j_1 \\ j_2 - m_2 - z\end{pmatrix} \\
+&\times \left[
+    \dfrac{\begin{pmatrix}2j_1 \\ J-2j_2\end{pmatrix}\begin{pmatrix}2j_2\\J-2j_3\end{pmatrix}}{\begin{pmatrix}J\\J-2j_3\end{pmatrix}\begin{pmatrix}2j_1\\j_1 - m_1\end{pmatrix}\begin{pmatrix}2j_2 \\ j_2 - m_2\end{pmatrix}\begin{pmatrix}2j_3 \\ j_3-m_3\end{pmatrix}}\right]^{1/2}.
+\end{aligned}
 ```
-
-This package use the CG coefficient above to calculate 3j symbol.
 
 ## 6j symbol
 

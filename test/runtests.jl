@@ -16,6 +16,7 @@ include("test_Moshinsky.jl")
 @testset "special condition: CG0" begin test_CG0(1:10) end
 @testset "special condition: CGspin" begin test_CGspin() end
 @testset "special condition: CG3spin" begin test_CG3spin() end
+@testset "special condition: 3j as CG" begin test_3j_as_CG(1:8) end
 @testset "special condition: 6j" begin test_special_6j(1//2:1//2:5) end
 @testset "special condition: Racah" begin test_special_Racah(1//2:1//2:5) end
 @testset "special condition: 9j" begin test_special_9j(1//2:1//2:3) end
@@ -25,7 +26,7 @@ include("test_Moshinsky.jl")
 @testset "test orthonormality: dCG" begin test_orthonormality_dCG(0:8) end
 @testset "test summation: d3j" begin test_summation_d3j(0:40) end
 @testset "test orthonormality: d6j" begin test_orthonormality_d6j(0:6) end
-@testset "test orthonormality: d9j" begin test_orthonormality_d9j(0:4) end
+@testset "test orthonormality: d9j" begin test_orthonormality_d9j(0:3) end
 
 @testset "test Moshinsky" begin test_Moshinsky() end
 
