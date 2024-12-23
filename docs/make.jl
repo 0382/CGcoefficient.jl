@@ -11,6 +11,7 @@ makedocs(
         "API" => "api.md",
         "Formula" => [
             "Wigner Symbols" => "wigner.md",
+            "LS-jj recoupling" => "lsjj.md",
             "Moshinsky" => "moshinsky.md",
         ],
     ]

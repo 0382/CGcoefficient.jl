@@ -306,44 +306,57 @@ function _dfunc(dj::Int, dm1::Int, dm2::Int, β::Float64)
     return sum
 end
 
-function _flsjj_helper(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
-    iphase(div(dj2 + 1, 2) + l1 + J) * _f6j(2l1, 1, dj1, dj2, 2J, 2l2)
+@inline function _flsjj_helper(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
+    pj = div(dj1 + dj2, 2)
+    mj = div(dj1 - dj2, 2)
+    # j1 = l1 + 1//2, j2 = l2 + 1//2
+    (dj1 > 2l1 && dj2 > 2l2) && return sqrt(((pj + J + 1) * (pj - J)) / (2dj1 * dj2))
+    # j1 = l1 + 1//2, j2 = l2 - 1//2
+    (dj1 > 2l1 && dj2 < 2l2) && return sqrt(((mj + J) * (J - mj + 1)) / (2dj1 * (dj2 + 2)))
+    # j1 = l1 - 1//2, j2 = l2 + 1//2
+    (dj1 < 2l1 && dj2 > 2l2) && return -sqrt(((mj + J + 1) * (J - mj)) / (2(dj1 + 2) * dj2))
+    # j1 = l1 - 1//2, j2 = l2 - 1//2
+    return sqrt((pj + J + 2) * (pj - J + 1) / (2(dj1 + 2) * (dj2 + 2)))
 end
 
 # S = 0
-function _flsjj_S0(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
-    sqrt((dj1 + 1) * (dj2 + 1) / 2) * _flsjj_helper(l1, l2, dj1, dj2, J)
+@inline function _flsjj_S0(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
+    _flsjj_helper(l1, l2, dj1, dj2, J)
 end
 
 # S = 1, J = L - 1
 function _flsjj_S1_m1(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
     L = J + 1
-    f0 = ((dj1 + 1) * (dj2 + 1)) / (2L * (2L - 1))
+    pj = div(dj1 + dj2, 2)
     mj = div(dj1 - dj2, 2)
-    pj = div(dj1 + dj2, 2) + 1
-    fL = (L + mj) * (L - mj) * (L + pj) * (pj - L)
+    pl = l1 + l2
     ml = l1 - l2
-    pl = l1 + l2 + 1
-    fJ = (L + ml) * (L - ml) * (L + pl) * (pl - L)
-    sqrt(fJ * f0) * _flsjj_helper(l1, l2, dj1, dj2, J) - sqrt(fL * f0) * _flsjj_helper(l1, l2, dj1, dj2, L)
+    f0 = (J + 1) * (2J + 1)
+    fJ = (L + ml) * (L - ml) * (L + pl + 1) * (pl - L + 1)
+    fL = (L + mj) * (L - mj) * (L + pj + 1) * (pj - L + 1)
+    sqrt(fJ / f0) * _flsjj_helper(l1, l2, dj1, dj2, J) - sqrt(fL / f0) * _flsjj_helper(l1, l2, dj1, dj2, L)
 end
 
 # S = 1, J = L
 function _flsjj_S1_0(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
-    factor = div(dj1 - dj2, 2) * div(dj1 + dj2 + 2, 2) - (l1 - l2) * (l1 + l2 + 1)
-    factor * sqrt((dj1 + 1) * (dj2 + 1) / (2J * (J + 1))) * _flsjj_helper(l1, l2, dj1, dj2, J)
+    pj = div(dj1 + dj2, 2)
+    mj = div(dj1 - dj2, 2)
+    pl = l1 + l2
+    ml = l1 - l2
+    (mj * (pj + 1) - ml * (pl + 1)) * _flsjj_helper(l1, l2, dj1, dj2, J) / sqrt(J * (J + 1))
 end
 
 # S = 1, J = L + 1
 function _flsjj_S1_p1(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
-    f0 = ((dj1 + 1) * (dj2 + 1)) / (2J * (2J + 1))
+    L = J - 1
+    pj = div(dj1 + dj2, 2)
     mj = div(dj1 - dj2, 2)
-    pj = div(dj1 + dj2, 2) + 1
-    fL = (J + mj) * (J - mj) * (J + pj) * (pj - J)
+    pl = l1 + l2
     ml = l1 - l2
-    pl = l1 + l2 + 1
-    fJ = (J + ml) * (J - ml) * (J + pl) * (pl - J)
-    sqrt(fL * f0) * _flsjj_helper(l1, l2, dj1, dj2, J - 1) - sqrt(fJ * f0) * _flsjj_helper(l1, l2, dj1, dj2, J)
+    f0 = J * (2J + 1)
+    fL = (J + mj) * (J - mj) * (J + pj + 1) * (pj - J + 1)
+    fJ = (J + ml) * (J - ml) * (J + pl + 1) * (pl - J + 1)
+    sqrt(fL / f0) * _flsjj_helper(l1, l2, dj1, dj2, L) - sqrt(fJ / f0) * _flsjj_helper(l1, l2, dj1, dj2, J)
 end
 
 function _flsjj(l1::Int, l2::Int, dj1::Int, dj2::Int, L::Int, S::Int, J::Int)

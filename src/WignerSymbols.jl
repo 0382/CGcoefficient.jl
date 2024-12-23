@@ -134,44 +134,57 @@ function _d9j(dj1::BigInt, dj2::BigInt, dj3::BigInt,
     return SqrtRational(iphase(dth) * PABC, P0)
 end
 
-function _lsjj_helper(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
-    iphase(div(dj2 + 1, 2) + l1 + J) * _d6j(2l1, BigInt(1), dj1, dj2, 2J, 2l2)
+@inline function _lsjj_helper(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
+    pj = div(dj1 + dj2, 2)
+    mj = div(dj1 - dj2, 2)
+    # j1 = l1 + 1//2, j2 = l2 + 1//2
+    (dj1 > 2l1 && dj2 > 2l2) && return exact_sqrt(((pj + J + 1) * (pj - J)) // (2dj1 * dj2))
+    # j1 = l1 + 1//2, j2 = l2 - 1//2
+    (dj1 > 2l1 && dj2 < 2l2) && return exact_sqrt(((mj + J) * (J - mj + 1)) // (2dj1 * (dj2+2)))
+    # j1 = l1 - 1//2, j2 = l2 + 1//2
+    (dj1 < 2l1 && dj2 > 2l2) && return -exact_sqrt(((mj + J + 1) * (J - mj)) // (2(dj1+2) * dj2))
+    # j1 = l1 - 1//2, j2 = l2 - 1//2
+    return exact_sqrt(((pj + J + 2) * (pj - J + 1)) // (2(dj1+2) * (dj2+2)))
 end
 
 # S = 0
-function _lsjj_S0(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
-    exact_sqrt((dj1 + 1) * (dj2 + 1) // 2) * _lsjj_helper(l1, l2, dj1, dj2, J)
+@inline function _lsjj_S0(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
+    _lsjj_helper(l1, l2, dj1, dj2, J)
 end
 
 # S = 1, J = L - 1
 function _lsjj_S1_m1(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
     L = J + 1
-    f0 = ((dj1 + 1) * (dj2 + 1)) // (2L * (2L - 1))
+    pj = div(dj1 + dj2, 2)
     mj = div(dj1 - dj2, 2)
-    pj = div(dj1 + dj2, 2) + 1
-    fL = (L + mj) * (L - mj) * (L + pj) * (pj - L)
+    pl = l1 + l2
     ml = l1 - l2
-    pl = l1 + l2 + 1
-    fJ = (L + ml) * (L - ml) * (L + pl) * (pl - L)
-    exact_sqrt(fJ * f0) * _lsjj_helper(l1, l2, dj1, dj2, J) - exact_sqrt(fL * f0) * _lsjj_helper(l1, l2, dj1, dj2, L)
+    f0 = (J + 1) * (2J + 1)
+    fJ = (L + ml) * (L - ml) * (L + pl + 1) * (pl - L + 1)
+    fL = (L + mj) * (L - mj) * (L + pj + 1) * (pj - L + 1)
+    exact_sqrt(fJ // f0) * _lsjj_helper(l1, l2, dj1, dj2, J) - exact_sqrt(fL // f0) * _lsjj_helper(l1, l2, dj1, dj2, L)
 end
 
 # S = 1, J = L
 function _lsjj_S1_0(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
-    factor = div(dj1 - dj2, 2) * div(dj1 + dj2 + 2, 2) - (l1 - l2) * (l1 + l2 + 1)
-    SqrtRational(factor, (dj1 + 1) * (dj2 + 1) // (2J * (J + 1))) * _lsjj_helper(l1, l2, dj1, dj2, J)
+    pj = div(dj1 + dj2, 2)
+    mj = div(dj1 - dj2, 2)
+    pl = l1 + l2
+    ml = l1 - l2
+    (mj * (pj + 1) - ml * (pl + 1)) * _lsjj_helper(l1, l2, dj1, dj2, J) / exact_sqrt(J * (J + 1))
 end
 
 # S = 1, J = L + 1
 function _lsjj_S1_p1(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, J::BigInt)
-    f0 = ((dj1 + 1) * (dj2 + 1)) // (2J * (2J + 1))
+    L = J - 1
+    pj = div(dj1 + dj2, 2)
     mj = div(dj1 - dj2, 2)
-    pj = div(dj1 + dj2, 2) + 1
-    fL = (J + mj) * (J - mj) * (J + pj) * (pj - J)
+    pl = l1 + l2
     ml = l1 - l2
-    pl = l1 + l2 + 1
-    fJ = (J + ml) * (J - ml) * (J + pl) * (pl - J)
-    exact_sqrt(fL * f0) * _lsjj_helper(l1, l2, dj1, dj2, J - 1) - exact_sqrt(fJ * f0) * _lsjj_helper(l1, l2, dj1, dj2, J)
+    f0 = J * (2J + 1)
+    fL = (J + mj) * (J - mj) * (J + pj + 1) * (pj - J + 1)
+    fJ = (J + ml) * (J - ml) * (J + pl + 1) * (pl - J + 1)
+    exact_sqrt(fL // f0) * _lsjj_helper(l1, l2, dj1, dj2, L) - exact_sqrt(fJ // f0) * _lsjj_helper(l1, l2, dj1, dj2, J)
 end
 
 function _lsjj(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, L::BigInt, S::BigInt, J::BigInt)
