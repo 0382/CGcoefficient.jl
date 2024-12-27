@@ -3,3 +3,4 @@ temp*
 .ipynb_checkpoints*
 build/
 Manifest.toml
+temp/

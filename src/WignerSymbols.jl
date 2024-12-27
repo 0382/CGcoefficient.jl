@@ -2,7 +2,7 @@
 
 # basic CG coefficient calculation function
 function _dCG(dj1::BigInt, dj2::BigInt, dj3::BigInt, dm1::BigInt, dm2::BigInt, dm3::BigInt)
-    check_CG(dj1, dj2, dj3, dm1, dm2, dm3) || return zero(SqrtRational)
+    check_CG(dj1, dj2, dj3, dm1, dm2, dm3) || return zero(SqrtRational{BigInt})
     J::BigInt = div(dj1 + dj2 + dj3, 2)
     Jm1::BigInt = J - dj1
     Jm2::BigInt = J - dj2
@@ -26,16 +26,16 @@ end
 
 # spaecial case: m1 == m2 == m3 == 0
 function _CG0(j1::BigInt, j2::BigInt, j3::BigInt)
-    check_couple(2j1, 2j2, 2j3) || return zero(SqrtRational)
+    check_couple(2j1, 2j2, 2j3) || return zero(SqrtRational{BigInt})
     J = j1 + j2 + j3
-    isodd(J) && return zero(SqrtRational)
+    isodd(J) && return zero(SqrtRational{BigInt})
     g = div(J, 2)
     return SqrtRational(iphase(g - j3) * binomial(g, j3) * binomial(j3, g - j1), big(1) // (binomial(J + 1, 2j3 + 1) * binomial(2j3, J - 2j1)))
 end
 
 # use CG coefficient to calculate 3j-symbol
 function _d3j(dj1::BigInt, dj2::BigInt, dj3::BigInt, dm1::BigInt, dm2::BigInt, dm3::BigInt)
-    check_3j(dj1, dj2, dj3, dm1, dm2, dm3) || return zero(SqrtRational)
+    check_3j(dj1, dj2, dj3, dm1, dm2, dm3) || return zero(SqrtRational{BigInt})
     J::BigInt = div(dj1 + dj2 + dj3, 2)
     Jm1::BigInt = J - dj1
     Jm2::BigInt = J - dj2
@@ -58,7 +58,7 @@ end
 
 # basic 6j-symbol calculation funciton
 function _d6j(dj1::BigInt, dj2::BigInt, dj3::BigInt, dj4::BigInt, dj5::BigInt, dj6::BigInt)
-    check_6j(dj1, dj2, dj3, dj4, dj5, dj6) || return zero(SqrtRational)
+    check_6j(dj1, dj2, dj3, dj4, dj5, dj6) || return zero(SqrtRational{BigInt})
     j123::BigInt = div(dj1 + dj2 + dj3, 2)
     j156::BigInt = div(dj1 + dj5 + dj6, 2)
     j426::BigInt = div(dj4 + dj2 + dj6, 2)
@@ -94,7 +94,7 @@ end
 function _d9j(dj1::BigInt, dj2::BigInt, dj3::BigInt,
     dj4::BigInt, dj5::BigInt, dj6::BigInt,
     dj7::BigInt, dj8::BigInt, dj9::BigInt)
-    check_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9) || return zero(SqrtRational)
+    check_9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9) || return zero(SqrtRational{BigInt})
     j123::BigInt = div(dj1 + dj2 + dj3, 2)
     j456::BigInt = div(dj4 + dj5 + dj6, 2)
     j789::BigInt = div(dj7 + dj8 + dj9, 2)
@@ -207,18 +207,18 @@ end
 
 function _lsjj(l1::BigInt, l2::BigInt, dj1::BigInt, dj2::BigInt, L::BigInt, S::BigInt, J::BigInt)
     if abs(dj1 - 2l1) != 1 || abs(dj2 - 2l2) != 1
-        return zero(SqrtRational)
+        return zero(SqrtRational{BigInt})
     end
-    check_couple(2l1, 2l2, 2L) || return zero(SqrtRational)
-    check_couple(dj1, dj2, 2J) || return zero(SqrtRational)
-    check_couple(2L, 2S, 2J) || return zero(SqrtRational)
+    check_couple(2l1, 2l2, 2L) || return zero(SqrtRational{BigInt})
+    check_couple(dj1, dj2, 2J) || return zero(SqrtRational{BigInt})
+    check_couple(2L, 2S, 2J) || return zero(SqrtRational{BigInt})
     S == 0 && return _lsjj_S0(l1, l2, dj1, dj2, J)
     if S == 1
         J == L - 1 && return _lsjj_S1_m1(l1, l2, dj1, dj2, J)
         J == L && return _lsjj_S1_0(l1, l2, dj1, dj2, J)
         J == L + 1 && return _lsjj_S1_p1(l1, l2, dj1, dj2, J)
     end
-    return zero(SqrtRational)
+    return zero(SqrtRational{BigInt})
 end
 
 function _Moshinsky(N::BigInt, L::BigInt, n::BigInt, l::BigInt, n1::BigInt, l1::BigInt, n2::BigInt, l2::BigInt, Λ::BigInt)
@@ -226,7 +226,7 @@ function _Moshinsky(N::BigInt, L::BigInt, n::BigInt, l::BigInt, n1::BigInt, l1::
     f2 = 2 * n2 + l2
     F = 2 * N + L
     f = 2 * n + l
-    f1 + f2 == F + f || return zero(SqrtRational)
+    f1 + f2 == F + f || return zero(SqrtRational{BigInt})
     χ = f1 + f2
     nl1 = n1 + l1
     nl2 = n2 + l2
@@ -238,7 +238,7 @@ function _Moshinsky(N::BigInt, L::BigInt, n::BigInt, l::BigInt, n1::BigInt, l1::
     r = binomial(2nl + 1, nl) // (binomial(f + 2, n) * (nl + 2))
     pre_sum = exact_sqrt(r1 * r2 * R * r // big(2)^χ)
     half_lsum = div(l1 + l2 + L + l, 2)
-    sum = zero(SqrtRational)
+    sum = zero(SqrtRational{BigInt})
     for fa = 0:min(f1, F)
         fb = f1 - fa
         fc = F - fa

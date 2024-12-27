@@ -86,11 +86,10 @@ Base.widen(x::SqrtRational) = SqrtRational(widen(x.s), widen(x.r))
 
 # convert
 """
-    float(x::SqrtRational)::Float64
-Although we use `BigInt` in calculation, we do not convert it to `BigFloat`.
-Because this package is designed for numeric calculation, `BigFloat` is unnecessary.
+    float(x::SqrtRational)::BigFloat
+Convert a `SqrtRational` to `BigFloat`.
 """
-Base.float(x::SqrtRational) = Float64(x.s) * sqrt(Float64(x.r))
+Base.float(x::SqrtRational) = convert(BigFloat, x.s) * sqrt(convert(BigFloat, x.r))
 
 # show
 Base.show(io::IO, ::MIME"text/plain", x::SqrtRational) = begin

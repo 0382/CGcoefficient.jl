@@ -13,6 +13,7 @@ makedocs(
             "Wigner Symbols" => "wigner.md",
             "LS-jj recoupling" => "lsjj.md",
             "Moshinsky" => "moshinsky.md",
+            "Prime Factorization" => "pfrational.md",
         ],
     ]
 )
