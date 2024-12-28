@@ -6,7 +6,7 @@ A positive rational number in prime factorization form.
 ```math
 q = \prod_{i=1}^{n} p_i^{e_i}
 ```
-where `p_i` is the `i`-th prime number and `e_i` is the exponent of `p_i`, `e_i` can be negative.
+where ``p_i`` is the ``i``-th prime number and ``e_i`` can be negative.
 """
 struct PFRational{T<:Integer} <: Real
     e::Vector{T}
@@ -23,14 +23,6 @@ pf_alloc(T::Type{<:Integer}, n::Integer) = PFRational{T}(zeros(T, n))
 pf_alloc!(x::PFRational{T}, n::Integer) where {T<:Integer} = begin
     resize!(x.e, n)
     fill!(x.e, T(0))
-end
-function pf_fit!(x::PFRational)
-    n = length(x.e)
-    while n > 0 && x.e[n] == 0
-        n -= 1
-    end
-    resize!(x.e, n)
-    return x
 end
 
 Base.inv(x::PFRational) = PFRational(-x.e)
@@ -56,7 +48,6 @@ end
 end
 
 ^(x::PFRational, n::Integer) = PFRational(x.e .* n)
-square(x::PFRational) = PFRational(x.e .* 2)
 square!(x::PFRational) = begin
     for i in eachindex(x.e)
         x.e[i] *= 2
@@ -87,30 +78,6 @@ Base.lcm(x::PFRational, y::PFRational) = begin
     copyto!(e, x.e)
     for i in eachindex(y.e)
         e[i] = max(e[i], y.e[i])
-    end
-    return PFRational{T}(e)
-end
-
-"""
-    scgd(x::PFRational, y::PFRational)
-here we define `scgd` of rational, which means gcd of both numerator and denominator
-"""
-scgd(x::PFRational, y::PFRational) = begin
-    T = promote_type(eltype(x.e), eltype(y.e))
-    e = zeros(T, max(length(x.e), length(y.e)))
-    copyto!(e, x.e)
-    for i in eachindex(y.e)
-        e_min, e_max = minmax(e[i], y.e[i])
-        if e_min > 0
-            e[i] = e_min
-        elseif e_max < 0
-            e[i] = e_max
-        else
-            e[i] = 0
-        end
-    end
-    for i in length(y.e)+1:length(x.e)
-        e[i] = 0
     end
     return PFRational{T}(e)
 end
@@ -158,24 +125,6 @@ _lcm!(x::PFRational{T}, y::PFRational{T}) where {T<:Integer} = begin
         x.e[i] = max(x.e[i], 0)
     end
 end
-
-# assume length(y) <= length(x)
-_sgcd!(x::PFRational{T}, y::PFRational{T}) where {T<:Integer} = begin
-    for i in eachindex(y.e)
-        e_min, e_max = minmax(x.e[i], y.e[i])
-        if e_min > 0
-            x.e[i] = e_min
-        elseif e_max < 0
-            x.e[i] = e_max
-        else
-            x.e[i] = 0
-        end
-    end
-    for i in length(y.e)+1:length(x.e)
-        x.e[i] = 0
-    end
-end
-
 
 # positive integers in prime factorization form
 _pf_integers = PFRational{Int16}[one(PFRational{Int16})]

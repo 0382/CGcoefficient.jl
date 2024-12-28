@@ -84,3 +84,17 @@ function test_e6j(test_range::AbstractArray)
         @test convert(Float64, float(d)) == ef
     end end end end end end
 end
+
+
+function test_big_binomial()
+    wigner_init_pf(100, "nmax", 0)
+    wigner_init_float(100, "nmax", 0)
+    n = 100
+    for k in 0:n
+        x = pf_binomial(n, k)
+        y = binomial(big(n), big(k))
+        @test numerator(x) == y
+        f = fbinomial(n, k)
+        @test convert(Float64, numerator(x)) ≈ f
+    end
+end

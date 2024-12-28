@@ -7,7 +7,6 @@ mutable struct PrimePowItem
         new(size, offset, ulongdata, bigdata)
     end
 end
-PrimePowItem() = PrimePowItem(0, 0, Culong[], BigInt[])
 
 function make_pow_item(p::Culong, k::Int)
     offset = floor(Int, log(big(p), big(typemax(Culong))))
@@ -23,10 +22,8 @@ function make_pow_item(p::Culong, k::Int)
     else
         bigdata = BigInt[]
     end
-    PrimePowItem(k, offset, ulongdata, bigdata)
+    PrimePowItem(max(k, offset), offset, ulongdata, bigdata)
 end
-
-make_pow_item(p::Culong) = make_pow_item(p, 0)
 
 # first n primes
 _prime_table = Culong[2, 3, 5, 7]

@@ -84,7 +84,6 @@ wigner_init_float
 PFRational
 gcd(::PFRational, ::PFRational)
 lcm(::PFRational, ::PFRational)
-sgcd(::PFRational, ::PFRational)
 wigner_init_pf
 pf_binomial
 eCG

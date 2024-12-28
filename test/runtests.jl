@@ -36,6 +36,7 @@ include("test_pf.jl")
 @testset "test eCG0" begin test_eCG0(1:3) end
 @testset "test e3j" begin test_e3j(1:3) end
 @testset "test e6j" begin test_e6j(1:3) end
+@testset "test big binomial" begin test_big_binomial() end
 
 try
     gsl3j(1, 1, 1, 0, 0, 0)
