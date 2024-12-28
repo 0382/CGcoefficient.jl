@@ -5,6 +5,24 @@
 SqrtRational
 ```
 
+## Some useful function
+```@docs
+iphase
+is_same_parity
+check_jm
+check_couple
+binomial_data_size
+binomial_index
+check_CG
+check_3j
+check_6j
+check_9j
+exact_sqrt
+float(::SqrtRational)
+simplify(::Integer)
+simplify(::SqrtRational)
+```
+
 ## Exact functions
 
 The default functions give out exact result in the format of `SqrtRational`.
@@ -60,20 +78,21 @@ dfunc
 wigner_init_float
 ```
 
-## Some useful function
+## prime factorization version
+
 ```@docs
-iphase
-is_same_parity
-check_jm
-check_couple
-binomial_data_size
-binomial_index
-check_CG
-check_3j
-check_6j
-check_9j
-exact_sqrt
-float(::SqrtRational)
-simplify(::Integer)
-simplify(::SqrtRational)
+PFRational
+gcd(::PFRational, ::PFRational)
+lcm(::PFRational, ::PFRational)
+sgcd(::PFRational, ::PFRational)
+wigner_init_pf
+pf_binomial
+eCG
+eCG0
+e3j
+e6j
+efCG
+efCG0
+ef3j
+ef6j
 ```

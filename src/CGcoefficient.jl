@@ -27,6 +27,6 @@ include("floatWignerSymbols.jl")
 include("PFRational/primetable.jl")
 include("PFRational/PFRational.jl")
 include("PFRational/pf_wigner.jl")
-export PFRational, wigner_init_pf, pf_binomial, eCG, efCG, e3j, ef3j, e6j, ef6j
+export PFRational, wigner_init_pf, pf_binomial, eCG, efCG, eCG0, efCG0, e3j, ef3j, e6j, ef6j
 
 end # module CGcoefficient

@@ -4,3 +4,4 @@ temp*
 build/
 Manifest.toml
 temp/
+.vscode/

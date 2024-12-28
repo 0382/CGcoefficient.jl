@@ -1,5 +1,13 @@
 import Base:*,/,^
 
+@doc raw"""
+    PFRational{T<:Integer} <: Real
+A positive rational number in prime factorization form.
+```math
+q = \prod_{i=1}^{n} p_i^{e_i}
+```
+where `p_i` is the `i`-th prime number and `e_i` is the exponent of `p_i`, `e_i` can be negative.
+"""
 struct PFRational{T<:Integer} <: Real
     e::Vector{T}
     PFRational{T}(e::Vector{T}) where {T} = new{T}(e)
@@ -201,16 +209,21 @@ end
 @inline pf_int(n::Integer)::PFRational{Int16} = _pf_integers[n]::PFRational{Int16}
 @inline pf_bin_nmax()::Int = _pf_bin_nmax::Int
 @inline pf_bin_data()::Vector{PFRational{Int16}} = _pf_bin_data::Vector{PFRational{Int16}}
-@inline function pf_binomial(n::Integer, k::Integer)::PFRational{Int16}
+@inline function _pf_bin(n::Integer, k::Integer)::PFRational{Int16}
+    k = min(k, n - k)
+    return @inbounds pf_bin_data()[binomial_index(n, k)]
+end
+
+"""
+    pf_binomial(n::Integer, k::Integer)::PFRational{Int16}
+Return the stored binomial coefficient `C(n, k)` in prime factorization form.
+"""
+function pf_binomial(n::Integer, k::Integer)::PFRational{Int16}
     0 <= k <= n <= pf_bin_nmax() || throw(ArgumentError("invalid binomial arguments"))
     k = min(k, n - k)
     return pf_bin_data()[binomial_index(n, k)]
 end
 
-@inline function _pf_bin(n::Integer, k::Integer)::PFRational{Int16}
-    k = min(k, n - k)
-    return @inbounds pf_bin_data()[binomial_index(n, k)]
-end
 
 function _extend_pf_binomial(n::Integer)
     n <= pf_bin_nmax() && return
@@ -296,6 +309,12 @@ Base.show(io::IO, x::PFRational{T}) where T = begin
     print(io, ")")
 end
 
+"""
+    wigner_init_pf(n::Integer, mode::AbstractString, rank::Integer)
+Initialize the prime factorization tables for Wigner symbols.
+The parameters are similar to `wigner_inif_float`.
+You must call this function before using the `e` and `ef` versions of Wigner symbols.
+"""
 function wigner_init_pf(n::Integer, mode::AbstractString, rank::Integer)
     nmax = 0
     if mode == "Jmax"

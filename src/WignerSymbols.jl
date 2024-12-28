@@ -33,7 +33,7 @@ function _CG0(j1::BigInt, j2::BigInt, j3::BigInt)
     return SqrtRational(iphase(g - j3) * binomial(g, j3) * binomial(j3, g - j1), big(1) // (binomial(J + 1, 2j3 + 1) * binomial(2j3, J - 2j1)))
 end
 
-# use CG coefficient to calculate 3j-symbol
+# basic 3j-symbol calculation funciton
 function _d3j(dj1::BigInt, dj2::BigInt, dj3::BigInt, dm1::BigInt, dm2::BigInt, dm3::BigInt)
     check_3j(dj1, dj2, dj3, dm1, dm2, dm3) || return zero(SqrtRational{BigInt})
     J::BigInt = div(dj1 + dj2 + dj3, 2)
