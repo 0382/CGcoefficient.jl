@@ -40,8 +40,10 @@ function test_eCG0(test_range::AbstractArray)
         d = CG0(j1, j2, j3)
         e = eCG0(j1, j2, j3)
         ef = efCG0(j1, j2, j3)
+        f = fCG0(j1, j2, j3)
         @test d == e
         @test convert(Float64, float(d)) == ef
+        @test ef ≈ f
     end end end
 end
 

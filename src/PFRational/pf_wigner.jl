@@ -87,8 +87,8 @@ function _pf_CG_impl!(A::PFRational{Int16}, B::BigInt, dj1::Int, dj2::Int, dj3::
         end
         stagger_sum!(B, A, Bs)
         iszero(B) && return
+        extract_to!(A, B)
     end
-    extract_to!(A, B)
     square!(A)
     _mul!(A, _pf_bin(dj1, Jm2))
     _mul!(A, _pf_bin(dj2, Jm3))
@@ -133,8 +133,8 @@ function _pf_3j_impl!(A::PFRational{Int16}, B::BigInt, dj1::Int, dj2::Int, dj3::
         end
         stagger_sum!(B, A, Bs)
         iszero(B) && return
+        extract_to!(A, B)
     end
-    extract_to!(A, B)
     square!(A)
     _mul!(A, _pf_bin(dj1, Jm2))
     _mul!(A, _pf_bin(dj2, Jm1))
@@ -182,8 +182,8 @@ function _pf_6j_impl!(A::PFRational{Int16}, B::BigInt, dj1::Int, dj2::Int, dj3::
         end
         stagger_sum!(B, A, Bs)
         iszero(B) && return
+        extract_to!(A, B)
     end
-    extract_to!(A, B)
     _div!(A, pf_int(dj4 + 1))
     square!(A)
     _mul!(A, _pf_bin(j123 + 1, dj1 + 1))
