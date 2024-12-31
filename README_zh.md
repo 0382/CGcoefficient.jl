@@ -43,7 +43,7 @@ julia> f6j(6,6,6,6,6,6)
 这个包提供两类函数。
 
 1. 精确函数。返回`SqrtRational`；这类函数主要是为了演示，内部使用`BigInt`进行计算，不需要缓存，计算速度相对较慢。
-2. 浮点数函数。返回双精度浮点数；这类函数主要是为了数值计算，内部使用`Float64`进行计算。在使用之前，你需要先调用`wigner_init_float`来预想计算二项式系数表并缓存这个表，用于后面的计算。当角动量量子数非常大的时候，它们可能会由于浮点数计算产生一些误差，但对于角动量量子数`Jmax <= 60`，计算都是可信的。
+2. 浮点数函数。返回双精度浮点数；这类函数主要是为了数值计算，内部使用`Float64`进行计算。在使用之前，你需要先调用[`wigner_init_float`](https://0382.github.io/CGcoefficient.jl/stable/api/#CGcoefficient.wigner_init_float)来预先计算二项式系数表并缓存这个表，用于后面的计算。当角动量量子数非常大的时候，它们可能会由于浮点数计算产生一些误差。对于误差的分析详见：[wigner-benchmark](https://github.com/0382/wigner-benchmark)。
 
 #### 精确函数
 

@@ -43,7 +43,7 @@ For more examples please see the document.
 This package contains two types of functions:
 
 1. The exact functions return `SqrtRational`, which are designed for demonstration. They use `BigInt` in the internal calculation, and do not cache the binomial table, so they are not efficient.
-2. The floating-point functions return `Float64`, which are designed for numeric calculation. They use `Int, Float64` in the internal calculation, and you should pre-call `wigner_init_float` to calculate and cache the binomial table for later calculation. They may give inaccurate result for vary large angular momentum, due to floating-point arithmetic. They are trustworthy for angular momentum number `Jmax <= 60`.
+2. The floating-point functions return `Float64`, which are designed for numeric calculation. They use `Int, Float64` in the internal calculation, and you should pre-call [`wigner_init_float`](https://0382.github.io/CGcoefficient.jl/stable/api/#CGcoefficient.wigner_init_float) to calculate and cache the binomial table for later calculation. They may give inaccurate result for vary large angular momentum, due to floating-point arithmetic. You can find the max error at here: [wigner-benchmark](https://github.com/0382/wigner-benchmark).
 
 #### Exact functions
 

@@ -70,7 +70,7 @@ means you calculate CG and 6j symbols, and donot calculate 9j symbol. The maximu
 
 You do not need to rememmber those values in the table. You just need to find the maximum angular momentum in you canculation, then call the function.
 
-The wigner_init_float function is **not** thread safe, so you should call it before you start your calculation.
+The `wigner_init_float` function is **not** thread safe, so you should call it before you start your calculation.
 """
 function wigner_init_float(n::Integer, mode::AbstractString, rank::Integer)
     if mode == "Jmax"
