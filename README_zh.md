@@ -9,7 +9,7 @@
 
 计算CG系数，Racah系数，Wigner 3j, 6j, 9j系数，Moshinsky系数等。
 
-你可以使用定义的`SqrtRational`类型以保存准确结果，它内部使用`BigInt`计算以避免溢出。同时我们也提供浮点数运算的快速版本，比[GNU Scientific Library](https://www.gnu.org/software/gsl/)快一倍。
+你可以使用定义的`SqrtRational`类型以保存准确结果，它内部使用`BigInt`计算以避免溢出。同时我们也提供浮点数运算的快速版本，比[GNU Scientific Library](https://www.gnu.org/software/gsl/)快好几倍。
 
 我也用c++重写了浮点数版本，用于数值计算：[WignerSymbol](https://github.com/0382/WignerSymbol).
 
@@ -65,7 +65,8 @@ julia> f6j(6,6,6,6,6,6)
 
 - `fCG(dj1, dj2, dj3, dm1, dm2, dm3)`, CG系数
 - `fCG0(j1, j2, j3)`, CG系数特殊情况`m1 = m2 = m3 = 0`。
-- `fCGspin(ds1, ds2, S)`, 快速计算1/2自旋的CG系数。
+- `fCGspin(ds1, ds2, S)`, 快速计算两个1/2自旋的CG系数。
+- `fCG3spin(ds1, ds2, ds3, S12, dS)`, 快速计算 `<S12,M12|1/2,m1;1/2,m2><S,M|S12,M12;1/2,m3>`.
 - `f3j(dj1, dj2, dj3, dm1, dm2, dm3)`, Wigner 3j系数。
 - `f6j(dj1, dj2, dj3, dj4, dj5, dj6)`, Wigner 6j系数。
 - `fRacah(dj1, dj2, dj3, dj4, dj5, dj6)`, Racah系数。
@@ -81,3 +82,4 @@ julia> f6j(6,6,6,6,6,6)
 - [https://github.com/ManyBodyPhysics/CENS](https://github.com/ManyBodyPhysics/CENS)
 - D. A. Varshalovich, A. N. Moskalev and V. K. Khersonskii, *Quantum Theory of Angular Momentum*, (World Scientific, 1988).
 - Buck et al. Nuc. Phys. A 600 (1996) 387-402.
+- H. T. Johansson and C. Forssén, Fast and Accurate Evaluation of Wigner 3$j$, 6$j$, and 9$j$ Symbols Using Prime Factorization and Multiword Integer Arithmetic, SIAM J. Sci. Comput. 38, A376 (2016).

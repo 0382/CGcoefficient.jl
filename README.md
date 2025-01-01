@@ -9,7 +9,7 @@
 
 A package to calculate CG-coefficient, Racah coefficient, Wigner 3j, 6j, 9j symbols and Moshinsky brakets.
 
-One can get the exact result with `SqrtRational` type, which use `BigInt` to avoid overflow. And we also offer float version for numeric calculation, which is about twice faster than [GNU Scientific Library](https://www.gnu.org/software/gsl/).
+One can get the exact result with `SqrtRational` type, which use `BigInt` to avoid overflow. And we also offer float version for numeric calculation, which is several times faster than [GNU Scientific Library](https://www.gnu.org/software/gsl/).
 
 I also rewrite the float version with c++ for numeric calculation: [WignerSymbol](https://github.com/0382/WignerSymbol).
 
@@ -61,11 +61,12 @@ Exact function only for demonstration, some of them can be `Real` arguments, lik
 
 #### Float functions
 
-For faster numeric calculation, if the angular momentum number can be half-integer, the argument of the functions is actually double of the number. So that all arguments are integers. The doubled arguments are named starts with `d`.
+For faster numeric calculation, if the angular momentum number can be half-integer, the argument of the functions is actually double of the number. In this way, all arguments can be integers. In this package, the doubled arguments are named starts with `d`.
 
 - `fCG(dj1, dj2, dj3, dm1, dm2, dm3)`, CG-coefficient.
 - `fCG0(j1, j2, j3)`, CG-coefficient for `m1 = m2 = m3 = 0`.
 - `fCGspin(ds1, ds2, S)`, quicker CG-coefficient for two spin-1/2 coupling.
+- `fCG3spin(ds1, ds2, ds3, S12, dS)`, quickly evaluate `<S12,M12|1/2,m1;1/2,m2><S,M|S12,M12;1/2,m3>`.
 - `f3j(dj1, dj2, dj3, dm1, dm2, dm3)`, Wigner 3j-symbol.
 - `f6j(dj1, dj2, dj3, dj4, dj5, dj6)`, Wigner 6j-symbol.
 - `fRacah(dj1, dj2, dj3, dj4, dj5, dj6)`, Racah coefficient.
@@ -80,3 +81,4 @@ For faster numeric calculation, if the angular momentum number can be half-integ
 - [https://github.com/ManyBodyPhysics/CENS](https://github.com/ManyBodyPhysics/CENS)
 - D. A. Varshalovich, A. N. Moskalev and V. K. Khersonskii, *Quantum Theory of Angular Momentum*, (World Scientific, 1988).
 - Buck et al. Nuc. Phys. A 600 (1996) 387-402.
+- H. T. Johansson and C. Forssén, Fast and Accurate Evaluation of Wigner 3$j$, 6$j$, and 9$j$ Symbols Using Prime Factorization and Multiword Integer Arithmetic, SIAM J. Sci. Comput. 38, A376 (2016).

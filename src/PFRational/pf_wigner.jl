@@ -16,12 +16,6 @@ function stagger_sum!(sum::BigInt, cf::PFRational{T}, xs::Vector{PFRational{T}})
     end
 end
 
-const c_tdiv_q_ui = Base.GMP.MPZ.gmpz(:tdiv_q_ui)
-
-@inline function __gmpz_tdiv_q_ui!(q::BigInt, n::BigInt, d::Culong)
-    ccall(c_tdiv_q_ui, Culong, (Ref{BigInt}, Ref{BigInt}, Culong), q, n, d)
-end
-
 function extract_to!(pf::PFRational{T}, num::BigInt) where T<:Integer
     (iszero(num) || isone(abs(num))) && return
     t = zero(BigInt)

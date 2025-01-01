@@ -1,10 +1,9 @@
 # Home
 
-A package to calculate CG-coefficient, Racha coefficient, and Wigner 3j, 6j, 9j symbols. We offer three version API for all these coeddicients.
+A package to calculate CG-coefficient, Racha coefficient, and Wigner 3j, 6j, 9j symbols. We offer two versions of API for all these coefficients.
 
-- **normal version**: `CG, threeJ, SixJ, Racah, nineJ`. Their parameters can be `Integer` or `Rational` (half integer), and their result is simplified by default.
-- **double parameters version**: `dCG, d3j, d6j, dRacah d9j`. Their parameters means double of the real angular momentum, so can only be `Integer`. The result is not simplified. We will explain what is `simplify` later.
-- **float version**: `fCG, f3j, f6j, fRacah, f9j`. Their parameters is same as double parameter version. They use `Float64` for calculation, so they are not exact but are fast for numeric calculation. Because these function use stored `binomial` result for speed up calculation, you should reserve space before calculate large angular momentum coefficients. See `wigner_init_float` function for details.
+1. The exact functions return `SqrtRational`, which are designed for demonstration. They use `BigInt` in the internal calculation, and do not cache the binomial table, so they are not efficient.
+2. The floating-point functions return `Float64`, which are designed for numeric calculation. They use `Int, Float64` in the internal calculation, and you should pre-call [`wigner_init_float`](@ref) to calculate and cache the binomial table for later calculation. They may give inaccurate result for vary large angular momentum, due to floating-point arithmetic. You can find the max error at here: [wigner-benchmark](https://github.com/0382/wigner-benchmark).
 
 ## Install
 
@@ -23,20 +22,14 @@ push!(LOAD_PATH, "../../src/") # hide
 using CGcoefficient
 sixJ(1,2,3,4,5,6)
 ```
-
 In a markdown enviroment, such as jupyter notebook, it will give you a latex output.
-```@example example
-d6j(2,4,6,8,10,12)
-```
-
-The `d` version functions do not simplify the result for the seek of speed, because `simplify` needs prime factorization which is slow. You can simplify the result explicitly,
-```@example example
-simplify(d6j(2,4,6,8,10,12))
-```
-
-You can also do some arithmetics with the result, thus do arithmetics using the `SqrtRational` type. The result is also not simplified
+You can also do some arithmetics with the result, thus do arithmetics using the `SqrtRational` type.
 ```@example example
 x = sixJ(1,2,3,4,5,6) * exact_sqrt(1//7) * exact_sqrt(1//13) * iphase(2+3+5+6)
+```
+
+The result is not simplified by default, you can use `simplify` function to simplify it.
+```@example example
 simplify(x)
 ```
 
@@ -45,9 +38,19 @@ In a console enviroment it will give out a text output.
 nineJ(1,2,3,5,4,3,6,6,0)
 ```
 
-You can also use `print` function to force print a text output.
+You can convert a `SqrtRational` in to `BigFloat`,
 ```@example example
-print(Racah(1,2,3,2,1,2))
+t = sixJ(17/2,9,19/2,15/2,10,15/2)
+float(t)
+```
+
+Calling `wigner_init_float` first to pre-calculate and cache binomial table.
+```@example example
+wigner_init_float(10, "Jmax", 6)
+```
+Then call a float version function
+```@example example
+f6j(17,18,19,15,20,15)
 ```
 
 ## About

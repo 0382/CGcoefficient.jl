@@ -168,6 +168,67 @@ Base.show(io::IO, ::MIME"text/markdown", x::SqrtRational) = begin
     show(io, "text/markdown", Markdown.parse("``$to_show``"))
 end
 
+const c_tdiv_q_ui = Base.GMP.MPZ.gmpz(:tdiv_q_ui)
+@inline function __gmpz_tdiv_q_ui!(q::BigInt, n::BigInt, d::Culong)
+    ccall(c_tdiv_q_ui, Culong, (Ref{BigInt}, Ref{BigInt}, Culong), q, n, d)
+end
+
+function simplify!(n::BigInt, hint::Int)
+    iszero(n) && return zero(BigInt), zero(BigInt)
+    s = sign(n)
+    s < 0 && Base.GMP.MPZ.neg!(n)
+    isone(n) && return s, n
+    if hint == 0
+        x = one(BigInt)
+        t = one(BigInt)
+        for (f, i) in factor(n)
+            ti, xi = divrem(i, 2)
+            xi == 1 && (x = x * f)
+            ti != 0 && (t = t * f^ti)
+        end
+        return s * x, t
+    end
+    x = one(BigInt)
+    t = one(BigInt)
+    q = zero(BigInt)
+    for p in primes(hint)
+        p = convert(Culong, p)
+        if p > n
+            break
+        end
+        r = __gmpz_tdiv_q_ui!(q, n, p)
+        i = zero(Culong)
+        while r == 0
+            i += 1
+            Base.GMP.MPZ.set!(n, q)
+            r = __gmpz_tdiv_q_ui!(q, n, p)
+        end
+        ti, xi = divrem(i, 2)
+        xi == 1 && Base.GMP.MPZ.mul_ui!(x, p)
+        ti != 0 && Base.GMP.MPZ.mul!(t, big(p)^ti)
+    end
+    Base.GMP.MPZ.mul!(x, n)
+    s < 0 && Base.GMP.MPZ.neg!(x)
+    return s * x, t
+end
+
+function simplify!(x::SqrtRational{BigInt}, hint::Int)
+    nx, nt = simplify!(numerator(x.r), hint)
+    dx, dt = simplify!(denominator(x.r), hint)
+    nt *= numerator(x.s)
+    dt *= denominator(x.s)
+    a0 = gcd(nt, dt)
+    nt = div(nt, a0)
+    dt = div(dt, a0)
+    a1 = gcd(nx, dt)
+    a2 = gcd(dx, nt)
+    dt = div(dt, a1)
+    nt = div(nt, a2)
+    dx = div(dx, a2) * a1
+    nx = div(nx, a1) * a2
+    return SqrtRational(nt // dt, nx // dx)
+end
+
 """
     simplify(n::Integer)
 Simplify a integer `n = x * t^2` to `(x, t)`
