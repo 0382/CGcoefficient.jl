@@ -66,10 +66,9 @@ function test_simplify_with_6j()
     for j5 in test_range
     for j6 in test_range
         dj1, dj2, dj3, dj4, dj5, dj6 = Int.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))
-        if check_couple(dj1, dj2, dj3) & check_couple(dj1, dj5, dj6) &
-           check_couple(dj4, dj2, dj6) & check_couple(dj4, dj5, dj3)
-            x = sixJ(j1,j2,j3,j4,j5,j6)
-            @test simplify(x) == x
+        if check_6j(dj1, dj2, dj3, dj4, dj5, dj6)
+            x = d6j(dj1,dj2,dj3,dj4,dj5,dj6)
+            @test x == simplify(x)
         end
     end end end end end end
 end

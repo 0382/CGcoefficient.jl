@@ -1,5 +1,5 @@
 function stagger_sum!(sum::BigInt, cf::PFRational{T}, xs::Vector{PFRational{T}}) where T<:Integer
-    Base.GMP.MPZ.set_ui!(sum, 0)
+    MPZ.set_ui!(sum, 0)
     _copy!(cf, xs[1])
     for i in 2:length(xs)
         _gcd!(cf, xs[i])
@@ -9,9 +9,9 @@ function stagger_sum!(sum::BigInt, cf::PFRational{T}, xs::Vector{PFRational{T}})
         _div!(xs[i], cf)
         _numerator!(t, xs[i])
         if isodd(i)
-            Base.GMP.MPZ.add!(sum, t)
+            MPZ.add!(sum, t)
         else
-            Base.GMP.MPZ.sub!(sum, t)
+            MPZ.sub!(sum, t)
         end
     end
 end
@@ -23,7 +23,7 @@ function extract_to!(pf::PFRational{T}, num::BigInt) where T<:Integer
         r = __gmpz_tdiv_q_ui!(t, num, nth_stored_prime(i))
         while iszero(r)
             pf.e[i] += 1
-            Base.GMP.MPZ.set!(num, t)
+            MPZ.set!(num, t)
             r = __gmpz_tdiv_q_ui!(t, num, nth_stored_prime(i))
         end
     end
@@ -41,9 +41,9 @@ function extract_sr!(sn::BigInt, sd::BigInt, rn::BigInt, rd::BigInt, pf::PFRatio
             mul_p_pow_k!(sd, i, -si)
         end
         if ri > 0
-            Base.GMP.MPZ.mul_ui!(rn, nth_stored_prime(i))
+            MPZ.mul_ui!(rn, nth_stored_prime(i))
         elseif ri < 0
-            Base.GMP.MPZ.mul_ui!(rd, nth_stored_prime(i))
+            MPZ.mul_ui!(rd, nth_stored_prime(i))
         end
     end
     return
@@ -70,7 +70,7 @@ function _pf_CG_impl!(A::PFRational{Int16}, B::BigInt, dj1::Int, dj2::Int, dj3::
         _copy!(A, _pf_bin(Jm3, z))
         _mul!(A, _pf_bin(Jm2, j1mm1 - z))
         _mul!(A, _pf_bin(Jm1, j2pm2 - z))
-        Base.GMP.MPZ.set_ui!(B, 1)
+        MPZ.set_ui!(B, 1)
     else
         Bs = Vector{PFRational{Int16}}(undef, high - low + 1)
         for z in low:high
@@ -91,7 +91,7 @@ function _pf_CG_impl!(A::PFRational{Int16}, B::BigInt, dj1::Int, dj2::Int, dj3::
     _div!(A, _pf_bin(dj2, j2mm2))
     _div!(A, _pf_bin(dj3, j3mm3))
     if isodd(low)
-        Base.GMP.MPZ.neg!(B)
+        MPZ.neg!(B)
     end
     return
 end
@@ -116,7 +116,7 @@ function _pf_3j_impl!(A::PFRational{Int16}, B::BigInt, dj1::Int, dj2::Int, dj3::
         _copy!(A, _pf_bin(Jm3, z))
         _mul!(A, _pf_bin(Jm2, j1pm1 - z))
         _mul!(A, _pf_bin(Jm1, j2mm2 - z))
-        Base.GMP.MPZ.set_ui!(B, 1)
+        MPZ.set_ui!(B, 1)
     else
         Bs = Vector{PFRational{Int16}}(undef, high - low + 1)
         for z in low:high
@@ -138,7 +138,7 @@ function _pf_3j_impl!(A::PFRational{Int16}, B::BigInt, dj1::Int, dj2::Int, dj3::
     _div!(A, _pf_bin(dj2, j2mm2))
     _div!(A, _pf_bin(dj3, j3mm3))
     if isodd(low + dj1 + div(dj3 + dm3, 2))
-        Base.GMP.MPZ.neg!(B)
+        MPZ.neg!(B)
     end
     return
 end
@@ -164,7 +164,7 @@ function _pf_6j_impl!(A::PFRational{Int16}, B::BigInt, dj1::Int, dj2::Int, dj3::
         _mul!(A, _pf_bin(jpm123, x - j453))
         _mul!(A, _pf_bin(jpm132, x - j426))
         _mul!(A, _pf_bin(jpm231, x - j156))
-        Base.GMP.MPZ.set_ui!(B, 1)
+        MPZ.set_ui!(B, 1)
     else
         Bs = Vector{PFRational{Int16}}(undef, high - low + 1)
         for x in low:high
@@ -189,7 +189,7 @@ function _pf_6j_impl!(A::PFRational{Int16}, B::BigInt, dj1::Int, dj2::Int, dj3::
     _div!(A, _pf_bin(j426 + 1, dj4 + 1))
     _div!(A, _pf_bin(dj4, jpm426))
     if isodd(low)
-        Base.GMP.MPZ.neg!(B)
+        MPZ.neg!(B)
     end
     return
 end
@@ -262,7 +262,7 @@ function _pf_CG0(j1::Int, j2::Int, j3::Int)
     _div!(A, _pf_bin(2j3, J - 2j1))
     sn = one(BigInt)
     if isodd(g - j3)
-        Base.GMP.MPZ.neg!(sn)
+        MPZ.neg!(sn)
     end
     sd = one(BigInt)
     rn = one(BigInt)
@@ -285,7 +285,7 @@ function _pf_fCG0(j1::Int, j2::Int, j3::Int)::Float64
     _div!(A, _pf_bin(2j3, J - 2j1))
     sn = one(BigInt)
     if isodd(g - j3)
-        Base.GMP.MPZ.neg!(sn)
+        MPZ.neg!(sn)
     end
     sd = one(BigInt)
     rn = one(BigInt)

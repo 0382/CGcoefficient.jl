@@ -17,7 +17,7 @@ function make_pow_item(p::Culong, k::Int)
     if k > offset
         bigdata = [BigInt(p) for i in offset+1:k]
         for i in offset+1:k
-            Base.GMP.MPZ.pow_ui!(bigdata[i - offset], i)
+            MPZ.pow_ui!(bigdata[i - offset], i)
         end
     else
         bigdata = BigInt[]
@@ -64,7 +64,7 @@ function _extend_item!(item::PrimePowItem, k::Integer)
         p = item.ulongdata[1]
         idx = i - item.offset
         item.bigdata[idx] = BigInt(p)
-        Base.GMP.MPZ.pow_ui!(item.bigdata[idx], i)
+        MPZ.pow_ui!(item.bigdata[idx], i)
     end
     item.size = k
 end
@@ -91,7 +91,7 @@ end
 function mul_p_pow_k!(x::BigInt, pidx::Int, k::Int)
     item = prime_pow_table()[pidx]::PrimePowItem
     if k <= item.offset
-        return Base.GMP.MPZ.mul_ui!(x, @inbounds item.ulongdata[k])
+        return MPZ.mul_ui!(x, @inbounds item.ulongdata[k])
     end
-    return Base.GMP.MPZ.mul!(x, item.bigdata[k - item.offset])
+    return MPZ.mul!(x, item.bigdata[k - item.offset])
 end

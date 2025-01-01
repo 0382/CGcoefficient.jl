@@ -1,7 +1,7 @@
 # This file contains the core functions of WignerSymbols and CG-coefficient.
 
 @inline function _bigbin(n::Int, k::Int)
-    Base.GMP.MPZ.bin_ui!(big(n), convert(Culong, k))
+    MPZ.bin_ui!(big(n), convert(Culong, k))
 end
 
 # basic CG coefficient calculation function

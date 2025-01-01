@@ -1,6 +1,7 @@
 import Base: +, -, *, /, ==
 using Markdown
 using Primes
+using Base.GMP.MPZ
 
 """
     SqrtRational <: Real
@@ -38,6 +39,7 @@ Base.one(x::SqrtRational) = one(typeof(x))
 Base.sign(x::SqrtRational) = sign(x.s)
 Base.signbit(x::SqrtRational) = signbit(x.s)
 Base.inv(x::SqrtRational) = SqrtRational(inv(x.s), inv(x.r))
+Base.copy(x::SqrtRational) = SqrtRational(deepcopy(x.s), deepcopy(x.r))
 
 # override some operators
 +(x::SqrtRational) = x
@@ -168,23 +170,31 @@ Base.show(io::IO, ::MIME"text/markdown", x::SqrtRational) = begin
     show(io, "text/markdown", Markdown.parse("``$to_show``"))
 end
 
-const c_tdiv_q_ui = Base.GMP.MPZ.gmpz(:tdiv_q_ui)
+const c_tdiv_q_ui = MPZ.gmpz(:tdiv_q_ui)
+const c_ui_pow_ui = MPZ.gmpz(:ui_pow_ui)
+const c_divexact = MPZ.gmpz(:divexact)
 @inline function __gmpz_tdiv_q_ui!(q::BigInt, n::BigInt, d::Culong)
     ccall(c_tdiv_q_ui, Culong, (Ref{BigInt}, Ref{BigInt}, Culong), q, n, d)
+end
+@inline function __gmpz_ui_pow_ui!(r::BigInt, b::Culong, e::Culong)
+    ccall(c_ui_pow_ui, Cvoid, (Ref{BigInt}, Culong, Culong), r, b, e)
+end
+@inline function __gmpz_divexact!(q::BigInt, n::BigInt, d::BigInt)
+    ccall(c_divexact, Cvoid, (Ref{BigInt}, Ref{BigInt}, Ref{BigInt}), q, n, d)
 end
 
 function simplify!(n::BigInt, hint::Int)
     iszero(n) && return zero(BigInt), zero(BigInt)
     s = sign(n)
-    s < 0 && Base.GMP.MPZ.neg!(n)
+    s < 0 && MPZ.neg!(n)
     isone(n) && return s, n
     if hint == 0
         x = one(BigInt)
         t = one(BigInt)
         for (f, i) in factor(n)
             ti, xi = divrem(i, 2)
-            xi == 1 && (x = x * f)
-            ti != 0 && (t = t * f^ti)
+            xi == 1 && MPZ.mul!(x, f)
+            ti != 0 && MPZ.mul!(t, MPZ.pow_ui(f, ti))
         end
         return s * x, t
     end
@@ -197,36 +207,41 @@ function simplify!(n::BigInt, hint::Int)
             break
         end
         r = __gmpz_tdiv_q_ui!(q, n, p)
-        i = zero(Culong)
+        i::Culong = zero(Culong)
         while r == 0
             i += 1
-            Base.GMP.MPZ.set!(n, q)
+            MPZ.set!(n, q)
             r = __gmpz_tdiv_q_ui!(q, n, p)
         end
-        ti, xi = divrem(i, 2)
-        xi == 1 && Base.GMP.MPZ.mul_ui!(x, p)
-        ti != 0 && Base.GMP.MPZ.mul!(t, big(p)^ti)
+        ti, xi = divrem(i, Culong(2))
+        xi == 1 && MPZ.mul_ui!(x, p)
+        if ti != 0
+            __gmpz_ui_pow_ui!(q, p, ti)
+            MPZ.mul!(t, q)
+        end
     end
-    Base.GMP.MPZ.mul!(x, n)
-    s < 0 && Base.GMP.MPZ.neg!(x)
+    MPZ.mul!(x, n)
+    s < 0 && MPZ.neg!(x)
     return s * x, t
 end
 
 function simplify!(x::SqrtRational{BigInt}, hint::Int)
-    nx, nt = simplify!(numerator(x.r), hint)
-    dx, dt = simplify!(denominator(x.r), hint)
-    nt *= numerator(x.s)
-    dt *= denominator(x.s)
-    a0 = gcd(nt, dt)
-    nt = div(nt, a0)
-    dt = div(dt, a0)
-    a1 = gcd(nx, dt)
-    a2 = gcd(dx, nt)
-    dt = div(dt, a1)
-    nt = div(nt, a2)
-    dx = div(dx, a2) * a1
-    nx = div(nx, a1) * a2
-    return SqrtRational(nt // dt, nx // dx)
+    nx, nt = simplify!(x.r.num, hint)
+    dx, dt = simplify!(x.r.den, hint)
+    MPZ.mul!(nt, x.s.num)
+    MPZ.mul!(dt, x.s.den)
+    a0 = MPZ.gcd(nt, dt)
+    __gmpz_divexact!(nt, nt, a0)
+    __gmpz_divexact!(dt, dt, a0)
+    a1 = MPZ.gcd(nx, dt)
+    a2 = MPZ.gcd(dx, nt)
+    __gmpz_divexact!(dt, dt, a1)
+    __gmpz_divexact!(nt, nt, a2)
+    __gmpz_divexact!(dx, dx, a2)
+    __gmpz_divexact!(nx, nx, a1)
+    MPZ.mul!(dx, dx, a1)
+    MPZ.mul!(nx, nx, a2)
+    return SqrtRational(Base.unsafe_rational(nt, dt), Base.unsafe_rational(nx, dx))
 end
 
 """
@@ -265,4 +280,8 @@ function simplify(x::SqrtRational)
     dx = div(dx, a2) * a1
     nx = div(nx, a1) * a2
     return SqrtRational(nt // dt, nx // dx)
+end
+
+function simplify(x::SqrtRational{BigInt})
+    return simplify!(copy(x), 0)
 end

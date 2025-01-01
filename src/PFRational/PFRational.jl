@@ -197,7 +197,7 @@ function _extend_pf_binomial(n::Integer)
 end
 
 _numerator!(num::BigInt, x::PFRational) = begin
-    Base.GMP.MPZ.set_ui!(num, 1)
+    MPZ.set_ui!(num, 1)
     for i in eachindex(x.e)
         if x.e[i] > 0
             mul_p_pow_k!(num, i, convert(Int, x.e[i]))
@@ -207,7 +207,7 @@ _numerator!(num::BigInt, x::PFRational) = begin
 end
 
 _denominator!(den::BigInt, x::PFRational) = begin
-    Base.GMP.MPZ.set_ui!(den, 1)
+    MPZ.set_ui!(den, 1)
     for i in eachindex(x.e)
         if x.e[i] < 0
             mul_p_pow_k!(den, i, -convert(Int, x.e[i]))
@@ -217,8 +217,8 @@ _denominator!(den::BigInt, x::PFRational) = begin
 end
 
 _rational!(num::BigInt, den::BigInt, x::PFRational) = begin
-    Base.GMP.MPZ.set_ui!(num, 1)
-    Base.GMP.MPZ.set_ui!(den, 1)
+    MPZ.set_ui!(num, 1)
+    MPZ.set_ui!(den, 1)
     for i in eachindex(x.e)
         if x.e[i] > 0
             mul_p_pow_k!(num, i, convert(Int, x.e[i]))
