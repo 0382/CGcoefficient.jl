@@ -20,6 +20,7 @@ export CG, CG0, threeJ, sixJ, nineJ, Racah,
        wigner_init_float
 
 
+include("mpz.jl")
 include("SqrtRational.jl")
 include("util.jl")
 include("WignerSymbols.jl")

@@ -1,9 +1,5 @@
 # This file contains the core functions of WignerSymbols and CG-coefficient.
 
-@inline function _bigbin(n::Int, k::Int)
-    MPZ.bin_ui!(big(n), convert(Culong, k))
-end
-
 # basic CG coefficient calculation function
 function _dCG(dj1::Int, dj2::Int, dj3::Int, dm1::Int, dm2::Int, dm3::Int)
     check_CG(dj1, dj2, dj3, dm1, dm2, dm3) || return zero(SqrtRational{BigInt})
@@ -15,17 +11,29 @@ function _dCG(dj1::Int, dj2::Int, dj3::Int, dm1::Int, dm2::Int, dm3::Int)
     j2mm2::Int = div(dj2 - dm2, 2)
     j3mm3::Int = div(dj3 - dm3, 2)
     j2pm2::Int = div(dj2 + dm2, 2)
-    # value in sqrt
-    A = (_bigbin(dj1, Jm2) * _bigbin(dj2, Jm3)) // (
-        _bigbin(J + 1, Jm3) * _bigbin(dj1, j1mm1) * _bigbin(dj2, j2mm2) * _bigbin(dj3, j3mm3)
-    )
+    t = BigInt()
+    nA = _bigbin(dj1, Jm2)
+    MPZ.mul!(nA, _bigbin(t, dj2, Jm3))
+    dA = _bigbin(J + 1, Jm3)
+    MPZ.mul!(dA, _bigbin(t, dj1, j1mm1))
+    MPZ.mul!(dA, _bigbin(t, dj2, j2mm2))
+    MPZ.mul!(dA, _bigbin(t, dj3, j3mm3))
+
     B::BigInt = zero(BigInt)
     low::Int = max(zero(Int), j1mm1 - Jm2, j2pm2 - Jm1)
     high::Int = min(Jm3, j1mm1, j2pm2)
+    tz = BigInt()
     for z in low:high
-        B = -B + _bigbin(Jm3, z) * _bigbin(Jm2, j1mm1 - z) * _bigbin(Jm1, j2pm2 - z)
+        _bigbin(tz, Jm3, z)
+        MPZ.mul!(tz, _bigbin(t, Jm2, j1mm1 - z))
+        MPZ.mul!(tz, _bigbin(t, Jm1, j2pm2 - z))
+        MPZ.sub!(B, tz, B)
     end
-    return SqrtRational(iphase(high) * B, A)
+    if isodd(high)
+        MPZ.neg!(B)
+    end
+    simplify3!(t, B, nA, dA, J + 1)
+    return SqrtRational(Base.unsafe_rational(B, t), Base.unsafe_rational(nA, dA))
 end
 
 # spaecial case: m1 == m2 == m3 == 0
@@ -34,7 +42,19 @@ function _CG0(j1::Int, j2::Int, j3::Int)
     J = j1 + j2 + j3
     isodd(J) && return zero(SqrtRational{BigInt})
     g = div(J, 2)
-    return SqrtRational(iphase(g - j3) * _bigbin(g, j3) * _bigbin(j3, g - j1), big(1) // (_bigbin(J + 1, 2j3 + 1) * _bigbin(2j3, J - 2j1)))
+    B = _bigbin(g, j3)
+    t = BigInt()
+    MPZ.mul!(B, _bigbin(t, j3, g - j1))
+    if isodd(g - j3)
+        MPZ.neg!(B)
+    end
+    dA = _bigbin(J + 1, 2j3 + 1)
+    MPZ.mul!(dA, _bigbin(t, 2j3, J - 2j1))
+    nA = _divgcd!(BigInt(), B, dA)
+    _divgcd!(t, nA, dA)
+    MPZ.set_ui!(t, 1)
+    simplify3!(t, B, nA, dA, J + 1)
+    return SqrtRational(Base.unsafe_rational(B, t), Base.unsafe_rational(nA, dA))
 end
 
 # basic 3j-symbol calculation funciton
@@ -48,16 +68,30 @@ function _d3j(dj1::Int, dj2::Int, dj3::Int, dm1::Int, dm2::Int, dm3::Int)
     j2mm2::Int = div(dj2 - dm2, 2)
     j3mm3::Int = div(dj3 - dm3, 2)
     j1pm1::Int = div(dj1 + dm1, 2)
-    A = (_bigbin(dj1, Jm2) * _bigbin(dj2, Jm1)) // (
-        (J + 1) * _bigbin(J, Jm3) * _bigbin(dj1, j1mm1) * _bigbin(dj2, j2mm2) * _bigbin(dj3, j3mm3)
-    )
+    t = BigInt()
+    nA = _bigbin(dj1, Jm2)
+    MPZ.mul!(nA, _bigbin(t, dj2, Jm1))
+    dA = _bigbin(J, Jm3)
+    MPZ.mul!(dA, _bigbin(t, dj1, j1mm1))
+    MPZ.mul!(dA, _bigbin(t, dj2, j2mm2))
+    MPZ.mul!(dA, _bigbin(t, dj3, j3mm3))
+    MPZ.mul_ui!(dA, convert(Culong, J + 1))
+
     B::BigInt = zero(BigInt)
     low::Int = max(zero(Int), j1pm1 - Jm2, j2mm2 - Jm1)
     high::Int = min(Jm3, j1pm1, j2mm2)
+    tz = BigInt()
     for z in low:high
-        B = -B + _bigbin(Jm3, z) * _bigbin(Jm2, j1pm1 - z) * _bigbin(Jm1, j2mm2 - z)
+        _bigbin(tz, Jm3, z)
+        MPZ.mul!(tz, _bigbin(t, Jm2, j1pm1 - z))
+        MPZ.mul!(tz, _bigbin(t, Jm1, j2mm2 - z))
+        MPZ.sub!(B, tz, B)
     end
-    return SqrtRational(iphase(dj1 + div(dj3 + dm3, 2) + high) * B, A)
+    if isodd(dj1 + div(dj3 + dm3, 2) + high)
+        MPZ.neg!(B)
+    end
+    simplify3!(t, B, nA, dA, J + 1)
+    return SqrtRational(Base.unsafe_rational(B, t), Base.unsafe_rational(nA, dA))
 end
 
 # basic 6j-symbol calculation funciton
@@ -74,24 +108,42 @@ function _d6j(dj1::Int, dj2::Int, dj3::Int, dj4::Int, dj5::Int, dj6::Int)
     jpm426::Int = div(dj4 + dj2 - dj6, 2)
     jpm453::Int = div(dj4 + dj5 - dj3, 2)
     # value in sqrt
-    A = (_bigbin(j123 + 1, dj1 + 1) * _bigbin(dj1, jpm123)) // (
-        _bigbin(j156 + 1, dj1 + 1) * _bigbin(dj1, jpm156) *
-        _bigbin(j453 + 1, dj4 + 1) * _bigbin(dj4, jpm453) *
-        _bigbin(j426 + 1, dj4 + 1) * _bigbin(dj4, jpm426)
-    )
+    t = BigInt()
+    nA = _bigbin(j123 + 1, dj1 + 1)
+    MPZ.mul!(nA, _bigbin(t, dj1, jpm123))
+    dA = _bigbin(j156 + 1, dj1 + 1)
+    MPZ.mul!(dA, _bigbin(t, dj1, jpm156))
+    MPZ.mul!(dA, _bigbin(t, j453 + 1, dj4 + 1))
+    MPZ.mul!(dA, _bigbin(t, dj4, jpm453))
+    MPZ.mul!(dA, _bigbin(t, j426 + 1, dj4 + 1))
+    MPZ.mul!(dA, _bigbin(t, dj4, jpm426))
+    MPZ.mul_ui!(dA, convert(Culong, dj4 + 1))
+    MPZ.mul_ui!(dA, convert(Culong, dj4 + 1))
     B::BigInt = zero(BigInt)
     low::Int = max(j123, j453, j426, j156)
     high::Int = min(jpm123 + j453, jpm132 + j426, jpm231 + j156)
+    tx = BigInt()
     for x = low:high
-        B = -B + _bigbin(x + 1, j123 + 1) * _bigbin(jpm123, x - j453) *
-                 _bigbin(jpm132, x - j426) * _bigbin(jpm231, x - j156)
+        _bigbin(t, x + 1, j123 + 1)
+        MPZ.mul!(t, _bigbin(tx, jpm123, x - j453))
+        MPZ.mul!(t, _bigbin(tx, jpm132, x - j426))
+        MPZ.mul!(t, _bigbin(tx, jpm231, x - j156))
+        MPZ.sub!(B, t, B)
     end
-    return SqrtRational(iphase(high) * B // (dj4 + 1), A)
+    if isodd(high)
+        MPZ.neg!(B)
+    end
+    simplify3!(t, B, nA, dA, high + 1)
+    return SqrtRational(Base.unsafe_rational(B, t), Base.unsafe_rational(nA, dA))
 end
 
 # use 6j-symbol to calculate Racah coefficient
 function _dRacah(dj1::Int, dj2::Int, dj3::Int, dj4::Int, dj5::Int, dj6::Int)
-    iphase(div(dj1 + dj2 + dj3 + dj4, 2)) * _d6j(dj1, dj2, dj5, dj4, dj3, dj6)
+    ans = _d6j(dj1, dj2, dj5, dj4, dj3, dj6)
+    if isodd(div(dj1 + dj2 + dj3 + dj4, 2))
+        MPZ.neg!(ans.s.num)
+    end
+    return ans
 end
 
 # basic 9j-symbol calculation funciton
@@ -115,13 +167,19 @@ function _d9j(dj1::Int, dj2::Int, dj3::Int,
     pm798::Int = div(dj7 + dj9 - dj8, 2)
     pm897::Int = div(dj8 + dj9 - dj7, 2)
     # value in sqrt
-    P0_nu::BigInt = _bigbin(j123 + 1, dj1 + 1) * _bigbin(dj1, pm123) *
-                    _bigbin(j456 + 1, dj5 + 1) * _bigbin(dj5, pm456) *
-                    _bigbin(j789 + 1, dj9 + 1) * _bigbin(dj9, pm798)
-    P0_de::BigInt = _bigbin(j147 + 1, dj1 + 1) * _bigbin(dj1, div(dj1 + dj4 - dj7, 2)) *
-                    _bigbin(j258 + 1, dj5 + 1) * _bigbin(dj5, div(dj2 + dj5 - dj8, 2)) *
-                    _bigbin(j369 + 1, dj9 + 1) * _bigbin(dj9, div(dj3 + dj9 - dj6, 2))
-    P0 = P0_nu // P0_de
+    t = BigInt()
+    P0_nu::BigInt = _bigbin(j123 + 1, dj1 + 1)
+    MPZ.mul!(P0_nu, _bigbin(t, dj1, pm123))
+    MPZ.mul!(P0_nu, _bigbin(t, j456 + 1, dj5 + 1))
+    MPZ.mul!(P0_nu, _bigbin(t, dj5, pm456))
+    MPZ.mul!(P0_nu, _bigbin(t, j789 + 1, dj9 + 1))
+    MPZ.mul!(P0_nu, _bigbin(t, dj9, pm798))
+    P0_de::BigInt = _bigbin(j147 + 1, dj1 + 1)
+    MPZ.mul!(P0_de, _bigbin(t, dj1, div(dj1 + dj4 - dj7, 2)))
+    MPZ.mul!(P0_de, _bigbin(t, j258 + 1, dj5 + 1))
+    MPZ.mul!(P0_de, _bigbin(t, dj5, div(dj2 + dj5 - dj8, 2)))
+    MPZ.mul!(P0_de, _bigbin(t, j369 + 1, dj9 + 1))
+    MPZ.mul!(P0_de, _bigbin(t, dj9, div(dj3 + dj9 - dj6, 2)))
     dtl::Int = max(abs(dj2 - dj6), abs(dj4 - dj8), abs(dj1 - dj9))
     dth::Int = min(dj2 + dj6, dj4 + dj8, dj1 + dj9)
     PABC::Rational{BigInt} = zero(Rational{BigInt})
@@ -129,31 +187,60 @@ function _d9j(dj1::Int, dj2::Int, dj3::Int,
         j19t::Int = div(dj1 + dj9 + dt, 2)
         j26t::Int = div(dj2 + dj6 + dt, 2)
         j48t::Int = div(dj4 + dj8 + dt, 2)
-        Pt_de = _bigbin(j19t + 1, dt + 1) * _bigbin(dt, div(dj1 + dt - dj9, 2)) *
-                _bigbin(j26t + 1, dt + 1) * _bigbin(dt, div(dj2 + dt - dj6, 2)) *
-                _bigbin(j48t + 1, dt + 1) * _bigbin(dt, div(dj4 + dt - dj8, 2))
-        Pt_de *= (dt + 1)^2
+        Pt_de = _bigbin(j19t + 1, dt + 1)
+        MPZ.mul!(Pt_de, _bigbin(t, dt, div(dj1 + dt - dj9, 2)))
+        MPZ.mul!(Pt_de, _bigbin(t, j26t + 1, dt + 1))
+        MPZ.mul!(Pt_de, _bigbin(t, dt, div(dj2 + dt - dj6, 2)))
+        MPZ.mul!(Pt_de, _bigbin(t, j48t + 1, dt + 1))
+        MPZ.mul!(Pt_de, _bigbin(t, dt, div(dj4 + dt - dj8, 2)))
+        MPZ.mul_ui!(Pt_de, convert(Culong, dt + 1))
+        MPZ.mul_ui!(Pt_de, convert(Culong, dt + 1))
         xl::Int = max(j123, j369, j26t, j19t)
         xh::Int = min(pm123 + j369, pm132 + j26t, pm231 + j19t)
         At::BigInt = zero(BigInt)
+        tx = BigInt()
         for x = xl:xh
-            At = -At + _bigbin(x + 1, j123 + 1) * _bigbin(pm123, x - j369) * _bigbin(pm132, x - j26t) * _bigbin(pm231, x - j19t)
+            _bigbin(tx, x + 1, j123 + 1)
+            MPZ.mul!(tx, _bigbin(t, pm123, x - j369))
+            MPZ.mul!(tx, _bigbin(t, pm132, x - j26t))
+            MPZ.mul!(tx, _bigbin(t, pm231, x - j19t))
+            MPZ.sub!(At, tx, At)
         end
         yl::Int = max(j456, j26t, j258, j48t)
         yh::Int = min(pm456 + j26t, pm465 + j258, pm564 + j48t)
-        Bt::Int = zero(BigInt)
+        Bt::BigInt = zero(BigInt)
         for y = yl:yh
-            Bt = -Bt + _bigbin(y + 1, j456 + 1) * _bigbin(pm456, y - j26t) * _bigbin(pm465, y - j258) * _bigbin(pm564, y - j48t)
+            _bigbin(tx, y + 1, j456 + 1)
+            MPZ.mul!(tx, _bigbin(t, pm456, y - j26t))
+            MPZ.mul!(tx, _bigbin(t, pm465, y - j258))
+            MPZ.mul!(tx, _bigbin(t, pm564, y - j48t))
+            MPZ.sub!(Bt, tx, Bt)
         end
         zl::Int = max(j789, j19t, j48t, j147)
         zh::Int = min(pm789 + j19t, pm798 + j48t, pm897 + j147)
-        Ct::Int = zero(BigInt)
+        Ct::BigInt = zero(BigInt)
         for z = zl:zh
-            Ct = -Ct + _bigbin(z + 1, j789 + 1) * _bigbin(pm789, z - j19t) * _bigbin(pm798, z - j48t) * _bigbin(pm897, z - j147)
+            _bigbin(tx, z + 1, j789 + 1)
+            MPZ.mul!(tx, _bigbin(t, pm789, z - j19t))
+            MPZ.mul!(tx, _bigbin(t, pm798, z - j48t))
+            MPZ.mul!(tx, _bigbin(t, pm897, z - j147))
+            MPZ.sub!(Ct, tx, Ct)
         end
-        PABC += (iphase(xh + yh + zh) * At * Bt * Ct) // Pt_de
+        MPZ.set!(t, At)
+        MPZ.mul!(t, Bt)
+        MPZ.mul!(t, Ct)
+        if isodd(xh + yh + zh)
+            MPZ.neg!(t)
+        end
+        _divgcd!(tx, t, Pt_de)
+        PABC += Base.unsafe_rational(t, Pt_de)
     end
-    return SqrtRational(iphase(dth) * PABC, P0)
+    if isodd(dth)
+        MPZ.neg!(PABC.num)
+    end
+    Jmax::Int = max(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9)
+    simplify4!(t, PABC.num, PABC.den, P0_nu, P0_de, cld(5Jmax, 2) + 1)
+    return SqrtRational(PABC, Base.unsafe_rational(P0_nu, P0_de))
 end
 
 @inline function _lsjj_helper(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
@@ -327,22 +414,13 @@ Racah coefficient function with double angular momentum parameters, so that the 
     CG(j1::Real, j2::Real, j3::Real, m1::Real, m2::Real, m3::Real)
 CG coefficient ``\langle j_1m_1 j_2m_2 | j_3m_3 \rangle``
 """
-@inline CG(j1::Real, j2::Real, j3::Real, m1::Real, m2::Real, m3::Real) = begin
-    t = Int.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))
-    Jmax = maximum(t)
-    ans = _dCG(t...)
-    return simplify!(ans, 3Jmax + 1)
-end
+@inline CG(j1::Real, j2::Real, j3::Real, m1::Real, m2::Real, m3::Real) = _dCG(Int.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...)
+
 @doc raw"""
     CG0(j1::Integer, j2::Integer, j3::Integer)
 CG coefficient special case: ``\langle j_1 0 j_2 0 | j_3 0 \rangle``.
 """
-@inline CG0(j1::Integer, j2::Integer, j3::Integer) = begin
-    t = Int.((j1, j2, j3))
-    Jmax = maximum(t)
-    ans = _CG0(t...)
-    return simplify!(ans, 3Jmax + 1)
-end
+@inline CG0(j1::Integer, j2::Integer, j3::Integer) = _CG0(Int.((j1, j2, j3))...)
 
 @doc raw"""
     threeJ(j1::Real, j2::Real, j3::Real, m1::Real, m2::Real, m3::Real)
@@ -354,12 +432,7 @@ m_1 & m_2 & m_3
 \end{pmatrix}
 ```
 """
-@inline threeJ(j1::Real, j2::Real, j3::Real, m1::Real, m2::Real, m3::Real) = begin
-    t = Int.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))
-    Jmax = maximum(t)
-    ans = _d3j(t...)
-    return simplify!(ans, 3Jmax + 1)
-end
+@inline threeJ(j1::Real, j2::Real, j3::Real, m1::Real, m2::Real, m3::Real) = _d3j(Int.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...)
 
 @doc raw"""
     sixJ(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real)
@@ -371,12 +444,7 @@ j_4 & j_5 & j_6
 \end{Bmatrix}
 ```
 """
-@inline sixJ(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real) = begin
-    t = Int.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))
-    Jmax = maximum(t)
-    ans = _d6j(Int.(t)...)
-    return simplify!(ans, 4Jmax + 1)
-end
+@inline sixJ(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real) = _d6j(Int.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...)
 
 @doc raw"""
     Racah(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real)
@@ -388,12 +456,7 @@ j_4 & j_3 & j_6
 \end{Bmatrix}
 ```
 """
-@inline Racah(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real) = begin
-    t = Int.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))
-    Jmax = maximum(t)
-    ans = _dRacah(t...)
-    return simplify!(ans, 4Jmax + 1)
-end
+@inline Racah(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real) = _dRacah(Int.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6))...)
 
 @doc raw"""
     nineJ(j1::Real, j2::Real, j3::Real,
@@ -408,12 +471,7 @@ j_7 & j_8 & j_9
 \end{Bmatrix}
 ```
 """
-@inline nineJ(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real, j7::Real, j8::Real, j9::Real) = begin
-    t = Int.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))
-    Jmax = maximum(t)
-    ans = _d9j(t...)
-    return simplify!(ans, 5Jmax + 1)
-end
+@inline nineJ(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real, j7::Real, j8::Real, j9::Real) = _d9j(Int.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))...)
 
 @doc raw"""
     norm9J(j1::Real, j2::Real, j3::Real,
@@ -433,11 +491,15 @@ j_7 & j_8 & j_9
 ```
 """
 @inline norm9J(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real, j7::Real, j8::Real, j9::Real) = begin
-    t = Int.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))
-    Jmax = maximum(t)
-    ans = _d9j(t...)
-    ans = ans * exact_sqrt((2j3 + 1) * (2j6 + 1) * (2j7 + 1) * (2j8 + 1))
-    return simplify!(ans, 5Jmax + 1)
+    dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9 = Int.((2j1, 2j2, 2j3, 2j4, 2j5, 2j6, 2j7, 2j8, 2j9))
+    Jmax = max(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9)
+    ans = _d9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9)
+    MPZ.mul_ui!(ans.r.num, convert(Culong, dj3 + 1))
+    MPZ.mul_ui!(ans.r.num, convert(Culong, dj6 + 1))
+    MPZ.mul_ui!(ans.r.num, convert(Culong, dj7 + 1))
+    MPZ.mul_ui!(ans.r.num, convert(Culong, dj8 + 1))
+    simplify4!(BigInt(), ans.s.num, ans.s.den, ans.r.num, ans.r.den, cld(5Jmax, 2) + 1)
+    return ans
 end
 
 @doc raw"""

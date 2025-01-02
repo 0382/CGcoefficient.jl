@@ -41,9 +41,7 @@ Moshinsky
 ```
 
 People often use double of angular momentum quantum number as parameters, so we can use integer as parameters. This package also offers such functions, where the `d` letter means *double*.
-These functions also give out exact `SqrtRational` results, but are not simplified.
-Because the `simplify` function is quite slow, if you want to do some calculation for the result,
-we suggest to use `d`-precedent functions first and `simplify` after call calculations.
+These functions also give out exact `SqrtRational` results.
 ```@docs
 dCG
 d3j

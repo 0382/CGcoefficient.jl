@@ -27,7 +27,7 @@ include("test_pf.jl")
 @testset "test orthonormality: dCG" begin test_orthonormality_dCG(0:8) end
 @testset "test summation: d3j" begin test_summation_d3j(0:40) end
 @testset "test orthonormality: d6j" begin test_orthonormality_d6j(0:6) end
-@testset "test orthonormality: d9j" begin test_orthonormality_d9j(0:3) end
+@testset "test orthonormality: d9j" begin test_orthonormality_d9j(0:4) end
 
 @testset "test Moshinsky" begin test_Moshinsky() end
 
