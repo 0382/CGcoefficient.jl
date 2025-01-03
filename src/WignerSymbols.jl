@@ -439,6 +439,7 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
     _bigbin(Sde, χ + 2, F + 1)
     MPZ.mul!(Sde, _bigbin(temp, l1 + l2 + Λ + 1, 2Λ + 1))
     MPZ.mul!(Sde, _bigbin(temp, 2Λ, Λ + l1 - l2))
+    _divgcd!(temp, Snu, Sde)
 
     MPZ.mul_ui!(Snu, convert(Culong, 2l1 + 1))
     MPZ.mul!(Snu, _bigbin(temp, 2nl1 + 1, nl1))
@@ -478,17 +479,17 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
             na = div(fa - la, 2)
             nla = na + la
             MPZ.mul_ui!(nu_a, nu_fa, convert(Culong, 2la + 1))
-            MPZ.mul!(nu_a, _bigbin(temp, 2nla + 1, nla))
+            MPZ.mul!(nu_a, _bigbin(temp, fa + 1, na))
             MPZ.mul_2exp!(nu_a, la)
-            MPZ.mul!(de_a, de_fa, _bigbin(temp, fa + 1, na))
+            MPZ.mul!(de_a, de_fa, _bigbin(temp, 2nla + 1, nla))
             _divgcd!(temp, nu_a, de_a)
             for lb = abs(l1 - la):2:min(l1 + la, fb)
                 nb = div(fb - lb, 2)
                 nlb = nb + lb
                 MPZ.mul_ui!(nu_b, nu_a, convert(Culong, 2lb + 1))
-                MPZ.mul!(nu_b, _bigbin(temp, 2nlb + 1, nlb))
+                MPZ.mul!(nu_b, _bigbin(temp, fb + 1, nb))
                 MPZ.mul_2exp!(nu_b, lb)
-                MPZ.mul!(de_b, de_a, _bigbin(temp, fb + 1, nb))
+                MPZ.mul!(de_b, de_a, _bigbin(temp, 2nlb + 1, nlb))
                 _omega(tx, temp, la, l1, div(la + lb + l1, 2))
                 MPZ.mul!(nu_b, tx)
                 _divgcd!(temp, nu_b, de_b)
@@ -496,9 +497,9 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
                     nc = div(fc - lc, 2)
                     nlc = nc + lc
                     MPZ.mul_ui!(nu_c, nu_b, convert(Culong, 2lc + 1))
-                    MPZ.mul!(nu_c, _bigbin(temp, 2nlc + 1, nlc))
+                    MPZ.mul!(nu_c, _bigbin(temp, fc + 1, nc))
                     MPZ.mul_2exp!(nu_c, lc)
-                    MPZ.mul!(de_c, de_b, _bigbin(temp, fc + 1, nc))
+                    MPZ.mul!(de_c, de_b, _bigbin(temp, 2nlc + 1, nlc))
                     _omega(tx, temp, la, L, div(la + lc + L, 2))
                     MPZ.mul!(nu_c, tx)
                     MPZ.set_ui!(tx, convert(Culong, 2L + 1))
@@ -512,9 +513,9 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
                         nd = div(fd - ld, 2)
                         nld = nd + ld
                         MPZ.mul_ui!(nu_d, nu_c, convert(Culong, 2ld + 1))
-                        MPZ.mul!(nu_d, _bigbin(temp, 2nld + 1, nld))
+                        MPZ.mul!(nu_d, _bigbin(temp, fd + 1, nd))
                         MPZ.mul_2exp!(nu_d, ld)
-                        MPZ.mul!(de_d, de_c, _bigbin(temp, fd + 1, nd))
+                        MPZ.mul!(de_d, de_c, _bigbin(temp, 2nld + 1, nld))
                         _omega(tx, temp, lc, l2, div(lc + ld + l2, 2))
                         MPZ.mul!(nu_d, tx)
                         _omega(tx, temp, lb, l, div(lb + ld + l, 2))
@@ -524,6 +525,9 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
                         MPZ.mul!(tx, _bigbin(temp, 2l, l + lb - ld))
                         MPZ.mul!(de_d, tx)
                         _divgcd!(temp, nu_d, de_d)
+                        if isodd(ld)
+                            MPZ.neg!(nu_d)
+                        end
                         _m9j!(M9j, temp, tx, At, Bt, Ct, Pt_de, la, lb, l1, lc, ld, l2, L, l, Λ)
                         MPQ.mul!(M9j, Base.unsafe_rational(nu_d, de_d))
                         MPQ.add!(sum, M9j)
@@ -532,7 +536,6 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
             end
         end
     end
-    @show sum, Snu, Sde
     simplify4!(tx, sum.num, sum.den, Snu, Sde, 2χ + 1)
     return SqrtRational(sum, Base.unsafe_rational(Snu, Sde))
 end
