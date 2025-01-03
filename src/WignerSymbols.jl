@@ -183,11 +183,16 @@ function _d9j(dj1::Int, dj2::Int, dj3::Int,
     dtl::Int = max(abs(dj2 - dj6), abs(dj4 - dj8), abs(dj1 - dj9))
     dth::Int = min(dj2 + dj6, dj4 + dj8, dj1 + dj9)
     PABC::Rational{BigInt} = zero(Rational{BigInt})
+    Pt_de::BigInt = BigInt()
+    tx = BigInt()
+    At = BigInt()
+    Bt = BigInt()
+    Ct = BigInt()
     for dt::Int = dtl:2:dth
         j19t::Int = div(dj1 + dj9 + dt, 2)
         j26t::Int = div(dj2 + dj6 + dt, 2)
         j48t::Int = div(dj4 + dj8 + dt, 2)
-        Pt_de = _bigbin(j19t + 1, dt + 1)
+        _bigbin(Pt_de, j19t + 1, dt + 1)
         MPZ.mul!(Pt_de, _bigbin(t, dt, div(dj1 + dt - dj9, 2)))
         MPZ.mul!(Pt_de, _bigbin(t, j26t + 1, dt + 1))
         MPZ.mul!(Pt_de, _bigbin(t, dt, div(dj2 + dt - dj6, 2)))
@@ -197,8 +202,7 @@ function _d9j(dj1::Int, dj2::Int, dj3::Int,
         MPZ.mul_ui!(Pt_de, convert(Culong, dt + 1))
         xl::Int = max(j123, j369, j26t, j19t)
         xh::Int = min(pm123 + j369, pm132 + j26t, pm231 + j19t)
-        At::BigInt = zero(BigInt)
-        tx = BigInt()
+        MPZ.set_ui!(At, 0)
         for x = xl:xh
             _bigbin(tx, x + 1, j123 + 1)
             MPZ.mul!(tx, _bigbin(t, pm123, x - j369))
@@ -208,7 +212,7 @@ function _d9j(dj1::Int, dj2::Int, dj3::Int,
         end
         yl::Int = max(j456, j26t, j258, j48t)
         yh::Int = min(pm456 + j26t, pm465 + j258, pm564 + j48t)
-        Bt::BigInt = zero(BigInt)
+        MPZ.set_ui!(Bt, 0)
         for y = yl:yh
             _bigbin(tx, y + 1, j456 + 1)
             MPZ.mul!(tx, _bigbin(t, pm456, y - j26t))
@@ -218,7 +222,7 @@ function _d9j(dj1::Int, dj2::Int, dj3::Int,
         end
         zl::Int = max(j789, j19t, j48t, j147)
         zh::Int = min(pm789 + j19t, pm798 + j48t, pm897 + j147)
-        Ct::BigInt = zero(BigInt)
+        MPZ.set_ui!(Ct, 0)
         for z = zl:zh
             _bigbin(tx, z + 1, j789 + 1)
             MPZ.mul!(tx, _bigbin(t, pm789, z - j19t))
@@ -233,7 +237,7 @@ function _d9j(dj1::Int, dj2::Int, dj3::Int,
             MPZ.neg!(t)
         end
         _divgcd!(tx, t, Pt_de)
-        PABC += Base.unsafe_rational(t, Pt_de)
+        Base.GMP.MPQ.add!(PABC, Base.unsafe_rational(t, Pt_de))
     end
     if isodd(dth)
         MPZ.neg!(PABC.num)

@@ -3,7 +3,7 @@
 The Talmi-Moshinsky braket can be evaluated as following [^1]：
 ```math
 \begin{aligned}
-    &\braket{n_3l_3,n_4l_4;\Lambda}{n_1l_1,n_2l_2;\Lambda} = \prod_{k=1}^4 i^{-l_k} \sqrt{\dfrac{n_k![2(n_k+l_k)+1]!!}{\sqrt{2^{l_k}}}} \\
+    &\langle n_3l_3,n_4l_4;\Lambda|n_1l_1,n_2l_2;\Lambda\rangle = \prod_{k=1}^4 i^{-l_k} \sqrt{\dfrac{n_k![2(n_k+l_k)+1]!!}{\sqrt{2^{l_k}}}} \\
     \times &\sum_{n_an_bn_cn_dl_a l_b l_c l_d} \Bigg[(-1)^{l_d} (\sin\beta)^{2n_a + l_a + 2n_d + l_d}(\cos\beta)^{2n_b+l_b + 2n_c + l_c} \begin{Bmatrix}l_a & l_b & l_1 \\ l_c & l_d & l_2 \\ l_3 & l_4 & \Lambda \end{Bmatrix} \\ 
     \times & C_{l_a0l_b0}^{l_10} C_{l_a0l_c0}^{l_30} C_{l_b0l_d0}^{l_40} C_{l_c0l_d0}^{l_20} \prod_{p = a}^{d} \dfrac{(-1)^{l_p}\sqrt{2^{l_p}}(2l_p+1)}{n_p![2(n_p+l_p) + 1]!!} \Bigg].
 \end{aligned}
@@ -58,11 +58,11 @@ In the pord of $r_k$, there is
 Finally, we have
 ```math
 \begin{aligned}
-    &\braket{n_3l_3,n_4l_4;\Lambda}{n_1l_1,n_2l_2;\Lambda}\\
+    &\langle n_3l_3,n_4l_4;\Lambda|n_1l_1,n_2l_2;\Lambda\rangle\\
     = &\prod_{k=1}^4 i^{-l_k} \sqrt{\dfrac{1}{2^{l_k}(n_k+l_k+2)}\begin{pmatrix}2(n_k+l_k)+1 \\ n_k + l_k\end{pmatrix}\begin{pmatrix}2n_k+l_k+2 \\ n_k\end{pmatrix}^{-1}} \\
     \times & \sum_{n_an_bn_cn_dl_a l_b l_c l_d} \Bigg[(-1)^{l_d} (\sin\beta)^{2n_a + l_a + 2n_d + l_d}(\cos\beta)^{2n_b+l_b + 2n_c + l_c} \begin{Bmatrix}l_a & l_b & l_1 \\ l_c & l_d & l_2 \\ l_3 & l_4 & \Lambda \end{Bmatrix} \\
     \times & \sqrt{\begin{pmatrix}2n_1+l_1+2 \\ 2n_a + l_a + 1\end{pmatrix}\begin{pmatrix}2n_2 + l_2 + 2 \\ 2n_c + l_c + 1\end{pmatrix} \begin{pmatrix}2n_3 + l_3 + 2 \\ 2n_a + l_a + 1\end{pmatrix}\begin{pmatrix}2n_4 + l_4 + 2 \\ 2n_b + l_b + 1\end{pmatrix}} \\
-    \times & C_{l_a0l_b0}^{l_10} C_{l_a0l_c0}^{l_30} C_{l_b0l_d0}^{l_40} C_{l_c0l_d0}^{l_20} \prod_{p=a}^d (-1)^{l_d}2^{l_p}(2l_p+1)\begin{pmatrix}2n_p+l_p+1 \\ n_p\end{pmatrix} \begin{pmatrix}2(n_p+l_p)+1 \\ n_p + l_p\end{pmatrix}^{-1} \Bigg]
+    \times & C_{l_a0l_b0}^{l_10} C_{l_a0l_c0}^{l_30} C_{l_b0l_d0}^{l_40} C_{l_c0l_d0}^{l_20} \prod_{p=a}^d (-1)^{l_p}2^{l_p}(2l_p+1)\begin{pmatrix}2n_p+l_p+1 \\ n_p\end{pmatrix} \begin{pmatrix}2(n_p+l_p)+1 \\ n_p + l_p\end{pmatrix}^{-1} \Bigg]
 \end{aligned}
 ```
 

@@ -13,7 +13,7 @@ struct PFRational{T<:Integer} <: Real
     PFRational{T}(e::Vector{T}) where {T} = new{T}(e)
 end
 
-PFRational(e::Vector{T}) where {T<:Integer} = PFRational{T}(copy(e))
+PFRational(e::Vector{T}) where {T<:Integer} = PFRational{T}(e)
 
 Base.one(::Type{PFRational{T}}) where {T<:Integer} = PFRational{T}(zeros(T, 0))
 Base.copy(x::PFRational) = PFRational(copy(x.e))
@@ -113,16 +113,6 @@ _gcd!(x::PFRational{T}, y::PFRational{T}) where {T<:Integer} = begin
     end
     for i in length(y.e)+1:length(x.e)
         x.e[i] = min(x.e[i], 0)
-    end
-end
-
-# assume length(y) <= length(x)
-_lcm!(x::PFRational{T}, y::PFRational{T}) where {T<:Integer} = begin
-    for i in eachindex(y.e)
-        x.e[i] = max(x.e[i], y.e[i])
-    end
-    for i in length(y.e)+1:length(x.e)
-        x.e[i] = max(x.e[i], 0)
     end
 end
 
@@ -236,26 +226,6 @@ Base.convert(::Type{Rational}, x::PFRational) = begin
     den = BigInt(0)
     _rational!(num, den, x)
     return Base.unsafe_rational(num, den)
-end
-
-Base.show(io::IO, x::PFRational{T}) where T = begin
-    _extend_prime_table(length(x.e))
-    print(io, "PFRational{", T, "}(")
-    first = true
-    for i in eachindex(x.e)
-        if x.e[i] != 0
-            p = nth_stored_prime(i)
-            if !first
-                print(io, " * ")
-            end
-            first = false
-            print(io, p)
-            if x.e[i] != 1
-                print(io, "^", x.e[i])
-            end
-        end
-    end
-    print(io, ")")
 end
 
 """

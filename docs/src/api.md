@@ -55,10 +55,11 @@ dRacah
 Float version functions is always used for numeric calculation. They are designed for fast calculation.
 You should call `wigner_init_float` to reserve the inner **binomial table**.
 They only resive `Integer` arguments, thus `fCG, f3j, f6j, fRacha, f9j` only resive arguements which are
-double of the exact quantum number. The rest functions do not need to do so.
-The difference is labeled with the arguement name: `dj` means of double of the quantum number, while `j` means
-the exact quantum number.
+double of the exact quantum number. In some functions, e.g. `flsjj`, some quantum number can be half-integer,
+the corresponding arguments start with `d` (which mean double of the quantum number);
+while some other quantum number must be integer, the corresponding arguments does not starts with `d`.
 ```@docs
+wigner_init_float
 fbinomial
 unsafe_fbinomial
 fCG
@@ -73,10 +74,11 @@ fnorm9j
 flsjj
 fMoshinsky
 dfunc
-wigner_init_float
 ```
 
 ## prime factorization version
+
+I implement a primary version of the prime factorization algorithm, based on the [wigxjpf](https://fy.chalmers.se/subatom/wigxjpf/) library.
 
 ```@docs
 PFRational
