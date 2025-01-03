@@ -1,5 +1,6 @@
 using Primes
 using Base.GMP.MPZ
+using Base.GMP.MPQ
 
 const c_tdiv_q_ui = MPZ.gmpz(:tdiv_q_ui)
 const c_ui_pow_ui = MPZ.gmpz(:ui_pow_ui)

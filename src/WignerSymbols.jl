@@ -237,7 +237,7 @@ function _d9j(dj1::Int, dj2::Int, dj3::Int,
             MPZ.neg!(t)
         end
         _divgcd!(tx, t, Pt_de)
-        Base.GMP.MPQ.add!(PABC, Base.unsafe_rational(t, Pt_de))
+        MPQ.add!(PABC, Base.unsafe_rational(t, Pt_de))
     end
     if isodd(dth)
         MPZ.neg!(PABC.num)
@@ -245,6 +245,86 @@ function _d9j(dj1::Int, dj2::Int, dj3::Int,
     Jmax::Int = max(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9)
     simplify4!(t, PABC.num, PABC.den, P0_nu, P0_de, cld(5Jmax, 2) + 1)
     return SqrtRational(PABC, Base.unsafe_rational(P0_nu, P0_de))
+end
+
+function _omega(ans::BigInt, temp::BigInt, j1::Int, j3::Int, g::Int)
+    _bigbin(ans, g, j3)
+    MPZ.mul!(ans, _bigbin(temp, j3, g - j1))
+end
+
+function _m9j!(
+    sum::Rational{BigInt}, temp::BigInt, tx::BigInt, At::BigInt, Bt::BigInt, Ct::BigInt, Pt_de::BigInt,
+    j1::Int, j2::Int, j3::Int, j4::Int, j5::Int, j6::Int, j7::Int, j8::Int, j9::Int)
+    j123::Int = j1 + j2 + j3
+    j456::Int = j4 + j5 + j6
+    j789::Int = j7 + j8 + j9
+    j147::Int = j1 + j4 + j7
+    j258::Int = j2 + j5 + j8
+    j369::Int = j3 + j6 + j9
+    pm123::Int = j1 + j2 - j3
+    pm132::Int = j1 + j3 - j2
+    pm231::Int = j2 + j3 - j1
+    pm456::Int = j4 + j5 - j6
+    pm465::Int = j4 + j6 - j5
+    pm564::Int = j5 + j6 - j4
+    pm789::Int = j7 + j8 - j9
+    pm798::Int = j7 + j9 - j8
+    pm897::Int = j8 + j9 - j7
+    MPQ.set_ui!(sum, 0, 1)
+    tl::Int = max(abs(j2 - j6), abs(j4 - j8), abs(j1 - j9))
+    th::Int = min(j2 + j6, j4 + j8, j1 + j9)
+    for t::Int = tl:th
+        j19t::Int = j1 + j9 + t
+        j26t::Int = j2 + j6 + t
+        j48t::Int = j4 + j8 + t
+        dt::Int = 2t
+        MPZ.set_ui!(Pt_de, convert(Culong, dt + 1))
+        MPZ.mul_ui!(Pt_de, convert(Culong, dt + 1))
+        MPZ.mul!(Pt_de, _bigbin(temp, j19t + 1, dt + 1))
+        MPZ.mul!(Pt_de, _bigbin(temp, dt, j1 + t - j9))
+        MPZ.mul!(Pt_de, _bigbin(temp, j26t + 1, dt + 1))
+        MPZ.mul!(Pt_de, _bigbin(temp, dt, j2 + t - j6))
+        MPZ.mul!(Pt_de, _bigbin(temp, j48t + 1, dt + 1))
+        MPZ.mul!(Pt_de, _bigbin(temp, dt, j4 + t - j8))
+        xl::Int = max(j123, j369, j26t, j19t)
+        xh::Int = min(pm123 + j369, pm132 + j26t, pm231 + j19t)
+        MPZ.set_ui!(At, 0)
+        for x = xl:xh
+            _bigbin(tx, x + 1, j123 + 1)
+            MPZ.mul!(tx, _bigbin(temp, pm123, x - j369))
+            MPZ.mul!(tx, _bigbin(temp, pm132, x - j26t))
+            MPZ.mul!(tx, _bigbin(temp, pm231, x - j19t))
+            MPZ.sub!(At, tx, At)
+        end
+        yl::Int = max(j456, j26t, j258, j48t)
+        yh::Int = min(pm456 + j26t, pm465 + j258, pm564 + j48t)
+        MPZ.set_ui!(Bt, 0)
+        for y = yl:yh
+            _bigbin(tx, y + 1, j456 + 1)
+            MPZ.mul!(tx, _bigbin(temp, pm456, y - j26t))
+            MPZ.mul!(tx, _bigbin(temp, pm465, y - j258))
+            MPZ.mul!(tx, _bigbin(temp, pm564, y - j48t))
+            MPZ.sub!(Bt, tx, Bt)
+        end
+        zl::Int = max(j789, j19t, j48t, j147)
+        zh::Int = min(pm789 + j19t, pm798 + j48t, pm897 + j147)
+        MPZ.set_ui!(Ct, 0)
+        for z = zl:zh
+            _bigbin(tx, z + 1, j789 + 1)
+            MPZ.mul!(tx, _bigbin(temp, pm789, z - j19t))
+            MPZ.mul!(tx, _bigbin(temp, pm798, z - j48t))
+            MPZ.mul!(tx, _bigbin(temp, pm897, z - j147))
+            MPZ.sub!(Ct, tx, Ct)
+        end
+        MPZ.mul!(At, Bt)
+        MPZ.mul!(At, Ct)
+        if isodd(xh + yh + zh)
+            MPZ.neg!(At)
+        end
+        _divgcd!(tx, At, Pt_de)
+        MPQ.add!(sum, Base.unsafe_rational(At, Pt_de))
+    end
+    return
 end
 
 @inline function _lsjj_helper(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
@@ -317,6 +397,8 @@ function _lsjj(l1::Int, l2::Int, dj1::Int, dj2::Int, L::Int, S::Int, J::Int)
 end
 
 function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l2::Int, Λ::Int)
+    check_couple(2l1, 2l2, 2Λ) || return zero(SqrtRational{BigInt})
+    check_couple(2L, 2l, 2Λ) || return zero(SqrtRational{BigInt})
     f1 = 2 * n1 + l1
     f2 = 2 * n2 + l2
     F = 2 * N + L
@@ -327,55 +409,132 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
     nl2 = n2 + l2
     NL = N + L
     nl = n + l
-    r1 = _bigbin(2nl1 + 1, nl1) // (_bigbin(f1 + 2, n1) * (nl1 + 2))
-    r2 = _bigbin(2nl2 + 1, nl2) // (_bigbin(f2 + 2, n2) * (nl2 + 2))
-    R = _bigbin(2NL + 1, NL) // (_bigbin(F + 2, N) * (NL + 2))
-    r = _bigbin(2nl + 1, nl) // (_bigbin(f + 2, n) * (nl + 2))
-    pre_sum = exact_sqrt(r1 * r2 * R * r // big(2)^χ)
     half_lsum = div(l1 + l2 + L + l, 2)
-    sum = zero(SqrtRational{BigInt})
+
+    temp = BigInt()
+    tx = BigInt()
+    At = BigInt()
+    Bt = BigInt()
+    Ct = BigInt()
+    Pt_de = BigInt()
+    nu_a = BigInt()
+    de_a = BigInt()
+    nu_b = BigInt()
+    de_b = BigInt()
+    nu_c = BigInt()
+    de_c = BigInt()
+    nu_d = BigInt()
+    de_d = BigInt()
+    nu_fa = BigInt()
+    de_fa = BigInt()
+    base_de = BigInt()
+    M9j = zero(Rational{BigInt})
+    
+    Snu = BigInt()
+    Sde = BigInt()
+
+    _bigbin(Snu, χ + 2, f1 + 1)
+    MPZ.mul!(Snu, _bigbin(temp, L + l + Λ + 1, 2Λ + 1))
+    MPZ.mul!(Snu, _bigbin(temp, 2Λ, Λ + L - l))
+    _bigbin(Sde, χ + 2, F + 1)
+    MPZ.mul!(Sde, _bigbin(temp, l1 + l2 + Λ + 1, 2Λ + 1))
+    MPZ.mul!(Sde, _bigbin(temp, 2Λ, Λ + l1 - l2))
+
+    MPZ.mul_ui!(Snu, convert(Culong, 2l1 + 1))
+    MPZ.mul!(Snu, _bigbin(temp, 2nl1 + 1, nl1))
+    MPZ.mul!(Sde, _bigbin(temp, f1 + 1, n1))
+
+    MPZ.mul_ui!(Snu, convert(Culong, 2l2 + 1))
+    MPZ.mul!(Snu, _bigbin(temp, 2nl2 + 1, nl2))
+    MPZ.mul!(Sde, _bigbin(temp, f2 + 1, n2))
+
+    MPZ.mul_ui!(Snu, convert(Culong, 2L + 1))
+    MPZ.mul!(Snu, _bigbin(temp, 2NL + 1, NL))
+    MPZ.mul!(Sde, _bigbin(temp, F + 1, F))
+
+    MPZ.mul_ui!(Snu, convert(Culong, 2l + 1))
+    MPZ.mul!(Snu, _bigbin(temp, 2nl + 1, nl))
+    MPZ.mul!(Sde, _bigbin(temp, f + 1, n))
+
+    if isodd(χ)
+        MPZ.mul_2exp!(Sde, 1)
+    end
+    _divgcd!(temp, Snu, Sde)
+
+    sum = zero(Rational{BigInt})
+    MPZ.set_ui!(base_de, convert(Culong, f1 + 2))
+    MPZ.mul_ui!(base_de, convert(Culong, f2 + 2))
+    MPZ.mul_2exp!(base_de, div(χ, 2) + half_lsum)
     for fa = 0:min(f1, F)
         fb = f1 - fa
         fc = F - fa
         fd = f2 - fc
-        fd >= 0 || continue
-        t = exact_sqrt(_bigbin(f1 + 2, fa + 1) * _bigbin(f2 + 2, fc + 1) * _bigbin(F + 2, fa + 1) * _bigbin(f + 2, fb + 1))
-        for la = (fa&0x01):2:fa
+        fd < 0 && continue
+        _bigbin(nu_fa, f1 + 2, fa + 1)
+        MPZ.mul!(nu_fa, _bigbin(temp, f2 + 2, fc + 1))
+        MPZ.set!(de_fa, base_de)
+        _divgcd!(temp, nu_fa, de_fa)
+        for la = rem(fa, 2):2:fa
             na = div(fa - la, 2)
             nla = na + la
-            ta = ((2 * la + 1) * _bigbin(fa + 1, na)) // _bigbin(2nla + 1, nla)
-            for lb = abs(l1 - la):2:min(la + l1, fb)
+            MPZ.mul_ui!(nu_a, nu_fa, convert(Culong, 2la + 1))
+            MPZ.mul!(nu_a, _bigbin(temp, 2nla + 1, nla))
+            MPZ.mul_2exp!(nu_a, la)
+            MPZ.mul!(de_a, de_fa, _bigbin(temp, fa + 1, na))
+            _divgcd!(temp, nu_a, de_a)
+            for lb = abs(l1 - la):2:min(l1 + la, fb)
                 nb = div(fb - lb, 2)
                 nlb = nb + lb
-                tb = ((2 * lb + 1) * _bigbin(fb + 1, nb)) // _bigbin(2nlb + 1, nlb)
-                g1 = div(la + lb + l1, 2)
-                pCG_ab = SqrtRational(_bigbin(g1, l1) * _bigbin(l1, g1 - la), big(1) // (_bigbin(2g1 + 1, 2(g1 - l1)) * _bigbin(2l1, 2(g1 - la))))
-                for lc = abs(L - la):2:min(la + L, fc)
+                MPZ.mul_ui!(nu_b, nu_a, convert(Culong, 2lb + 1))
+                MPZ.mul!(nu_b, _bigbin(temp, 2nlb + 1, nlb))
+                MPZ.mul_2exp!(nu_b, lb)
+                MPZ.mul!(de_b, de_a, _bigbin(temp, fb + 1, nb))
+                _omega(tx, temp, la, l1, div(la + lb + l1, 2))
+                MPZ.mul!(nu_b, tx)
+                _divgcd!(temp, nu_b, de_b)
+                for lc = abs(L - la):2:min(L + la, fc)
                     nc = div(fc - lc, 2)
                     nlc = nc + lc
-                    tc = ((2 * lc + 1) * _bigbin(fc + 1, nc)) // _bigbin(2nlc + 1, nlc)
-                    G = div(la + lc + L, 2)
-                    pCG_ac = SqrtRational(_bigbin(G, L) * _bigbin(L, G - la), big(1) // (_bigbin(2G + 1, 2(G - L)) * _bigbin(2L, 2(G - la))))
-                    ld_min = max(abs(l2 - lc), abs(l - lb))
-                    ld_max = min(fd, lb + l, lc + l2)
-                    for ld = ld_min:2:ld_max
+                    MPZ.mul_ui!(nu_c, nu_b, convert(Culong, 2lc + 1))
+                    MPZ.mul!(nu_c, _bigbin(temp, 2nlc + 1, nlc))
+                    MPZ.mul_2exp!(nu_c, lc)
+                    MPZ.mul!(de_c, de_b, _bigbin(temp, fc + 1, nc))
+                    _omega(tx, temp, la, L, div(la + lc + L, 2))
+                    MPZ.mul!(nu_c, tx)
+                    MPZ.set_ui!(tx, convert(Culong, 2L + 1))
+                    MPZ.mul!(tx, _bigbin(temp, la + lc + L + 1, 2L + 1))
+                    MPZ.mul!(tx, _bigbin(temp, 2L, L + la - lc))
+                    MPZ.mul!(de_c, tx)
+                    _divgcd!(temp, nu_c, de_c)
+                    ldmin = max(abs(l2 - lc), abs(l - lb))
+                    ldmax = min(fd, l2 + lc, l + lb)
+                    for ld = ldmin:2:ldmax
                         nd = div(fd - ld, 2)
                         nld = nd + ld
-                        td = ((2 * ld + 1) * _bigbin(fd + 1, nd)) // _bigbin(2nld + 1, nld)
-                        g2 = div(lc + ld + l2, 2)
-                        pCG_cd = SqrtRational(_bigbin(g2, l2) * _bigbin(l2, g2 - lc), big(1) // (_bigbin(2g2 + 1, 2(g2 - l2)) * _bigbin(2l2, 2(g2 - lc))))
-                        g = div(lb + ld + l, 2)
-                        pCG_bd = SqrtRational(_bigbin(g, l) * _bigbin(l, g - lb), big(1) // (_bigbin(2g + 1, 2(g - l)) * _bigbin(2l, 2(g - lb))))
-                        l_diff = la + lb + lc + ld - half_lsum
-                        phase = l_diff >= 0 ? iphase(ld) * 2^l_diff : iphase(ld) // 2^(-l_diff)
-                        ninej = d9j(2 * la, 2 * lb, 2 * l1, 2 * lc, 2 * ld, 2 * l2, 2 * L, 2 * l, 2 * Λ)
-                        sum = sum + phase * t * ta * tb * tc * td * pCG_ab * pCG_ac * pCG_bd * pCG_cd * ninej
+                        MPZ.mul_ui!(nu_d, nu_c, convert(Culong, 2ld + 1))
+                        MPZ.mul!(nu_d, _bigbin(temp, 2nld + 1, nld))
+                        MPZ.mul_2exp!(nu_d, ld)
+                        MPZ.mul!(de_d, de_c, _bigbin(temp, fd + 1, nd))
+                        _omega(tx, temp, lc, l2, div(lc + ld + l2, 2))
+                        MPZ.mul!(nu_d, tx)
+                        _omega(tx, temp, lb, l, div(lb + ld + l, 2))
+                        MPZ.mul!(nu_d, tx)
+                        MPZ.set_ui!(tx, convert(Culong, 2l + 1))
+                        MPZ.mul!(tx, _bigbin(temp, lb + ld + l + 1, 2l + 1))
+                        MPZ.mul!(tx, _bigbin(temp, 2l, l + lb - ld))
+                        MPZ.mul!(de_d, tx)
+                        _divgcd!(temp, nu_d, de_d)
+                        _m9j!(M9j, temp, tx, At, Bt, Ct, Pt_de, la, lb, l1, lc, ld, l2, L, l, Λ)
+                        MPQ.mul!(M9j, Base.unsafe_rational(nu_d, de_d))
+                        MPQ.add!(sum, M9j)
                     end
                 end
             end
         end
     end
-    return pre_sum * sum
+    @show sum, Snu, Sde
+    simplify4!(tx, sum.num, sum.den, Snu, Sde, 2χ + 1)
+    return SqrtRational(sum, Base.unsafe_rational(Snu, Sde))
 end
 
 
@@ -522,4 +681,4 @@ Moshinsky bracket，Ref: Buck et al. Nuc. Phys. A 600 (1996) 387-402.
 Since this function is designed for demonstration the exact result,
 It only calculate the case of ``\tan(\beta) = 1``.
 """
-@inline Moshinsky(N::Integer, L::Integer, n::Integer, l::Integer, n1::Integer, l1::Integer, n2::Integer, l2::Integer, Λ::Integer) = simplify(_Moshinsky(Int.((N, L, n, l, n1, l1, n2, l2, Λ))...))
+@inline Moshinsky(N::Integer, L::Integer, n::Integer, l::Integer, n1::Integer, l1::Integer, n2::Integer, l2::Integer, Λ::Integer) = _Moshinsky(Int.((N, L, n, l, n1, l1, n2, l2, Λ))...)

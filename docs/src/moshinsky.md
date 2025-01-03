@@ -130,7 +130,7 @@ then the Moshinsky braket is a square root of a rational.
 Define
 ```math
 \begin{aligned}
-M_{9j}(l_al_bl_cl_dl_1l_2l_3l_4\Lambda) &= \Omega(l_al_bl_1)\Omega(l_al_cl_3)\Omega(l_bl_dl_4)\Omega(l_cl_dl_2) \Delta^2(l_al_cl_4)\Delta^2(l_bl_dl_4)\\
+M_{9j}(l_al_bl_cl_dl_1l_2l_3l_4\Lambda) &= \Omega(l_al_bl_1)\Omega(l_al_cl_3)\Omega(l_bl_dl_4)\Omega(l_cl_dl_2) \Delta^2(l_al_cl_3)\Delta^2(l_bl_dl_4)\\
 &\times \sum_t P(t) \left(\sum_x A(t,x)\right) \left(\sum_y B(t,y)\right) \left(\sum_z C(t,z)\right).
 \end{aligned}
 ```
@@ -138,7 +138,7 @@ Then we can finally write down
 ```math
 \begin{aligned}
 &\langle n_3l_3,n_4l_4;\Lambda|n_1l_1,n_2l_2;\Lambda\rangle\\
-= &(2n_1+l_1+2)(2n_2+l_2+2)\sqrt{\frac{\binom{\chi}{f_1+1}\binom{l_3+l_4+\Lambda+1}{2\Lambda+1}\binom{2\Lambda}{\Lambda + l_3-l_4}}{\binom{\chi}{f_3+1}\binom{l_1+l_2+\Lambda+1}{2\Lambda}\binom{2\Lambda}{\Lambda+l_1-l_2}}} \prod_{k}^4 \sqrt{(2l_k+1)\frac{\binom{2(n_i+l_i)+1}{n_k+l_k}}{\binom{2n_k+l_k+1}{n_k}}} \\
+= &(2n_1+l_1+2)(2n_2+l_2+2)\sqrt{\frac{\binom{\chi+2}{f_1+1}\binom{l_3+l_4+\Lambda+1}{2\Lambda+1}\binom{2\Lambda}{\Lambda + l_3-l_4}}{\binom{\chi+2}{f_3+1}\binom{l_1+l_2+\Lambda+1}{2\Lambda}\binom{2\Lambda}{\Lambda+l_1-l_2}}} \prod_{k}^4 \sqrt{(2l_k+1)\frac{\binom{2(n_i+l_i)+1}{n_k+l_k}}{\binom{2n_k+l_k+1}{n_k}}} \\
 &\times \sum_{n_an_bn_cn_dl_a l_b l_c l_d} \Bigg[(-1)^{l_d} (\sin\beta)^{2n_a + l_a + 2n_d + l_d}(\cos\beta)^{2n_b+l_b + 2n_c + l_c} M_{9j}(l_al_bl_cl_dl_1l_2l_3l_4\Lambda) \\
 &\times \binom{2n_1+l_1+2}{2n_a+l_a+1}\binom{2n_2+l_2+2}{2n_c+l_c+1} 2^{l_a+l_b+l_c+l_d-\frac{l_1+l_2+l_3+l_4}{2}} \prod_{p=a}^d (2l_p+1) \frac{\binom{2(n_p+l_b)+1}{n_p+l_p}}{\binom{2n_p+l_p+1}{n_p}}\Bigg]
 \end{aligned}
