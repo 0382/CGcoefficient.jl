@@ -22,8 +22,10 @@ const Moshinsky_test_set_result = [
 ]
 
 function test_Moshinsky()
+    wigner_init_float(10, "nmax", 0)
     for i = eachindex(Moshinsky_test_set_result)
-        @test Moshinsky(Moshinsky_test_set[i, :]...) == Moshinsky_test_set_result[i]
-        @test fMoshinsky(Moshinsky_test_set[i, :]...) ≈ float(Moshinsky_test_set_result[i])
+        N, L, n, l, n1, l1, n2, l2, Λ = Moshinsky_test_set[i, :]
+        @test Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ) == Moshinsky_test_set_result[i]
+        @test fMoshinsky(N, L, n, l, n1, l1, n2, l2, Λ) ≈ float(Moshinsky_test_set_result[i])
     end
 end

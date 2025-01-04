@@ -409,7 +409,6 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
     nl2 = n2 + l2
     NL = N + L
     nl = n + l
-    half_lsum = div(l1 + l2 + L + l, 2)
 
     temp = BigInt()
     tx = BigInt()
@@ -426,8 +425,6 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
     nu_d = BigInt()
     de_d = BigInt()
     nu_fa = BigInt()
-    de_fa = BigInt()
-    base_de = BigInt()
     M9j = zero(Rational{BigInt})
     
     Snu = BigInt()
@@ -451,21 +448,22 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
 
     MPZ.mul_ui!(Snu, convert(Culong, 2L + 1))
     MPZ.mul!(Snu, _bigbin(temp, 2NL + 1, NL))
-    MPZ.mul!(Sde, _bigbin(temp, F + 1, F))
+    MPZ.mul!(Sde, _bigbin(temp, F + 1, N))
 
     MPZ.mul_ui!(Snu, convert(Culong, 2l + 1))
     MPZ.mul!(Snu, _bigbin(temp, 2nl + 1, nl))
     MPZ.mul!(Sde, _bigbin(temp, f + 1, n))
 
-    if isodd(χ)
-        MPZ.mul_2exp!(Sde, 1)
-    end
+    _divgcd!(temp, Snu, Sde)
+
+    MPZ.set_ui!(tx, convert(Culong, f1 + 2))
+    MPZ.mul_ui!(tx, convert(Culong, f2 + 2))
+    MPZ.pow_ui!(tx, 2)
+    MPZ.mul_2exp!(tx, χ + (l1 + l2 + L + l))    
+    MPZ.mul!(Sde, tx)
     _divgcd!(temp, Snu, Sde)
 
     sum = zero(Rational{BigInt})
-    MPZ.set_ui!(base_de, convert(Culong, f1 + 2))
-    MPZ.mul_ui!(base_de, convert(Culong, f2 + 2))
-    MPZ.mul_2exp!(base_de, div(χ, 2) + half_lsum)
     for fa = 0:min(f1, F)
         fb = f1 - fa
         fc = F - fa
@@ -473,15 +471,13 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
         fd < 0 && continue
         _bigbin(nu_fa, f1 + 2, fa + 1)
         MPZ.mul!(nu_fa, _bigbin(temp, f2 + 2, fc + 1))
-        MPZ.set!(de_fa, base_de)
-        _divgcd!(temp, nu_fa, de_fa)
         for la = rem(fa, 2):2:fa
             na = div(fa - la, 2)
             nla = na + la
             MPZ.mul_ui!(nu_a, nu_fa, convert(Culong, 2la + 1))
             MPZ.mul!(nu_a, _bigbin(temp, fa + 1, na))
             MPZ.mul_2exp!(nu_a, la)
-            MPZ.mul!(de_a, de_fa, _bigbin(temp, 2nla + 1, nla))
+            _bigbin(de_a, 2nla + 1, nla)
             _divgcd!(temp, nu_a, de_a)
             for lb = abs(l1 - la):2:min(l1 + la, fb)
                 nb = div(fb - lb, 2)
@@ -502,6 +498,7 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
                     MPZ.mul!(de_c, de_b, _bigbin(temp, 2nlc + 1, nlc))
                     _omega(tx, temp, la, L, div(la + lc + L, 2))
                     MPZ.mul!(nu_c, tx)
+                    # Δ(lalcl3)
                     MPZ.set_ui!(tx, convert(Culong, 2L + 1))
                     MPZ.mul!(tx, _bigbin(temp, la + lc + L + 1, 2L + 1))
                     MPZ.mul!(tx, _bigbin(temp, 2L, L + la - lc))
@@ -520,6 +517,7 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
                         MPZ.mul!(nu_d, tx)
                         _omega(tx, temp, lb, l, div(lb + ld + l, 2))
                         MPZ.mul!(nu_d, tx)
+                        # Δ(lbldl4)
                         MPZ.set_ui!(tx, convert(Culong, 2l + 1))
                         MPZ.mul!(tx, _bigbin(temp, lb + ld + l + 1, 2l + 1))
                         MPZ.mul!(tx, _bigbin(temp, 2l, l + lb - ld))
@@ -536,7 +534,8 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
             end
         end
     end
-    simplify4!(tx, sum.num, sum.den, Snu, Sde, 2χ + 1)
+    Jmax = max(f1, f2, F, f, Λ)
+    simplify4!(tx, sum.num, sum.den, Snu, Sde, 5Jmax + 1)
     return SqrtRational(sum, Base.unsafe_rational(Snu, Sde))
 end
 
@@ -681,7 +680,7 @@ LS-coupling to jj-coupling transformation coefficient
 @doc raw"""
     Moshinsky(N::Integer, L::Integer, n::Integer, l::Integer, n1::Integer, l1::Integer, n2::Integer, l2::Integer, Λ::Integer)
 Moshinsky bracket，Ref: Buck et al. Nuc. Phys. A 600 (1996) 387-402.
-Since this function is designed for demonstration the exact result,
-It only calculate the case of ``\tan(\beta) = 1``.
+This function is designed for demonstration the exact result,
+It only calculate the case of ``\tan(\beta) = \sqrt{m_1\omega_1/m_2\omega_2} = 1``.
 """
 @inline Moshinsky(N::Integer, L::Integer, n::Integer, l::Integer, n1::Integer, l1::Integer, n2::Integer, l2::Integer, Λ::Integer) = _Moshinsky(Int.((N, L, n, l, n1, l1, n2, l2, Λ))...)
