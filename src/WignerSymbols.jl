@@ -187,19 +187,18 @@ function _d9j(dj1::Int, dj2::Int, dj3::Int,
     tx = BigInt()
     At = BigInt()
     Bt = BigInt()
-    Ct = BigInt()
     for dt::Int = dtl:2:dth
         j19t::Int = div(dj1 + dj9 + dt, 2)
         j26t::Int = div(dj2 + dj6 + dt, 2)
         j48t::Int = div(dj4 + dj8 + dt, 2)
-        _bigbin(Pt_de, j19t + 1, dt + 1)
+        MPZ.set_ui!(Pt_de, convert(Culong, dt + 1))
+        MPZ.mul_ui!(Pt_de, convert(Culong, dt + 1))
+        MPZ.mul!(Pt_de, _bigbin(t, j19t + 1, dt + 1))
         MPZ.mul!(Pt_de, _bigbin(t, dt, div(dj1 + dt - dj9, 2)))
         MPZ.mul!(Pt_de, _bigbin(t, j26t + 1, dt + 1))
         MPZ.mul!(Pt_de, _bigbin(t, dt, div(dj2 + dt - dj6, 2)))
         MPZ.mul!(Pt_de, _bigbin(t, j48t + 1, dt + 1))
         MPZ.mul!(Pt_de, _bigbin(t, dt, div(dj4 + dt - dj8, 2)))
-        MPZ.mul_ui!(Pt_de, convert(Culong, dt + 1))
-        MPZ.mul_ui!(Pt_de, convert(Culong, dt + 1))
         xl::Int = max(j123, j369, j26t, j19t)
         xh::Int = min(pm123 + j369, pm132 + j26t, pm231 + j19t)
         MPZ.set_ui!(At, 0)
@@ -220,30 +219,29 @@ function _d9j(dj1::Int, dj2::Int, dj3::Int,
             MPZ.mul!(tx, _bigbin(t, pm564, y - j48t))
             MPZ.sub!(Bt, tx, Bt)
         end
+        MPZ.mul!(At, Bt)
         zl::Int = max(j789, j19t, j48t, j147)
         zh::Int = min(pm789 + j19t, pm798 + j48t, pm897 + j147)
-        MPZ.set_ui!(Ct, 0)
+        MPZ.set_ui!(Bt, 0)
         for z = zl:zh
             _bigbin(tx, z + 1, j789 + 1)
             MPZ.mul!(tx, _bigbin(t, pm789, z - j19t))
             MPZ.mul!(tx, _bigbin(t, pm798, z - j48t))
             MPZ.mul!(tx, _bigbin(t, pm897, z - j147))
-            MPZ.sub!(Ct, tx, Ct)
+            MPZ.sub!(Bt, tx, Bt)
         end
-        MPZ.set!(t, At)
-        MPZ.mul!(t, Bt)
-        MPZ.mul!(t, Ct)
+        MPZ.mul!(At, Bt)
         if isodd(xh + yh + zh)
-            MPZ.neg!(t)
+            MPZ.neg!(At)
         end
-        _divgcd!(tx, t, Pt_de)
-        MPQ.add!(PABC, Base.unsafe_rational(t, Pt_de))
+        _divgcd!(tx, At, Pt_de)
+        __gmpq_add!(tx, PABC, At, Pt_de)
     end
     if isodd(dth)
         MPZ.neg!(PABC.num)
     end
     Jmax::Int = max(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9)
-    simplify4!(t, PABC.num, PABC.den, P0_nu, P0_de, cld(5Jmax, 2) + 1)
+    simplify4!(tx, PABC.num, PABC.den, P0_nu, P0_de, cld(5Jmax, 2) + 1)
     return SqrtRational(PABC, Base.unsafe_rational(P0_nu, P0_de))
 end
 
@@ -253,7 +251,7 @@ function _omega(ans::BigInt, temp::BigInt, j1::Int, j3::Int, g::Int)
 end
 
 function _m9j!(
-    sum::Rational{BigInt}, temp::BigInt, tx::BigInt, At::BigInt, Bt::BigInt, Ct::BigInt, Pt_de::BigInt,
+    sum::Rational{BigInt}, temp::BigInt, tx::BigInt, At::BigInt, Bt::BigInt, Pt_de::BigInt,
     j1::Int, j2::Int, j3::Int, j4::Int, j5::Int, j6::Int, j7::Int, j8::Int, j9::Int)
     j123::Int = j1 + j2 + j3
     j456::Int = j4 + j5 + j6
@@ -270,7 +268,8 @@ function _m9j!(
     pm789::Int = j7 + j8 - j9
     pm798::Int = j7 + j9 - j8
     pm897::Int = j8 + j9 - j7
-    MPQ.set_ui!(sum, 0, 1)
+    MPZ.set_ui!(sum.num, 0)
+    MPZ.set_ui!(sum.den, 1)
     tl::Int = max(abs(j2 - j6), abs(j4 - j8), abs(j1 - j9))
     th::Int = min(j2 + j6, j4 + j8, j1 + j9)
     for t::Int = tl:th
@@ -306,23 +305,23 @@ function _m9j!(
             MPZ.mul!(tx, _bigbin(temp, pm564, y - j48t))
             MPZ.sub!(Bt, tx, Bt)
         end
+        MPZ.mul!(At, Bt)
         zl::Int = max(j789, j19t, j48t, j147)
         zh::Int = min(pm789 + j19t, pm798 + j48t, pm897 + j147)
-        MPZ.set_ui!(Ct, 0)
+        MPZ.set_ui!(Bt, 0)
         for z = zl:zh
             _bigbin(tx, z + 1, j789 + 1)
             MPZ.mul!(tx, _bigbin(temp, pm789, z - j19t))
             MPZ.mul!(tx, _bigbin(temp, pm798, z - j48t))
             MPZ.mul!(tx, _bigbin(temp, pm897, z - j147))
-            MPZ.sub!(Ct, tx, Ct)
+            MPZ.sub!(Bt, tx, Bt)
         end
         MPZ.mul!(At, Bt)
-        MPZ.mul!(At, Ct)
         if isodd(xh + yh + zh)
             MPZ.neg!(At)
         end
         _divgcd!(tx, At, Pt_de)
-        MPQ.add!(sum, Base.unsafe_rational(At, Pt_de))
+        __gmpq_add!(tx, sum, At, Pt_de)
     end
     return
 end
@@ -414,7 +413,6 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
     tx = BigInt()
     At = BigInt()
     Bt = BigInt()
-    Ct = BigInt()
     Pt_de = BigInt()
     nu_a = BigInt()
     de_a = BigInt()
@@ -526,9 +524,12 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
                         if isodd(ld)
                             MPZ.neg!(nu_d)
                         end
-                        _m9j!(M9j, temp, tx, At, Bt, Ct, Pt_de, la, lb, l1, lc, ld, l2, L, l, Λ)
-                        MPQ.mul!(M9j, Base.unsafe_rational(nu_d, de_d))
-                        MPQ.add!(sum, M9j)
+                        _m9j!(M9j, temp, tx, At, Bt, Pt_de, la, lb, l1, lc, ld, l2, L, l, Λ)
+                        # don't use MPQ.add! to avoid memory allocation
+                        MPZ.mul!(M9j.num, nu_d)
+                        MPZ.mul!(M9j.den, de_d)
+                        _divgcd!(tx, M9j.num, M9j.den)
+                        __gmpq_add!(tx, sum, M9j)
                     end
                 end
             end

@@ -1,11 +1,11 @@
 using Primes
 using Base.GMP.MPZ
-using Base.GMP.MPQ
 
 const c_tdiv_q_ui = MPZ.gmpz(:tdiv_q_ui)
 const c_ui_pow_ui = MPZ.gmpz(:ui_pow_ui)
 const c_divexact = MPZ.gmpz(:divexact)
 const c_bin_uiui = MPZ.gmpz(:bin_uiui)
+const c_addmul = MPZ.gmpz(:addmul)
 @inline function __gmpz_tdiv_q_ui!(q::BigInt, n::BigInt, d::Culong)
     ccall(c_tdiv_q_ui, Culong, (Ref{BigInt}, Ref{BigInt}, Culong), q, n, d)
 end
@@ -17,6 +17,9 @@ end
 end
 @inline function __gmpz_bin_uiui!(r::BigInt, n::Culong, k::Culong)
     ccall(c_bin_uiui, Cvoid, (Ref{BigInt}, Culong, Culong), r, n, k)
+end
+@inline function __gmpz_addmul!(r::BigInt, a::BigInt, b::BigInt)
+    ccall(c_addmul, Cvoid, (Ref{BigInt}, Ref{BigInt}, Ref{BigInt}), r, a, b)
 end
 
 @inline function _bigbin(r::BigInt, n::Int, k::Int)
@@ -31,6 +34,23 @@ end
     __gmpz_divexact!(n, n, g)
     __gmpz_divexact!(d, d, g)
     return g
+end
+
+# t is buffer, modefiy `na, da` in place
+@inline function __gmpq_add!(t::BigInt, na::BigInt, da::BigInt, nb::BigInt, db::BigInt)
+    MPZ.mul!(na, db)
+    __gmpz_addmul!(na, da, nb)
+    MPZ.mul!(da, db)
+    _divgcd!(t, na, da)
+    return
+end
+
+@inline function __gmpq_add!(t::BigInt, a::Rational{BigInt}, nu::BigInt, de::BigInt)
+    __gmpq_add!(t, a.num, a.den, nu, de)
+end
+
+@inline function __gmpq_add!(t::BigInt, a::Rational{BigInt}, b::Rational{BigInt})
+    __gmpq_add!(t, a.num, a.den, b.num, b.den)
 end
 
 # simplify `x√t`, move the square factors of `t` to `x`

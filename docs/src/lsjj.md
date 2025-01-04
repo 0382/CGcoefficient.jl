@@ -105,7 +105,4 @@ H_J(l_1,l_2,j_1,j_2) = -\sqrt{\dfrac{(j_1-j_2+J+1)(j_2-j_1+J)}{8(j_1+1)j_2}}.
 H_J(l_1,l_2,j_1,j_2) = \sqrt{\dfrac{(j_1+j_2+J+2)(j_1+j_2-J+1)}{8(j_1+1)(j_2+1)}}.
 ```
 
-----
-Reference
-
 [^1]: A. N. Moskalev D. A. Varshalovich and V. K. Khersonskii, *Quantum theory of angular momentum*.

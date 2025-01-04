@@ -144,5 +144,5 @@ Then we can finally write down
 \end{aligned}
 ```
 
-- [^1]: Buck et al. Nuc. Phys. A 600 (1996) 387-402.
-- [^2]: A. N. Moskalev D. A. Varshalovich and V. K. Khersonskii, *Quantum theory of angular momentum*.
+[^1]: Buck et al. Nuc. Phys. A 600 (1996) 387-402.
+[^2]: A. N. Moskalev D. A. Varshalovich and V. K. Khersonskii, *Quantum theory of angular momentum*.
