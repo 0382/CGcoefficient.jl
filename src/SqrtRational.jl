@@ -51,6 +51,8 @@ Base.copy(x::SqrtRational) = SqrtRational(deepcopy(x.s), deepcopy(x.r))
 ==(x::SqrtRational, y::SqrtRational) = begin
     if y.s == 0
         return x.s == 0
+    elseif signbit(y.s) != signbit(x.s)
+        return false
     else
         isone((x.s / y.s)^2 * (x.r / y.r))
     end

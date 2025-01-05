@@ -35,9 +35,11 @@ end
 
 test_range = 0:10
 
+wigner_init_float(maximum(test_range), "Jmax", 9)
+
 t1 = @belapsed calculate_lsjj(test_range)
 t2 = @belapsed calculate_norm9j(test_range)
 
 println("diff = ", calculate_lsjj(test_range) - calculate_norm9j(test_range))
-println("lsjj time = $(t1)s")
-println("norm9j time = $(t2)s")
+println("lsjj time = $(t1*1000)ms")
+println("norm9j time = $(t2*1000)ms")

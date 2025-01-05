@@ -15,6 +15,8 @@ function test_sqrtrational()
     @test signbit(+x) == false
     @test signbit(-x) == true
     @test signbit(0*x) == false
+    @test x == x
+    @test x != -x
 end
 
 function test_show()

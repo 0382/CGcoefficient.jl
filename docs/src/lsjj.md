@@ -116,40 +116,40 @@ p = l_1+l_2, \quad, m = l_1 - l_2
 - if $j_1 = l_1 + \frac12,\; j_2 = l_2 + \frac12$
 ```math
 \begin{aligned}
-(S=0, L = J) &\to \sqrt{\frac{(J+p+2) (-J+p+1)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J) &\to \frac{m}{\sqrt{J(J+1)}}\sqrt{\frac{(J+p+2) (-J+p+1)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J-1)&\to \sqrt{\frac{J^2-m^2}{J (2 J+1)}} \sqrt{\frac{(J+p+1) (J+p+2)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J+1)&\to -\sqrt{\frac{(J+1)^2-m^2}{(J+1) (2 J+1)}} \sqrt{\frac{(p-J) (-J+p+1)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}.
+(S=0, L = J) &\to \sqrt{\frac{(J+p+2) (-J+p+1)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J) &\to \frac{m}{\sqrt{J(J+1)}}\sqrt{\frac{(J+p+2) (-J+p+1)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J-1)&\to \sqrt{\frac{J^2-m^2}{J (2 J+1)}} \sqrt{\frac{(J+p+1) (J+p+2)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J+1)&\to -\sqrt{\frac{(J+1)^2-m^2}{(J+1) (2 J+1)}} \sqrt{\frac{(p-J) (-J+p+1)}{2 (2 l_1+1) (2 l_2+1)}}.
 \end{aligned}
 ```
 
 - if $j_1 = l_1 + \frac12,\; j_2 = l_2 - \frac12$
 ```math
 \begin{aligned}
-(S=0, L = J) &\to \sqrt{\frac{(J+m+1) (J-m)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J) &\to \frac{p+1}{\sqrt{J(J+1)}}\sqrt{\frac{(J+m+1) (J-m)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J-1)&\to -\sqrt{\frac{(p+1)^2-J^2}{J (2 J+1)}} \sqrt{\frac{(J+m+1) (J+m)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J+1)&\to -\sqrt{\frac{(p+1)^2-(J+1)^2}{(J+1) (2 J+1)}} \sqrt{\frac{(J-m+1) (J-m)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}.
+(S=0, L = J) &\to \sqrt{\frac{(J+m+1) (J-m)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J) &\to \frac{p+1}{\sqrt{J(J+1)}}\sqrt{\frac{(J+m+1) (J-m)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J-1)&\to -\sqrt{\frac{(p+1)^2-J^2}{J (2 J+1)}} \sqrt{\frac{(J+m+1) (J+m)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J+1)&\to -\sqrt{\frac{(p+1)^2-(J+1)^2}{(J+1) (2 J+1)}} \sqrt{\frac{(J-m+1) (J-m)}{2 (2 l_1+1) (2 l_2+1)}}.
 \end{aligned}
 ```
 
 - if $j_1 = l_1 - \frac12,\; j_2 = l_2 + \frac12$
 ```math
 \begin{aligned}
-(S=0, L = J) &\to -\sqrt{\frac{(J+m) (J-m+1)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J) &\to \frac{p+1}{\sqrt{J(J+1)}}\sqrt{\frac{(J+m) (J-m+1)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J-1)&\to \sqrt{\frac{(p+1)^2-J^2}{J (2 J+1)}} \sqrt{\frac{(J-m) (J-m+1)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J+1)&\to \sqrt{\frac{(p+1)^2-(J+1)^2}{(J+1) (2 J+1)}} \sqrt{\frac{(J+m+1) (J+m)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}.
+(S=0, L = J) &\to -\sqrt{\frac{(J+m) (J-m+1)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J) &\to \frac{p+1}{\sqrt{J(J+1)}}\sqrt{\frac{(J+m) (J-m+1)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J-1)&\to \sqrt{\frac{(p+1)^2-J^2}{J (2 J+1)}} \sqrt{\frac{(J-m) (J-m+1)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J+1)&\to \sqrt{\frac{(p+1)^2-(J+1)^2}{(J+1) (2 J+1)}} \sqrt{\frac{(J+m+1) (J+m)}{2 (2 l_1+1) (2 l_2+1)}}.
 \end{aligned}
 ```
 
 - if $j_1 = l_1 - \frac12,\; j_2 = l_2 - \frac12$
 ```math
 \begin{aligned}
-(S=0, L = J) &\to \sqrt{\frac{(J+p+1) (p-J)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J) &\to \frac{-m}{\sqrt{J(J+1)}}\sqrt{\frac{(J+p+1) (p-J)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J-1)&\to -\sqrt{\frac{J^2-m^2}{J (2 J+1)}} \sqrt{\frac{(p-J) (-J+p+1)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}, \\
-(S=1, L = J+1)&\to \sqrt{\frac{(J+1)^2-m^2}{(J+1) (2 J+1)}} \sqrt{\frac{(J+p+1) (J+p+2)}{2 (2 \text{l1}+1) (2 \text{l2}+1)}}.
+(S=0, L = J) &\to \sqrt{\frac{(J+p+1) (p-J)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J) &\to \frac{-m}{\sqrt{J(J+1)}}\sqrt{\frac{(J+p+1) (p-J)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J-1)&\to -\sqrt{\frac{J^2-m^2}{J (2 J+1)}} \sqrt{\frac{(p-J) (-J+p+1)}{2 (2 l_1+1) (2 l_2+1)}}, \\
+(S=1, L = J+1)&\to \sqrt{\frac{(J+1)^2-m^2}{(J+1) (2 J+1)}} \sqrt{\frac{(J+p+1) (J+p+2)}{2 (2 l_1+1) (2 l_2+1)}}.
 \end{aligned}
 ```
 

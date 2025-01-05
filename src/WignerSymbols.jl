@@ -326,73 +326,81 @@ function _m9j!(
     return
 end
 
-@inline function _lsjj_helper(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
-    pj = div(dj1 + dj2, 2)
-    mj = div(dj1 - dj2, 2)
-    # j1 = l1 + 1//2, j2 = l2 + 1//2
-    (dj1 > 2l1 && dj2 > 2l2) && return exact_sqrt(((pj + J + 1) * (pj - J)) // (2dj1 * dj2))
-    # j1 = l1 + 1//2, j2 = l2 - 1//2
-    (dj1 > 2l1 && dj2 < 2l2) && return exact_sqrt(((mj + J) * (J - mj + 1)) // (2dj1 * (dj2+2)))
-    # j1 = l1 - 1//2, j2 = l2 + 1//2
-    (dj1 < 2l1 && dj2 > 2l2) && return -exact_sqrt(((mj + J + 1) * (J - mj)) // (2(dj1+2) * dj2))
-    # j1 = l1 - 1//2, j2 = l2 - 1//2
-    return exact_sqrt(((pj + J + 2) * (pj - J + 1)) // (2(dj1+2) * (dj2+2)))
-end
-
-# S = 0
-@inline function _lsjj_S0(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
-    _lsjj_helper(l1, l2, dj1, dj2, J)
-end
-
-# S = 1, J = L - 1
-function _lsjj_S1_m1(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
-    L = J + 1
-    pj = div(dj1 + dj2, 2)
-    mj = div(dj1 - dj2, 2)
-    pl = l1 + l2
-    ml = l1 - l2
-    f0 = (J + 1) * (2J + 1)
-    fJ = (L + ml) * (L - ml) * (L + pl + 1) * (pl - L + 1)
-    fL = (L + mj) * (L - mj) * (L + pj + 1) * (pj - L + 1)
-    exact_sqrt(fJ // f0) * _lsjj_helper(l1, l2, dj1, dj2, J) - exact_sqrt(fL // f0) * _lsjj_helper(l1, l2, dj1, dj2, L)
-end
-
-# S = 1, J = L
-function _lsjj_S1_0(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
-    pj = div(dj1 + dj2, 2)
-    mj = div(dj1 - dj2, 2)
-    pl = l1 + l2
-    ml = l1 - l2
-    _lsjj_helper(l1, l2, dj1, dj2, J) * SqrtRational(mj * (pj + 1) - ml * (pl + 1), 1//(J * (J + 1)))
-end
-
-# S = 1, J = L + 1
-function _lsjj_S1_p1(l1::Int, l2::Int, dj1::Int, dj2::Int, J::Int)
-    L = J - 1
-    pj = div(dj1 + dj2, 2)
-    mj = div(dj1 - dj2, 2)
-    pl = l1 + l2
-    ml = l1 - l2
-    f0 = J * (2J + 1)
-    fL = (J + mj) * (J - mj) * (J + pj + 1) * (pj - J + 1)
-    fJ = (J + ml) * (J - ml) * (J + pl + 1) * (pl - J + 1)
-    exact_sqrt(fL // f0) * _lsjj_helper(l1, l2, dj1, dj2, L) - exact_sqrt(fJ // f0) * _lsjj_helper(l1, l2, dj1, dj2, J)
-end
-
-function _lsjj(l1::Int, l2::Int, dj1::Int, dj2::Int, L::Int, S::Int, J::Int)
-    if abs(dj1 - 2l1) != 1 || abs(dj2 - 2l2) != 1
-        return zero(SqrtRational{Int})
+function _lsjj(l1::Int, l2::Int, dj1::Int, dj2::Int, L::Int, S::Int, J::Int)::Rational{Int}
+    check_couple(2l1, 2l2, 2L) || return zero(Rational{Int})
+    check_couple(dj1, dj2, 2J) || return zero(Rational{Int})
+    LSJcase = 0
+    if S == 0
+        LSJcase = 1
+    elseif S == 1
+        (L == J - 1) && (LSJcase = 2)
+        (J == L) && (LSJcase = 3)
+        (L == J + 1) && (LSJcase = 4)
+    else
+        return zero(Rational{Int})
     end
-    check_couple(2l1, 2l2, 2L) || return zero(SqrtRational{Int})
-    check_couple(dj1, dj2, 2J) || return zero(SqrtRational{Int})
-    check_couple(2L, 2S, 2J) || return zero(SqrtRational{Int})
-    S == 0 && return _lsjj_S0(l1, l2, dj1, dj2, J)
-    if S == 1
-        J == L - 1 && return _lsjj_S1_m1(l1, l2, dj1, dj2, J)
-        J == L && return _lsjj_S1_0(l1, l2, dj1, dj2, J)
-        J == L + 1 && return _lsjj_S1_p1(l1, l2, dj1, dj2, J)
+    m = l1 - l2
+    p = l1 + l2
+    δ1 = dj1 - 2l1
+    δ2 = dj2 - 2l2
+    d = 2*(2l1+1)*(2l2+1)
+    r = zero(Rational{Int})
+    if δ1 == 1 && δ2 == 1
+        if LSJcase == 1
+            r = (J + p + 2) * (p + 1 - J) // d
+        elseif LSJcase == 2
+            r = (J + m) * (J - m) // (J * (2J + 1))
+            r *= (J + p + 1) * (J + p + 2) // d
+        elseif LSJcase == 3
+            m == 0 && return zero(Rational{Int})
+            r = m * abs(m) // (J * (J + 1))
+            r *= (J + p + 2) * (p + 1 - J) // d
+        elseif LSJcase == 4
+            r = -(L + m) * (L - m) // (L * (2J + 1))
+            r *= (p - J) * (p + 1 - J) // d
+        end
+    elseif δ1 == 1 && δ2 == -1
+        if LSJcase == 1
+            r = (J + m + 1) * (J - m) // d
+        elseif LSJcase == 2
+            r = -(p + 1 + J) * (p + 1 - J) // (J * (2J + 1))
+            r *= (J + m + 1) * (J + m) // d
+        elseif LSJcase == 3
+            r = (p + 1) * (p + 1) // (J * (J + 1))
+            r *= (J + m + 1) * (J - m) // d
+        elseif LSJcase == 4
+            r = -(p + 1 + L) * (p + 1 - L) // (L * (2J + 1))
+            r *= (J - m + 1) * (J - m) // d
+        end
+    elseif δ1 == -1 && δ2 == 1
+        if LSJcase == 1
+            r = -(J + m) * (J - m + 1) // d
+        elseif LSJcase == 2
+            r = (p + 1 + J) * (p + 1 - J) // (J * (2J + 1))
+            r *= (J - m) * (J - m + 1) // d
+        elseif LSJcase == 3
+            r = (p + 1) * (p + 1) // (J * (J + 1))
+            r *= (J + m) * (J - m + 1) // d
+        elseif LSJcase == 4
+            r = (p + 1 + L) * (p + 1 - L) // (L * (2J + 1))
+            r *= (J + m + 1) * (J + m) // d
+        end
+    elseif δ1 == -1 && δ2 == -1
+        if LSJcase == 1
+            r = (J + p + 1) * (p - J) // d
+        elseif LSJcase == 2
+            r = -(J + m) * (J - m) // (J * (2J + 1))
+            r *= (p - J) * (p + 1 - J) // d
+        elseif LSJcase == 3
+            m == 0 && return zero(Rational{Int})
+            r = -m * abs(m) // (J * (J + 1))
+            r *= (J + p + 1) * (p - J) // d
+        elseif LSJcase == 4
+            r = (L + m) * (L - m) // (L * (2J + 1))
+            r *= (J + p + 1) * (J + p + 2) // d
+        end
     end
-    return zero(SqrtRational{Int})
+    return r
 end
 
 function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l2::Int, Λ::Int)
@@ -528,7 +536,6 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
                         # don't use MPQ.add! to avoid memory allocation
                         MPZ.mul!(M9j.num, nu_d)
                         MPZ.mul!(M9j.den, de_d)
-                        _divgcd!(tx, M9j.num, M9j.den)
                         __gmpq_add!(tx, sum, M9j)
                     end
                 end
@@ -675,7 +682,10 @@ LS-coupling to jj-coupling transformation coefficient
 \langle l_1l_2L,s_1s_2S;J|l_1s_1j_1,l_2s_2j_2;J\rangle = \begin{bmatrix}l_1 & s_1 & j_1 \\ l_2 & s_2 & j_2 \\ L & S & J\end{bmatrix}
 ```
 """
-@inline lsjj(l1::Integer, l2::Integer, j1::Real, j2::Real, L::Integer, S::Integer, J::Integer) = simplify(_lsjj(Int.((l1, l2, 2j1, 2j2, L, S, J))...))
+@inline lsjj(l1::Integer, l2::Integer, j1::Real, j2::Real, L::Integer, S::Integer, J::Integer) = begin
+    r = _lsjj(Int.((l1, l2, 2j1, 2j2, L, S, J))...)
+    return simplify(SqrtRational(sign(r), abs(r)))
+end
 
 
 @doc raw"""
