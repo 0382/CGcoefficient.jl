@@ -50,6 +50,7 @@ The parameters means:
     - `"Jmax"`: set the maximum angular momentum in the system.
     - `"2bjmax"`: set the maximum two-body coupled angular momentum in the system.
     - `"nmax"`: directly set the maximum binomial number.
+    - `"Moshinsky"`: set the maximum `N = 2n+l` in the Moshinsky bracket.
 - `n`: the maximum angular momentum or the maximum binomial number, dependent on the `mode`.
 - `rank`:
     - `3`: calculate only CG coefficients and 3j symbols.
@@ -59,6 +60,8 @@ The parameters means:
 `"Jmax"` means the global maximum angular momentum, for every parameters. It is always safe with out any assumption.
 
 The `"2bjmax"` mode means your calculation only consider two-body coupling, and no three-body coupling. This mode assumes that in all these coefficients, at least one of the angular momentun is just a single particle angular momentum. With this assumption, `"2bjmax"` mode will use less memory than `"Jmax"` mode.
+
+The `"Moshinsky"` mode means you want to calculate the Moshinsky brackets. The `n` parameter is the maximum `N = 2n+l` in the Moshinsky bracket. The `rank` parameter is ignored.
 
 The `"nmax"` mode directly set `nmax`, and the `rank` parameter is ignored. 
 
@@ -73,8 +76,9 @@ The exact values of the maximum 'nmax` for different `rank` are shown in the tab
 |                                       |    Calculate range    |   CG & 3j   | 6j & Racah  |     9j      |
 | :-----------------------------------: | :-------------------: | :---------: | :---------: | :---------: |
 |          meaning of `type`            | `type`\\\\`rank`      |      3      |      6      |      9      |
-|        max angular momentum           |    `"Jmax"`           | `3*Jmax+1`  | `4*Jmax+1`  | `5*Jmax+1`  |
-| max two-body coupled angular momentum |   `"2bjmax"`          | `2*jmax+1`  | `3*jmax+1`  | `4*jmax+1`  |
+|        max angular momentum           |    `"Jmax"`           |  `3Jmax+1`  |  `4Jmax+1`  |  `5Jmax+1`  |
+| max two-body coupled angular momentum |   `"2bjmax"`          |  `2jmax+1`  |  `3jmax+1`  |  `4jmax+1`  |
+| max ``N = 2n+l`` for Moshinsky bracket|    `"Moshinsky"`      |  `6Nmax+1`  |  `6Nmax+1`  |  `6Nmax+1`  |
 |            max binomial               |    `"nmax"`           |   `nmax`    |   `namx`    |   `nmax`    |
 
 You do not need to rememmber those values in the table. You just need to find the maximum angular momentum in you canculation, then call the function.
@@ -98,6 +102,8 @@ function wigner_init_float(n::Integer, mode::AbstractString, rank::Integer)
         end
     elseif mode == "nmax"
         _extend_fbinomial_data(n)
+    elseif mode == "Moshinsky"
+        _extend_fbinomial_data(6 * n + 1)
     else
         throw(ArgumentError("invalid mode $mode"))
     end
@@ -252,69 +258,131 @@ function _f9j(dj1::Int, dj2::Int, dj3::Int,
     return iphase(dth) * sqrt(P0) * PABC
 end
 
+function _fm9j(j1::Int, j2::Int, j3::Int, j4::Int, j5::Int, j6::Int, j7::Int, j8::Int, j9::Int)::Float64
+    j123::Int = j1 + j2 + j3
+    j456::Int = j4 + j5 + j6
+    j789::Int = j7 + j8 + j9
+    j147::Int = j1 + j4 + j7
+    j258::Int = j2 + j5 + j8
+    j369::Int = j3 + j6 + j9
+    pm123::Int = j1 + j2 - j3
+    pm132::Int = j1 + j3 - j2
+    pm231::Int = j2 + j3 - j1
+    pm456::Int = j4 + j5 - j6
+    pm465::Int = j4 + j6 - j5
+    pm564::Int = j5 + j6 - j4
+    pm789::Int = j7 + j8 - j9
+    pm798::Int = j7 + j9 - j8
+    pm897::Int = j8 + j9 - j7
+    sum = zero(Float64)
+    tl::Int = max(abs(j2 - j6), abs(j4 - j8), abs(j1 - j9))
+    th::Int = min(j2 + j6, j4 + j8, j1 + j9)
+    for t::Int = tl:th
+        j19t::Int = j1 + j9 + t
+        j26t::Int = j2 + j6 + t
+        j48t::Int = j4 + j8 + t
+        dt::Int = 2t
+        Pt_de = unsafe_fbinomial(j19t + 1, dt + 1) * unsafe_fbinomial(dt, j1 + t - j9) *
+                unsafe_fbinomial(j26t + 1, dt + 1) * unsafe_fbinomial(dt, j2 + t - j6) *
+                unsafe_fbinomial(j48t + 1, dt + 1) * unsafe_fbinomial(dt, j4 + t - j8)
+        Pt_de *= (dt + 1)^2
+        xl::Int = max(j123, j369, j26t, j19t)
+        xh::Int = min(pm123 + j369, pm132 + j26t, pm231 + j19t)
+        At = zero(Float64)
+        for x::Int = xl:xh
+            At = -At + unsafe_fbinomial(x + 1, j123 + 1) * unsafe_fbinomial(pm123, x - j369) *
+                       unsafe_fbinomial(pm132, x - j26t) * unsafe_fbinomial(pm231, x - j19t)
+        end
+        yl::Int = max(j456, j26t, j258, j48t)
+        yh::Int = min(pm456 + j26t, pm465 + j258, pm564 + j48t)
+        Bt = zero(Float64)
+        for y::Int = yl:yh
+            Bt = -Bt + unsafe_fbinomial(y + 1, j456 + 1) * unsafe_fbinomial(pm456, y - j26t) *
+                       unsafe_fbinomial(pm465, y - j258) * unsafe_fbinomial(pm564, y - j48t)
+        end
+        zl::Int = max(j789, j19t, j48t, j147)
+        zh::Int = min(pm789 + j19t, pm798 + j48t, pm897 + j147)
+        Ct = zero(Float64)
+        for z::Int = zl:zh
+            Ct = -Ct + unsafe_fbinomial(z + 1, j789 + 1) * unsafe_fbinomial(pm789, z - j19t) *
+                       unsafe_fbinomial(pm798, z - j48t) * unsafe_fbinomial(pm897, z - j147)
+        end
+        sum += iphase(xh + yh + zh) * At * Bt * Ct / Pt_de
+    end
+    return sum
+end
+
 function _fMoshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l2::Int, Λ::Int, tanβ::Float64)
     f1 = 2 * n1 + l1
     f2 = 2 * n2 + l2
     F = 2 * N + L
     f = 2 * n + l
     f1 + f2 == F + f || return zero(Float64)
-
-    secβ = √(1 + tanβ * tanβ)
-    cosβ = 1 / secβ
-    sinβ = tanβ / secβ
-
+    χ = f1 + f2
     nl1 = n1 + l1
     nl2 = n2 + l2
     NL = N + L
     nl = n + l
-    r1 = unsafe_fbinomial(2nl1 + 1, nl1) / (unsafe_fbinomial(f1 + 2, n1) * ((nl1 + 2) << l1))
-    r2 = unsafe_fbinomial(2nl2 + 1, nl2) / (unsafe_fbinomial(f2 + 2, n2) * ((nl2 + 2) << l2))
-    R = unsafe_fbinomial(2NL + 1, NL) / (unsafe_fbinomial(F + 2, N) * ((NL + 2) << L))
-    r = unsafe_fbinomial(2nl + 1, nl) / (unsafe_fbinomial(f + 2, n) * ((nl + 2) << l))
-    pre_sum = √(r1 * r2 * R * r)
+
+    cosβ = 1 / sqrt(1 + tanβ^2)
+    sinβ = tanβ * cosβ
+    pre = unsafe_fbinomial(χ + 2, f1 + 1) / unsafe_fbinomial(χ + 2, F + 1)
+    pre *= unsafe_fbinomial(L + l + Λ + 1, 2Λ + 1) * unsafe_fbinomial(2Λ, Λ + L - l)
+    pre /= unsafe_fbinomial(l1 + l2 + Λ + 1, 2Λ + 1) * unsafe_fbinomial(2Λ, Λ + l1 - l2)
+
+    pre *= (2l1 + 1) * unsafe_fbinomial(2nl1 + 1, nl1) / (unsafe_fbinomial(f1 + 1, n1) * 2^l1)
+    pre *= (2l2 + 1) * unsafe_fbinomial(2nl2 + 1, nl2) / (unsafe_fbinomial(f2 + 1, n2) * 2^l2)
+    pre *= (2L + 1) * unsafe_fbinomial(2NL + 1, NL) / (unsafe_fbinomial(F + 1, N) * 2^L)
+    pre *= (2l + 1) * unsafe_fbinomial(2nl + 1, nl) / (unsafe_fbinomial(f + 1, n) * 2^l)
+    pre = sqrt(pre) / ((f1 + 2) * (f2 + 2))
+
     sum = zero(Float64)
     for fa = 0:min(f1, F)
         fb = f1 - fa
         fc = F - fa
         fd = f2 - fc
-        fd >= 0 || continue
-        t = sinβ^(fa + fd) * cosβ^(fb + fc)
-        t = t * √(unsafe_fbinomial(f1 + 2, fa + 1) * unsafe_fbinomial(f2 + 2, fc + 1) * unsafe_fbinomial(F + 2, fa + 1) * unsafe_fbinomial(f + 2, fb + 1))
-        for la = (fa&0x01):2:fa
+        fd < 0 && continue
+        tfa = sinβ^(fa + fd) * cosβ^(fb + fc) * unsafe_fbinomial(f1 + 2, fa + 1) * unsafe_fbinomial(f2 + 2, fc + 1)
+        for la = rem(fa, 2):2:fa
             na = div(fa - la, 2)
             nla = na + la
-            ta = (((2 * la + 1) << la) * unsafe_fbinomial(fa + 1, na)) / unsafe_fbinomial(2nla + 1, nla)
-            for lb = abs(l1 - la):2:min(la + l1, fb)
+            ta = 2^la * (2la + 1) * unsafe_fbinomial(fa + 1, na) / unsafe_fbinomial(2nla + 1, nla)
+            ta = tfa * ta
+            for lb = abs(l1 - la):2:min(l1 + la, fb)
                 nb = div(fb - lb, 2)
                 nlb = nb + lb
-                tb = (((2 * lb + 1) << lb) * unsafe_fbinomial(fb + 1, nb)) / unsafe_fbinomial(2nlb + 1, nlb)
+                tb = 2^lb * (2lb + 1) * unsafe_fbinomial(fb + 1, nb) / unsafe_fbinomial(2nlb + 1, nlb)
                 g1 = div(la + lb + l1, 2)
-                CGab = unsafe_fbinomial(g1, l1) * unsafe_fbinomial(l1, g1 - la) / √(unsafe_fbinomial(2g1 + 1, 2(g1 - l1)) * unsafe_fbinomial(2l1, 2(g1 - la)))
-                for lc = abs(L - la):2:min(la + L, fc)
+                t1 = unsafe_fbinomial(g1, l1) * unsafe_fbinomial(l1, g1 - la)
+                tb = ta * tb * t1
+                for lc = abs(L - la):2:min(L + la, fc)
                     nc = div(fc - lc, 2)
                     nlc = nc + lc
-                    tc = (((2 * lc + 1) << lc) * unsafe_fbinomial(fc + 1, nc)) / unsafe_fbinomial(2nlc + 1, nlc)
-                    G = div(la + lc + L, 2)
-                    CGac = unsafe_fbinomial(G, L) * unsafe_fbinomial(L, G - la) / √(unsafe_fbinomial(2G + 1, 2(G - L)) * unsafe_fbinomial(2L, 2(G - la)))
-                    ld_min = max(abs(l2 - lc), abs(l - lb))
-                    ld_max = min(fd, lb + l, lc + l2)
-                    for ld = ld_min:2:ld_max
+                    tc = 2^lc * (2lc + 1) * unsafe_fbinomial(fc + 1, nc) / unsafe_fbinomial(2nlc + 1, nlc)
+                    g3 = div(la + lc + L, 2)
+                    t3 = unsafe_fbinomial(g3, L) * unsafe_fbinomial(L, g3 - la)
+                    Δ3 = (2L + 1) * unsafe_fbinomial(la + lc + L + 1, 2L + 1) * unsafe_fbinomial(2L, L + la - lc)
+                    tc = tb * tc * t3 / Δ3
+                    ldmin = max(abs(l2 - lc), abs(l - lb))
+                    ldmax = min(fd, l2 + lc, l + lb)
+                    for ld = ldmin:2:ldmax
                         nd = div(fd - ld, 2)
                         nld = nd + ld
-                        td = (((2 * ld + 1) << ld) * unsafe_fbinomial(fd + 1, nd)) / unsafe_fbinomial(2nld + 1, nld)
+                        td = 2^ld * (2ld + 1) * unsafe_fbinomial(fd + 1, nd) / unsafe_fbinomial(2nld + 1, nld)
                         g2 = div(lc + ld + l2, 2)
-                        CGcd = unsafe_fbinomial(g2, l2) * unsafe_fbinomial(l2, g2 - lc) / √(unsafe_fbinomial(2g2 + 1, 2(g2 - l2)) * unsafe_fbinomial(2l2, 2(g2 - lc)))
-                        g = div(lb + ld + l, 2)
-                        CGbd = unsafe_fbinomial(g, l) * unsafe_fbinomial(l, g - lb) / √(unsafe_fbinomial(2g + 1, 2(g - l)) * unsafe_fbinomial(2l, 2(g - lb)))
-                        phase = iphase(ld)
-                        ninej = f9j(2 * la, 2 * lb, 2 * l1, 2 * lc, 2 * ld, 2 * l2, 2 * L, 2 * l, 2 * Λ)
-                        sum = sum + phase * t * ta * tb * tc * td * CGab * CGac * CGbd * CGcd * ninej
+                        t2 = unsafe_fbinomial(g2, l2) * unsafe_fbinomial(l2, g2 - lc)
+                        g4 = div(lb + ld + l, 2)
+                        t4 = unsafe_fbinomial(g4, l) * unsafe_fbinomial(l, g4 - lb)
+                        Δ4 = (2l + 1) * unsafe_fbinomial(lb + ld + l + 1, 2l + 1) * unsafe_fbinomial(2l, l + lb - ld)
+                        td = tc * td * t2 * t4 / Δ4
+                        m9j = _fm9j(la, lb, l1, lc, ld, l2, L, l, Λ)
+                        sum += iphase(ld) * td * m9j
                     end
                 end
             end
         end
     end
-    return pre_sum * sum
+    return pre * sum
 end
 
 function _dfunc(dj::Int, dm1::Int, dm2::Int, β::Float64)

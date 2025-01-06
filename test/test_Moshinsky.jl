@@ -46,7 +46,7 @@ const Moshinsky_test_set_result = [
 ]
 
 function test_Moshinsky()
-    wigner_init_float(6, "Jmax", 9)
+    wigner_init_float(7, "Moshinsky", 0)
     for i = eachindex(Moshinsky_test_set_result)
         N, L, n, l, n1, l1, n2, l2, Λ = Moshinsky_test_set[i, :]
         @test Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ) == Moshinsky_test_set_result[i]

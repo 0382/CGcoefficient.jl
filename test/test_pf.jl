@@ -88,7 +88,7 @@ function test_e6j(test_range::AbstractArray)
 end
 
 
-function test_big_binomial()
+function test_pf_binomial()
     wigner_init_pf(100, "nmax", 0)
     wigner_init_float(100, "nmax", 0)
     n = 100
