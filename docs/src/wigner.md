@@ -42,8 +42,7 @@ Here, I use $j_{123} \equiv j_1+j_2+j_3$ for simplicity. The symbol $\Delta(abc)
 \Delta(abc) = \left[\dfrac{(a+b-c)!(a-b+c)!(-a+b+c)!}{(a+b+c+1)!}\right]^{\frac{1}{2}}.
 ```
 
-We can find that
-
+Move $\Delta^2(j_1j_2j_3)$ into the summation, we can find that
 ```math
 \begin{pmatrix}j_1+j_2-j_3 \\ x - j_{453}\end{pmatrix} = \dfrac{(j_1+j_2-j_3)!}{(x-j_{453})!(j_{1245}-x)!} \\
 \begin{pmatrix}j_1-j_2+j_3 \\ x - j_{426}\end{pmatrix} = \dfrac{(j_1-j_2+j_3)!}{(x-j_{426})!(j_{1346}-x)!} \\
@@ -58,7 +57,7 @@ So, we have
 \times \sum\limits_x (-1)^x \begin{pmatrix}x+1 \\ j_{123}+1\end{pmatrix} \begin{pmatrix}j_1+j_2-j_3 \\ x - j_{453}\end{pmatrix} \begin{pmatrix}j_1-j_2+j_3 \\ x - j_{426}\end{pmatrix} \begin{pmatrix}j_2+j_3-j_1 \\ x - j_{156}\end{pmatrix}.
 ```
 
-Rewrite $\Delta(abc)$ with binomials,
+The $\Delta(abc)$ can also be rewrite with binomials,
 
 ```math
 \Delta(abc) = \left[\dfrac{1}{\begin{pmatrix}a+b+c+1 \\ 2a + 1\end{pmatrix} \begin{pmatrix}2a \\ a + b - c\end{pmatrix}(2a+1)}\right]^{\frac{1}{2}}.
@@ -89,51 +88,33 @@ This package uses the 6j symbol above to calculate Racha coefficient.
 Ref [^1], P340, Section 10.2.4, Formula (20)
 
 ```math
-\begin{Bmatrix}j_1 & j_2 & j_3 \\ j_4 & j_5 & j_6 \\ j_7 & j_8 & j_9\end{Bmatrix} = \sum\limits_{t}(-1)^{2t}(2t+1)\begin{Bmatrix}j_1 & j_2 & j_3 \\ j_6 & j_9 & t\end{Bmatrix} \begin{Bmatrix}j_4 & j_5 & j_6 \\ j_2 & t & j_8\end{Bmatrix} \begin{Bmatrix}j_7 & j_8 & j_9 \\ t & j_1 & j_4\end{Bmatrix}
+\begin{aligned}
+\begin{Bmatrix}j_1 & j_2 & j_3 \\ j_4 & j_5 & j_6 \\ j_7 & j_8 & j_9\end{Bmatrix} &= \sum\limits_{t}(-1)^{2t}(2t+1)\begin{Bmatrix}j_1 & j_2 & j_3 \\ j_6 & j_9 & t\end{Bmatrix} \begin{Bmatrix}j_4 & j_5 & j_6 \\ j_2 & t & j_8\end{Bmatrix} \begin{Bmatrix}j_7 & j_8 & j_9 \\ t & j_1 & j_4\end{Bmatrix} \\
+&= \sum\limits_{t}(-1)^{2t}(2t+1)\begin{Bmatrix}j_1 & j_2 & j_3 \\ j_6 & j_9 & t\end{Bmatrix} \begin{Bmatrix}j_6 & j_4 & j_5 \\ j_8 & j_2 & t\end{Bmatrix} \begin{Bmatrix}j_8 & j_9 & j_7 \\ j_1 & j_4 & t\end{Bmatrix}.
+\end{aligned}
 ```
 
-Use the 6j symbol result above, we get
-
+To obtain a better formula for calculation, we take an alternative factorization of 6j symbol
 ```math
-\dfrac{\Delta(j_1j_9t)\Delta(j_6j_9j_3)\Delta(j_6j_2t)}{\Delta(j_1j_2j_3)} \dfrac{\Delta(j_4tj_8)\Delta(j_2tj_6)\Delta(j_2j_5j_8)}{\Delta(j_4j_5j_6)} \dfrac{\Delta(j_7j_1j_4)\Delta(tj_1j_9)\Delta(tj_8j_4)}{\Delta(j_7j_8j_9)} \\
- = \dfrac{\Delta(j_3j_6j_9)\Delta(j_2j_5j_8)\Delta(j_1j_4j_7)}{\Delta(j_1j_2j_3)\Delta(j_4j_5j_6)\Delta(j_7j_8j_9)} \Delta^2(j_1j_9t)\Delta^2(j_2j_6t)\Delta^2(j_4j_8t).
+\begin{Bmatrix}j_1 & j_2 & j_3 \\ j_4 & j_5 & j_6\end{Bmatrix} = \frac{\Delta(j_1j_2j_3)\Delta(j_4j_2j_6)\Delta(j_4j_5j_3)}{\Delta(j_1j_5j_6)}\sum_{x}\binom{x+1}{j_{156}+1}\binom{j_1+j_5-j_6}{x - j_{426}}\binom{j_1+j_6-j_5}{x - j_{453}}\binom{j_5+j_6-j_1}{x - j_{123}}.
 ```
 
-Define
-
+So, we can obtain
 ```math
-P_0 \equiv \dfrac{\Delta(j_3j_6j_9)\Delta(j_2j_5j_8)\Delta(j_1j_4j_7)}{\Delta(j_1j_2j_3)\Delta(j_4j_5j_6)\Delta(j_7j_8j_9)} \\
-= \left[\dfrac{\begin{pmatrix}j_{123} + 1 \\ 2j_1+1\end{pmatrix}\begin{pmatrix}2j_1\\j_1+j_2-j_3\end{pmatrix}\begin{pmatrix}j_{456}+1\\2j_5+1\end{pmatrix}\begin{pmatrix}2j_5 \\ j_4+j_5-j_6\end{pmatrix}\begin{pmatrix}j_{789}+1 \\ 2j_9+1\end{pmatrix}\begin{pmatrix}2j_9 \\ j_7 + j_9 - j_8\end{pmatrix}}{\begin{pmatrix}j_{147} + 1\\ 2j_1 + 1\end{pmatrix}\begin{pmatrix}2j_1 \\ j_1+j_4-j_7\end{pmatrix}\begin{pmatrix}j_{258}+1 \\ 2j_5+1\end{pmatrix}\begin{pmatrix}2j_5 \\ j_2+j_5 - j_8\end{pmatrix}\begin{pmatrix}j_{369}+1 \\ 2j_9+1\end{pmatrix}\begin{pmatrix}2j_9 \\ j_3+j_9 - j_6\end{pmatrix}}\right]^{1/2}.
+\begin{aligned}
+\begin{Bmatrix}j_1 & j_2 & j_3 \\ j_4 & j_5 & j_6 \\ j_7 & j_8 & j_9\end{Bmatrix}
+&= P_0  \sum_{t}(-1)^{2t}(2t+1)\left(\sum_{x}A(t,x)\right)\left(\sum_{x}B(t,y)\right)\left(\sum_{x}C(t,z)\right)
+\end{aligned}
 ```
-
-and then define
-
+where
 ```math
-P(t) \equiv (-1)^{2t}(2t+1)\Delta^2(j_1j_9t)\Delta^2(j_2j_6t)\Delta^2(j_4j_8t)
- = \dfrac{(-1)^{2t}}{(2t+1)^2} \times \\
-
-\dfrac{1}{\begin{pmatrix}j_1+j_9+t+1 \\ 2t+1\end{pmatrix}\begin{pmatrix}2t \\ j_1+t-j_9\end{pmatrix}\begin{pmatrix}j_2+j_6+t+1 \\ 2t+1\end{pmatrix}\begin{pmatrix}2t \\ j_2+t-j_6\end{pmatrix}\begin{pmatrix}j_4+j_8+t \\ 2t+1\end{pmatrix}\begin{pmatrix}2t \\ j_4+t-j_8\end{pmatrix}}.
+\begin{aligned}
+P_0 &= \Delta(j_1j_2j_3)\Delta(j_4j_5j_6)\Delta(j_7j_8j_9)\Delta(j_1j_4j_7)\Delta(j_2j_5j_8)\Delta(j_3j_6j_9), \\
+A(t, x) &= (-1)^x\binom{x+1}{j_{19t}+1}\binom{j_1+j_9-t}{x - j_{26t}}\binom{j_1+t-j_9}{x - j_{369}}\binom{t+j_9-j_1}{x - j_{123}}, \\
+B(t, y) &= (-1)^y\binom{y+1}{j_{26t}+1}\binom{j_6+j_2-t}{y - j_{48t}}\binom{j_6+t-j_2}{y - j_{258}}\binom{t+j_2-j_6}{y - j_{456}}, \\
+C(t, z) &= (-1)^z\binom{z+1}{j_{48t}+1}\binom{j_8+j_4-t}{z - j_{19t}}\binom{j_8+t-j_4}{z - j_{147}}\binom{t+j_4-j_8}{z - j_{789}}.
+\end{aligned}
 ```
-
-```math
-A(t,x) \equiv (-1)^x\begin{pmatrix}x+1 \\ j_{123} + 1\end{pmatrix}\begin{pmatrix}j_1+j_2-j_3 \\ x - (j_6+j_9+j_3)\end{pmatrix} \begin{pmatrix}j_1+j_3-j_2 \\ x - (j_6+j_2+t)\end{pmatrix}\begin{pmatrix}j_2+j_3-j_1 \\ x - (j_1 + j_9 + t)\end{pmatrix}.
-```
-
-```math
-B(t,y) \equiv (-1)^y\begin{pmatrix}y+1 \\ j_{456} + 1\end{pmatrix}\begin{pmatrix}j_4+j_5-j_6 \\ y - (j_2+t+j_6)\end{pmatrix}\begin{pmatrix}j_4+j_6-j_5 \\ y - (j_2+j_5+j_8)\end{pmatrix}\begin{pmatrix}j_5+j_6-j_4 \\ y - (j_4+t+j_8)\end{pmatrix}.
-```
-
-```math
-C(t,z) \equiv (-1)^z \begin{pmatrix}z+1 \\ j_{789} + 1\end{pmatrix}\begin{pmatrix}j_7+j_8-j_9 \\ z - (t+j_1+j_9)\end{pmatrix}\begin{pmatrix}j_7+j_9-j_8 \\ z - (t+j_8+j_4)\end{pmatrix}\begin{pmatrix}j_8+j_9- j_7 \\ z - (j_7 + j_1 + j_4)\end{pmatrix}.
-```
-
-At last, we get
-
-```math
-\begin{Bmatrix}j_1 & j_2 & j_3 \\ j_4 & j_5 & j_6 \\ j_7 & j_8 & j_9\end{Bmatrix} = P_0\sum_t P(t) \left(\sum_x A(t,x)\right) \left(\sum_y B(t,y)\right) \left(\sum_z C(t,z)\right)
-```
-
-It deserves to be mentioned that, although the formula has 4 $\sum$s, the $\sum$ of $x,y,z$ are decoupled. So we can do the three `for loop`s respectively, which means the depth of `for loop` is not 4 but 2.
 
 ## Estimate the capacity
 

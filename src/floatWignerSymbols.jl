@@ -71,7 +71,7 @@ wigner_init_float(21, "Jmax", 6)
 ```
 means you calculate CG and 6j symbols, and donot calculate 9j symbol. The maximum angular momentum in your system is 21.
 
-The exact values of the maximum 'nmax` for different `rank` are shown in the table below ([details](https://0382.github.io/CGcoefficient.jl/stable/wigner/#Estimate-the-capacity)).
+The exact values of the maximum `nmax` for different `rank` are shown in the table below ([details](https://0382.github.io/CGcoefficient.jl/stable/wigner/#Estimate-the-capacity)).
 
 |                                       |    Calculate range    |   CG & 3j   | 6j & Racah  |     9j      |
 | :-----------------------------------: | :-------------------: | :---------: | :---------: | :---------: |
@@ -413,9 +413,8 @@ function _flsjj(l1::Int, l2::Int, dj1::Int, dj2::Int, L::Int, S::Int, J::Int)::F
         (L == J - 1) && (LSJcase = 2)
         (J == L) && (LSJcase = 3)
         (L == J + 1) && (LSJcase = 4)
-    else
-        return zero(Float64)
     end
+    iszero(LSJcase) && return zero(Float64)
     m = l1 - l2
     p = l1 + l2
     δ1 = dj1 - 2l1

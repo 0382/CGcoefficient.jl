@@ -80,6 +80,16 @@ function simplify!(x::BigInt, t::BigInt, hint::Int)
     return
 end
 
+# simplify sn/√(1/rd) -> sn/sd*√(rn/rd), initial value of `sd, rn` is not important
+function simplify2!(sn::BigInt, sd::BigInt, rn::BigInt, rd::BigInt, hint::Int)
+    _divgcd!(rn, sn, rd)
+    _divgcd!(sd, rn, rd)
+    MPZ.set_ui!(sd, 1)
+    simplify!(sn, rn, hint)
+    simplify!(sd, rd, hint)
+    return
+end
+
 # simplify s*√(n/d) -> s/g*√(n/d)
 function simplify3!(g::BigInt, s::BigInt, n::BigInt, d::BigInt, hint::Int)
     _divgcd!(g, n, d)
