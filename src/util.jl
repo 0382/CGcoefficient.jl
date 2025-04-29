@@ -27,15 +27,6 @@ check if three angular monentum number `j1, j2, j3` can couple
     iseven(dj1 + dj2 + dj3) && (dj1 <= dj2 + dj3) && (dj2 <= dj1 + dj3) && (dj3 <= dj1 + dj2)
 end
 
-"""
-    check_couple_int(j1::T, j2::T, j3::T) where {T <: Integer}
-check if three angular monentum number `j1, j2, j3` can couple,
-where no angular momentum number is half-integer
-"""
-@inline check_couple_int(j1::T, j2::T, j3::T) where {T <: Integer} = begin
-    (j1 <= j2 + j3) && (j2 <= j1 + j3) && (j3 <= j1 + j2)
-end
-
 @doc raw"""
     binomial_data_size(n::Int)::Int
 Store (half) binomial data in the order of

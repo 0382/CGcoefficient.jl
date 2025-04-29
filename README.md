@@ -79,6 +79,7 @@ For faster numeric calculation, if the angular momentum number can be half-integ
 ### Reference
 
 - [https://github.com/ManyBodyPhysics/CENS](https://github.com/ManyBodyPhysics/CENS)
+- L. Wei, Unified approach for exact calculation of angular momentum coupling and recoupling coefficients, Computer Physics Communications 120, 222 (1999).
 - L. Wei, New formula for 9-j symbols and their direct calculation, Computers in Physics 12, 632 (1998).
 - D. A. Varshalovich, A. N. Moskalev and V. K. Khersonskii, *Quantum Theory of Angular Momentum*, (World Scientific, 1988).
 - Buck et al. Nuc. Phys. A 600 (1996) 387-402.

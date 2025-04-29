@@ -38,9 +38,8 @@ end
 
 # spaecial case: m1 == m2 == m3 == 0
 function _CG0(j1::Int, j2::Int, j3::Int)
-    check_couple_int(j1, j2, j3) || return zero(SqrtRational{BigInt})
+    check_couple(j1, j2, j3) || return zero(SqrtRational{BigInt})
     J = j1 + j2 + j3
-    isodd(J) && return zero(SqrtRational{BigInt})
     g = div(J, 2)
     sn = _bigbin(g, j3)
     sd = _bigbin(j3, g - j1)
@@ -56,9 +55,8 @@ function _CG0(j1::Int, j2::Int, j3::Int)
 end
 
 function _3j0(j1::Int, j2::Int, j3::Int)
-    check_couple_int(j1, j2, j3) || return zero(SqrtRational{BigInt})
+    check_couple_(j1, j2, j3) || return zero(SqrtRational{BigInt})
     J = j1 + j2 + j3
-    isodd(J) && return zero(SqrtRational{BigInt})
     g = div(J, 2)
     sn = _bigbin(g, j3)
     sd = _bigbin(j3, g - j1)
