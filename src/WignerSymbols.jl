@@ -674,7 +674,7 @@ m_1 & m_2 & m_3
 
 @doc raw"""
     xGaunt(l1::Integer, l2::Integer, l3::Integer, m1::Integer, m2::Integer, m3::Integer)
-Gaunt coefficient with out `1/\sqrt{\pi}` factor.
+Gaunt coefficient with out ``1/\sqrt{\pi}`` factor.
 (This package can only handle integer arithmetic, it is easy to add the factor mannually.)
 ```math
 \begin{aligned}
