@@ -75,7 +75,7 @@ Check if the Gaunt coefficient is valid.
     if abs(m1) > l1 || abs(m2) > l2 || abs(m3) > l3
         return false
     end
-    if m1 + m2 != m3
+    if m1 + m2 + m3 != 0
         return false
     end
     return true

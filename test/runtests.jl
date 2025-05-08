@@ -3,6 +3,7 @@ using CGcoefficient
 
 include("test_sqrtrational.jl")
 include("test_special.jl")
+include("test_Gaunt.jl")
 include("test_orthonormality.jl")
 include("test_with_gsl.jl")
 include("test_float_gsl.jl")
@@ -23,6 +24,8 @@ include("test_pf.jl")
 @testset "special condition: 9j" begin test_special_9j(1//2:1//2:3) end
 @testset "special condition: lsjj" begin test_lsjj(0:5) end
 @testset "special condition: flsjj" begin test_flsjj(0:5) end
+
+@testset "test xGaunt" begin test_xGaunt(0:5) end
 
 @testset "test orthonormality: dCG" begin test_orthonormality_dCG(0:8) end
 @testset "test summation: d3j" begin test_summation_d3j(0:40) end

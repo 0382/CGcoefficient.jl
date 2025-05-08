@@ -34,6 +34,7 @@ Their arguments are `Real` (but only allow twice of which can be convert into in
 CG
 CG0
 threeJ
+xGaunt
 sixJ
 nineJ
 norm9J
