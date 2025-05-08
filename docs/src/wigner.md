@@ -54,7 +54,8 @@ So, we have
 
 ```math
 \begin{Bmatrix}j_1 & j_2 & j_3 \\ j_4 & j_5 & j_6\end{Bmatrix} = \dfrac{\Delta(j_4j_5j_3)\Delta(j_1j_5j_6)\Delta(j_4j_2j_6)}{\Delta(j_1j_2j_3)} \\
-\times \sum\limits_x (-1)^x \begin{pmatrix}x+1 \\ j_{123}+1\end{pmatrix} \begin{pmatrix}j_1+j_2-j_3 \\ x - j_{453}\end{pmatrix} \begin{pmatrix}j_1-j_2+j_3 \\ x - j_{426}\end{pmatrix} \begin{pmatrix}j_2+j_3-j_1 \\ x - j_{156}\end{pmatrix}.
+\times \sum\limits_x (-1)^x \binom{x+1}{j_{123}+1} \binom{j_1+j_2-j_3}{x - j_{453}}
+\binom{j_1-j_2+j_3}{x - j_{426}}\binom{j_2+j_3-j_1}{x - j_{156}}.
 ```
 
 The $\Delta(abc)$ can also be rewrite with binomials,

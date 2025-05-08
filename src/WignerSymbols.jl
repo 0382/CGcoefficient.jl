@@ -73,9 +73,8 @@ function _3j0(j1::Int, j2::Int, j3::Int)
 end
 
 function _xGaunt(l1::Int, l2::Int, l3::Int, m1::Int, m2::Int, m3::Int)
-    check_3j(2l1, 2l2, 2l3, 2m1, 2m2, 2m3) || return zero(SqrtRational{BigInt})
+    check_Gaunt(l1, l2, l3, m1, m2, m3) || return zero(SqrtRational{BigInt})
     J::Int = l1 + l2 + l3
-    isodd(J) && return zero(SqrtRational{BigInt})
     g::Int = div(J, 2)
     Jm1::Int = l2 + l3 - l1
     Jm2::Int = l1 + l3 - l2
@@ -455,14 +454,12 @@ end
 
 # D = \tan^2\beta = (m_1\omega_1)/(m_2\omega_2)
 function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l2::Int, Λ::Int, D::Rational{Int})
-    check_couple(2l1, 2l2, 2Λ) || return zero(SqrtRational{BigInt})
-    check_couple(2L, 2l, 2Λ) || return zero(SqrtRational{BigInt})
-    f1 = 2 * n1 + l1
-    f2 = 2 * n2 + l2
-    F = 2 * N + L
-    f = 2 * n + l
-    f1 + f2 == F + f || return zero(SqrtRational{BigInt})
-    χ = f1 + f2
+    check_Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ) || return zero(SqrtRational{BigInt})
+    e1 = 2 * n1 + l1
+    e2 = 2 * n2 + l2
+    E = 2 * N + L
+    e = 2 * n + l
+    χ = e1 + e2
     nl1 = n1 + l1
     nl2 = n2 + l2
     NL = N + L
@@ -489,8 +486,8 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
     Snu = BigInt()
     Sde = BigInt()
 
-    _bigbin(Snu, χ + 2, f1 + 1)
-    _bigbin(Sde, χ + 2, F + 1)
+    _bigbin(Snu, χ + 2, e1 + 1)
+    _bigbin(Sde, χ + 2, E + 1)
     MPZ.mul!(Sde, _bigbin(temp, L + l + Λ + 1, 2Λ + 1))
     MPZ.mul!(Sde, _bigbin(temp, 2Λ, Λ + L - l))
     MPZ.mul!(Sde, _bigbin(temp, l1 + l2 + Λ + 1, 2Λ + 1))
@@ -499,68 +496,68 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
 
     MPZ.mul!(Snu, _bigbin(temp, 2nl1 + 1, nl1))
     MPZ.mul_ui!(Sde, convert(Culong, 2l1 + 1))
-    MPZ.mul!(Sde, _bigbin(temp, f1 + 1, n1))
+    MPZ.mul!(Sde, _bigbin(temp, e1 + 1, n1))
 
     MPZ.mul!(Snu, _bigbin(temp, 2nl2 + 1, nl2))
     MPZ.mul_ui!(Sde, convert(Culong, 2l2 + 1))
-    MPZ.mul!(Sde, _bigbin(temp, f2 + 1, n2))
+    MPZ.mul!(Sde, _bigbin(temp, e2 + 1, n2))
 
     MPZ.mul!(Snu, _bigbin(temp, 2NL + 1, NL))
     MPZ.mul_ui!(Sde, convert(Culong, 2L + 1))
-    MPZ.mul!(Sde, _bigbin(temp, F + 1, N))
+    MPZ.mul!(Sde, _bigbin(temp, E + 1, N))
 
     MPZ.mul!(Snu, _bigbin(temp, 2nl + 1, nl))
     MPZ.mul_ui!(Sde, convert(Culong, 2l + 1))
-    MPZ.mul!(Sde, _bigbin(temp, f + 1, n))
+    MPZ.mul!(Sde, _bigbin(temp, e + 1, n))
 
     _divgcd!(temp, Snu, Sde)
 
-    MPZ.set_ui!(tx, convert(Culong, f1 + 2))
-    MPZ.mul_ui!(tx, convert(Culong, f2 + 2))
+    MPZ.set_ui!(tx, convert(Culong, e1 + 2))
+    MPZ.mul_ui!(tx, convert(Culong, e2 + 2))
     MPZ.mul_ui!(tx, convert(Culong, 2Λ + 1))
     MPZ.pow_ui!(tx, 2)
     MPZ.mul_2exp!(tx, l1 + l2 + L + l)
     MPZ.mul!(Sde, tx)
     _divgcd!(temp, Snu, Sde)
 
-    if f - f1 > 0
-        __gmpz_ui_pow_ui!(temp, convert(Culong, numD), convert(Culong, f - f1))
+    if e - e1 > 0
+        __gmpz_ui_pow_ui!(temp, convert(Culong, numD), convert(Culong, e - e1))
         MPZ.mul!(Snu, temp)
-    elseif f - f1 < 0
-        __gmpz_ui_pow_ui!(temp, convert(Culong, numD), convert(Culong, f1 - f))
+    elseif e - e1 < 0
+        __gmpz_ui_pow_ui!(temp, convert(Culong, numD), convert(Culong, e1 - e))
         MPZ.mul!(Sde, temp)
     end
-    __gmpz_ui_pow_ui!(temp, convert(Culong, denD), convert(Culong, f1 + F))
+    __gmpz_ui_pow_ui!(temp, convert(Culong, denD), convert(Culong, e1 + E))
     MPZ.mul!(Snu, temp)
-    __gmpz_ui_pow_ui!(temp, convert(Culong, numD + denD), convert(Culong, f + F))
+    __gmpz_ui_pow_ui!(temp, convert(Culong, numD + denD), convert(Culong, e + E))
     MPZ.mul!(Sde, temp)
     _divgcd!(temp, Snu, Sde)
 
     sum = zero(Rational{BigInt})
-    for fa = 0:min(f1, F)
-        fb = f1 - fa
-        fc = F - fa
-        fd = f2 - fc
-        fd < 0 && continue
-        _bigbin(nu_fa, f1 + 2, fa + 1)
-        MPZ.mul!(nu_fa, _bigbin(temp, f2 + 2, fc + 1))
-        __gmpz_ui_pow_ui!(temp, convert(Culong, numD), convert(Culong, fa))
+    for ea = 0:min(e1, E)
+        eb = e1 - ea
+        ec = E - ea
+        ed = e2 - ec
+        ed < 0 && continue
+        _bigbin(nu_fa, e1 + 2, ea + 1)
+        MPZ.mul!(nu_fa, _bigbin(temp, e2 + 2, ec + 1))
+        __gmpz_ui_pow_ui!(temp, convert(Culong, numD), convert(Culong, ea))
         MPZ.mul!(nu_fa, temp)
-        __gmpz_ui_pow_ui!(de_fa, convert(Culong, denD), convert(Culong, fa))
+        __gmpz_ui_pow_ui!(de_fa, convert(Culong, denD), convert(Culong, ea))
         _divgcd!(temp, nu_fa, de_fa)
-        for la = rem(fa, 2):2:fa
-            na = div(fa - la, 2)
+        for la = rem(ea, 2):2:ea
+            na = div(ea - la, 2)
             nla = na + la
             MPZ.mul_ui!(nu_a, nu_fa, convert(Culong, 2la + 1))
-            MPZ.mul!(nu_a, _bigbin(temp, fa + 1, na))
+            MPZ.mul!(nu_a, _bigbin(temp, ea + 1, na))
             MPZ.mul_2exp!(nu_a, la)
             MPZ.mul!(de_a, de_fa, _bigbin(temp, 2nla + 1, nla))
             _divgcd!(temp, nu_a, de_a)
-            for lb = abs(l1 - la):2:min(l1 + la, fb)
-                nb = div(fb - lb, 2)
+            for lb = abs(l1 - la):2:min(l1 + la, eb)
+                nb = div(eb - lb, 2)
                 nlb = nb + lb
                 MPZ.mul_ui!(nu_b, nu_a, convert(Culong, 2lb + 1))
-                MPZ.mul!(nu_b, _bigbin(temp, fb + 1, nb))
+                MPZ.mul!(nu_b, _bigbin(temp, eb + 1, nb))
                 MPZ.mul_2exp!(nu_b, lb)
                 MPZ.mul!(de_b, de_a, _bigbin(temp, 2nlb + 1, nlb))
                 MPZ.mul!(nu_b, _omega(tx, temp, la, l1, div(la + lb + l1, 2)))
@@ -568,11 +565,11 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
                 MPZ.mul!(de_b, _bigbin(temp, la + lb + l1 + 1, 2l1 + 1))
                 MPZ.mul!(de_b, _bigbin(temp, 2l1, l1 + la - lb))
                 _divgcd!(temp, nu_b, de_b)
-                for lc = abs(L - la):2:min(L + la, fc)
-                    nc = div(fc - lc, 2)
+                for lc = abs(L - la):2:min(L + la, ec)
+                    nc = div(ec - lc, 2)
                     nlc = nc + lc
                     MPZ.mul_ui!(nu_c, nu_b, convert(Culong, 2lc + 1))
-                    MPZ.mul!(nu_c, _bigbin(temp, fc + 1, nc))
+                    MPZ.mul!(nu_c, _bigbin(temp, ec + 1, nc))
                     MPZ.mul_2exp!(nu_c, lc)
                     MPZ.mul!(de_c, de_b, _bigbin(temp, 2nlc + 1, nlc))
                     MPZ.mul!(nu_c, _omega(tx, temp, la, L, div(la + lc + L, 2)))
@@ -581,12 +578,12 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
                     MPZ.mul!(de_c, _bigbin(temp, 2L, L + la - lc))
                     _divgcd!(temp, nu_c, de_c)
                     ldmin = max(abs(l2 - lc), abs(l - lb))
-                    ldmax = min(fd, l2 + lc, l + lb)
+                    ldmax = min(ed, l2 + lc, l + lb)
                     for ld = ldmin:2:ldmax
-                        nd = div(fd - ld, 2)
+                        nd = div(ed - ld, 2)
                         nld = nd + ld
                         MPZ.mul_ui!(nu_d, nu_c, convert(Culong, 2ld + 1))
-                        MPZ.mul!(nu_d, _bigbin(temp, fd + 1, nd))
+                        MPZ.mul!(nu_d, _bigbin(temp, ed + 1, nd))
                         MPZ.mul_2exp!(nu_d, ld)
                         MPZ.mul!(de_d, de_c, _bigbin(temp, 2nld + 1, nld))
                         MPZ.mul!(nu_d, _omega(tx, temp, lc, l2, div(lc + ld + l2, 2)))
@@ -674,6 +671,19 @@ m_1 & m_2 & m_3
 ```
 """
 @inline threeJ(j1::Real, j2::Real, j3::Real, m1::Real, m2::Real, m3::Real) = _d3j(Int.((2j1, 2j2, 2j3, 2m1, 2m2, 2m3))...)
+
+@doc raw"""
+    xGaunt(l1::Integer, l2::Integer, l3::Integer, m1::Integer, m2::Integer, m3::Integer)
+Gaunt coefficient with out `1/\sqrt{\pi}` factor.
+(This package can only handle integer arithmetic, it is easy to add the factor mannually.)
+```math
+\begin{aligned}
+\mathrm{Gaunt}(l_1 l_2 l_3 m_1 m_2 m_3) &= \int Y_{l_1 m_1}(\theta, \phi) Y_{l_2 m_2}(\theta, \phi) Y_{l_3 m_3}(\theta, \phi) d\Omega \\
+&= \sqrt{\frac{(2l_1 + 1)(2l_2 + 1)(2l_3 + 1)}{4\pi}} \begin{pmatrix} l_1 & l_2 & l_3 \\ m_1 & m_2 & m_3 \end{pmatrix} \begin{pmatrix} l_1 & l_2 & l_3 \\ 0 & 0 & 0 \end{pmatrix}. \\
+\end{aligned}
+```
+"""
+@inline xGaunt(l1::Integer, l2::Integer, l3::Integer, m1::Integer, m2::Integer, m3::Integer) = _xGaunt(Int.((l1, l2, l3, m1, m2, m3))...)
 
 @doc raw"""
     sixJ(j1::Real, j2::Real, j3::Real, j4::Real, j5::Real, j6::Real)

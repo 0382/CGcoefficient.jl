@@ -17,6 +17,8 @@ check_CG
 check_3j
 check_6j
 check_9j
+check_Gaunt
+check_Moshinsky
 exact_sqrt
 float(::SqrtRational)
 simplify(::Integer)

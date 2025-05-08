@@ -30,9 +30,10 @@ function _extend_fbinomial_data(n::Int)
         old_data = copy(get_fbinomial_data())
         resize!(get_fbinomial_data(), binomial_data_size(n))
         copyto!(get_fbinomial_data(), old_data)
+        t = BigInt()
         for m = get_fbinomial_nmax()+1:n
             for k = 0:div(m, 2)
-                get_fbinomial_data()[binomial_index(m, k)] = binomial(BigInt(m), BigInt(k))
+                get_fbinomial_data()[binomial_index(m, k)] = _bigbin(t, m, k)
             end
             global _fbinomial_nmax = get_fbinomial_nmax() + 1
         end
@@ -313,12 +314,12 @@ function _fm9j(j1::Int, j2::Int, j3::Int, j4::Int, j5::Int, j6::Int, j7::Int, j8
 end
 
 function _fMoshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l2::Int, Λ::Int, tanβ::Float64)
-    f1 = 2 * n1 + l1
-    f2 = 2 * n2 + l2
-    F = 2 * N + L
-    f = 2 * n + l
-    f1 + f2 == F + f || return zero(Float64)
-    χ = f1 + f2
+    check_Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ) || return zero(Float64)
+    e1 = 2 * n1 + l1
+    e2 = 2 * n2 + l2
+    E = 2 * N + L
+    e = 2 * n + l
+    χ = e1 + e2
     nl1 = n1 + l1
     nl2 = n2 + l2
     NL = N + L
@@ -326,49 +327,49 @@ function _fMoshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, 
 
     cosβ = 1 / sqrt(1 + tanβ^2)
     sinβ = tanβ * cosβ
-    pre = unsafe_fbinomial(χ + 2, f1 + 1) / unsafe_fbinomial(χ + 2, F + 1)
+    pre = unsafe_fbinomial(χ + 2, e1 + 1) / unsafe_fbinomial(χ + 2, E + 1)
     pre *= unsafe_fbinomial(L + l + Λ + 1, 2Λ + 1) * unsafe_fbinomial(2Λ, Λ + L - l)
     pre /= unsafe_fbinomial(l1 + l2 + Λ + 1, 2Λ + 1) * unsafe_fbinomial(2Λ, Λ + l1 - l2)
 
-    pre *= (2l1 + 1) * unsafe_fbinomial(2nl1 + 1, nl1) / (unsafe_fbinomial(f1 + 1, n1) * 2^l1)
-    pre *= (2l2 + 1) * unsafe_fbinomial(2nl2 + 1, nl2) / (unsafe_fbinomial(f2 + 1, n2) * 2^l2)
-    pre *= (2L + 1) * unsafe_fbinomial(2NL + 1, NL) / (unsafe_fbinomial(F + 1, N) * 2^L)
-    pre *= (2l + 1) * unsafe_fbinomial(2nl + 1, nl) / (unsafe_fbinomial(f + 1, n) * 2^l)
-    pre = sqrt(pre) / ((f1 + 2) * (f2 + 2))
+    pre *= (2l1 + 1) * unsafe_fbinomial(2nl1 + 1, nl1) / (unsafe_fbinomial(e1 + 1, n1) * 2^l1)
+    pre *= (2l2 + 1) * unsafe_fbinomial(2nl2 + 1, nl2) / (unsafe_fbinomial(e2 + 1, n2) * 2^l2)
+    pre *= (2L + 1) * unsafe_fbinomial(2NL + 1, NL) / (unsafe_fbinomial(E + 1, N) * 2^L)
+    pre *= (2l + 1) * unsafe_fbinomial(2nl + 1, nl) / (unsafe_fbinomial(e + 1, n) * 2^l)
+    pre = sqrt(pre) / ((e1 + 2) * (e2 + 2))
 
     sum = zero(Float64)
-    for fa = 0:min(f1, F)
-        fb = f1 - fa
-        fc = F - fa
-        fd = f2 - fc
-        fd < 0 && continue
-        tfa = sinβ^(fa + fd) * cosβ^(fb + fc) * unsafe_fbinomial(f1 + 2, fa + 1) * unsafe_fbinomial(f2 + 2, fc + 1)
-        for la = rem(fa, 2):2:fa
-            na = div(fa - la, 2)
+    for ea = 0:min(e1, E)
+        eb = e1 - ea
+        ec = E - ea
+        ed = e2 - ec
+        ed < 0 && continue
+        tfa = sinβ^(ea + ed) * cosβ^(eb + ec) * unsafe_fbinomial(e1 + 2, ea + 1) * unsafe_fbinomial(e2 + 2, ec + 1)
+        for la = rem(ea, 2):2:ea
+            na = div(ea - la, 2)
             nla = na + la
-            ta = 2^la * (2la + 1) * unsafe_fbinomial(fa + 1, na) / unsafe_fbinomial(2nla + 1, nla)
+            ta = 2^la * (2la + 1) * unsafe_fbinomial(ea + 1, na) / unsafe_fbinomial(2nla + 1, nla)
             ta = tfa * ta
-            for lb = abs(l1 - la):2:min(l1 + la, fb)
-                nb = div(fb - lb, 2)
+            for lb = abs(l1 - la):2:min(l1 + la, eb)
+                nb = div(eb - lb, 2)
                 nlb = nb + lb
-                tb = 2^lb * (2lb + 1) * unsafe_fbinomial(fb + 1, nb) / unsafe_fbinomial(2nlb + 1, nlb)
+                tb = 2^lb * (2lb + 1) * unsafe_fbinomial(eb + 1, nb) / unsafe_fbinomial(2nlb + 1, nlb)
                 g1 = div(la + lb + l1, 2)
                 t1 = unsafe_fbinomial(g1, l1) * unsafe_fbinomial(l1, g1 - la)
                 tb = ta * tb * t1
-                for lc = abs(L - la):2:min(L + la, fc)
-                    nc = div(fc - lc, 2)
+                for lc = abs(L - la):2:min(L + la, ec)
+                    nc = div(ec - lc, 2)
                     nlc = nc + lc
-                    tc = 2^lc * (2lc + 1) * unsafe_fbinomial(fc + 1, nc) / unsafe_fbinomial(2nlc + 1, nlc)
+                    tc = 2^lc * (2lc + 1) * unsafe_fbinomial(ec + 1, nc) / unsafe_fbinomial(2nlc + 1, nlc)
                     g3 = div(la + lc + L, 2)
                     t3 = unsafe_fbinomial(g3, L) * unsafe_fbinomial(L, g3 - la)
                     Δ3 = (2L + 1) * unsafe_fbinomial(la + lc + L + 1, 2L + 1) * unsafe_fbinomial(2L, L + la - lc)
                     tc = tb * tc * t3 / Δ3
                     ldmin = max(abs(l2 - lc), abs(l - lb))
-                    ldmax = min(fd, l2 + lc, l + lb)
+                    ldmax = min(ed, l2 + lc, l + lb)
                     for ld = ldmin:2:ldmax
-                        nd = div(fd - ld, 2)
+                        nd = div(ed - ld, 2)
                         nld = nd + ld
-                        td = 2^ld * (2ld + 1) * unsafe_fbinomial(fd + 1, nd) / unsafe_fbinomial(2nld + 1, nld)
+                        td = 2^ld * (2ld + 1) * unsafe_fbinomial(ed + 1, nd) / unsafe_fbinomial(2nld + 1, nld)
                         g2 = div(lc + ld + l2, 2)
                         t2 = unsafe_fbinomial(g2, l2) * unsafe_fbinomial(l2, g2 - lc)
                         g4 = div(lb + ld + l, 2)

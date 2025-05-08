@@ -65,6 +65,23 @@ Check if the Clebsch-Gordan coefficient is valid.
 end
 
 """
+    check_Gaunt(l1::T, l2::T, l3::T, m1::T, m2::T, m3::T) where {T <: Integer}
+Check if the Gaunt coefficient is valid.
+"""
+@inline function check_Gaunt(l1::T, l2::T, l3::T, m1::T, m2::T, m3::T) where {T <: Integer}
+    if !check_couple(l1, l2, l3)
+        return false
+    end
+    if abs(m1) > l1 || abs(m2) > l2 || abs(m3) > l3
+        return false
+    end
+    if m1 + m2 != m3
+        return false
+    end
+    return true
+end
+
+"""
     check_3j(dj1::T, dj2::T, dj3::T, dm1::T, dm2::T, dm3::T) where {T <: Integer}
 Check if the Wigner 3-j symbol is valid.
 """
@@ -87,4 +104,28 @@ Check if the Wigner 9-j symbol is valid.
 @inline function check_9j(dj1::T, dj2::T, dj3::T, dj4::T, dj5::T, dj6::T, dj7::T, dj8::T, dj9::T) where {T <: Integer}
     check_couple(dj1, dj2, dj3) && check_couple(dj4, dj5, dj6) && check_couple(dj7, dj8, dj9) &&
     check_couple(dj1, dj4, dj7) && check_couple(dj2, dj5, dj8) && check_couple(dj3, dj6, dj9)
+end
+
+"""
+    check_Moshinsky(N::T, L::T, n::T, l::T, n1::T, l1::T, n2::T, l2::T, Λ::T) where {T <: Integer}
+Check if the Moshinsky coefficient is valid.
+"""
+@inline function check_Moshinsky(N::T, L::T, n::T, l::T, n1::T, l1::T, n2::T, l2::T, Λ::T) where {T <: Integer}
+    if N < 0 || n < 0 || n1 < 0 || n2 < 0
+        return false
+    end
+    if Λ > L + l || L > Λ + l || l > Λ + L
+        return false
+    end
+    if Λ > l1 + l2 || l1 > Λ + l2 || l2 > Λ + l1
+        return false
+    end
+    E = 2N + L
+    e = 2n + l
+    e1 = 2n1 + l1
+    e2 = 2n2 + l2
+    if E + e != e1 + e2
+        return false
+    end
+    return true
 end

@@ -11,14 +11,14 @@ The Talmi-Moshinsky braket can be evaluated as following [^1]:
 where
 ```math
 \begin{aligned}
-    2n_a + l_a + 2n_b + l_b = 2n_1 + l_1 \equiv f_1, \\
-    2n_a + l_a + 2n_c + l_c = 2n_3 + l_3 \equiv f_3, \\
-    2n_b + l_b + 2n_d + l_d = 2n_4 + l_4 \equiv f_4, \\
-    2n_c + l_c + 2n_d + l_d = 2n_2 + l_2 \equiv f_2.
+    2n_a + l_a + 2n_b + l_b = 2n_1 + l_1 \equiv e_1, \\
+    2n_a + l_a + 2n_c + l_c = 2n_3 + l_3 \equiv e_3, \\
+    2n_b + l_b + 2n_d + l_d = 2n_4 + l_4 \equiv e_4, \\
+    2n_c + l_c + 2n_d + l_d = 2n_2 + l_2 \equiv e_2.
 \end{aligned}
 ```
 
-Here we define $\chi = f_1 + f_2 = f_3 + f_4$。
+Here we define $\chi = e_1 + e_2 = e_3 + e_4$。
 
 Similar as Wigner symbols, we try to rewrite it as binomials. First, we have:
 ```math
@@ -70,7 +70,7 @@ Consider $m_1 = m_2,\;\omega_1 = \omega_2$, thus $\tan\beta = 1, \; \cos\beta = 
 ```math
 \begin{aligned}
     (\sin\beta)^{2n_a + l_a + 2n_d + l_d}(\cos\beta)^{2n_b+l_b + 2n_c + l_c} &= 2^{-\frac{2n_a + l_a + 2n_b + l_b + 2n_c + l_c + 2n_d + l_d}{2}} \\
-    &= 2^{-\frac{f_1+f_2}{2}} \\
+    &= 2^{-\frac{e_1+e_2}{2}} \\
     &= 2^{-\chi/2}
 \end{aligned}
 ```
@@ -140,23 +140,23 @@ With some simplification, we can write down the Moshinsky as follows:
 ```math
 \begin{aligned}
 &\langle n_3l_3,n_4l_4;\Lambda|n_1l_1,n_2l_2;\Lambda\rangle\\
-= &\sqrt{\frac{\binom{\chi+2}{f_1+1}}{\binom{\chi+2}{f_3+1}\binom{l_1+l_2+\Lambda+1}{2\Lambda+1}\binom{2\Lambda}{\Lambda+l_1-l_2}\binom{l_3+l_4+\Lambda+1}{2\Lambda+1}\binom{2\Lambda}{\Lambda + l_3-l_4}}} \\
-&\times\frac{1}{(f_1+2)(f_2+2)(2\Lambda+1)}\prod_{k=1}^4 \sqrt{\frac{(2l_k+1)\binom{f_k+l_k+1}{n_k+l_k}}{2^{l_k}\binom{f_k+1}{n_k}}} \\
-&\times \sum_{n_an_bn_cn_dl_a l_b l_c l_d} \Bigg[(-1)^{l_d} (\sin\beta)^{f_a+f_d}(\cos\beta)^{f_b+f_c} M_{9j}(l_al_bl_cl_dl_1l_2l_3l_4\Lambda) \\
-&\times \binom{f_1+2}{f_a+1}\binom{f_2+2}{f_c+1}  \prod_{p=a}^d 2^{l_p} (2l_p+1) \frac{\binom{f_p+1}{n_p}}{\binom{f_p+l_p+1}{n_p+l_p}}\Bigg]
+= &\sqrt{\frac{\binom{\chi+2}{e_1+1}}{\binom{\chi+2}{e_3+1}\binom{l_1+l_2+\Lambda+1}{2\Lambda+1}\binom{2\Lambda}{\Lambda+l_1-l_2}\binom{l_3+l_4+\Lambda+1}{2\Lambda+1}\binom{2\Lambda}{\Lambda + l_3-l_4}}} \\
+&\times\frac{1}{(e_1+2)(e_2+2)(2\Lambda+1)}\prod_{k=1}^4 \sqrt{\frac{(2l_k+1)\binom{e_k+l_k+1}{n_k+l_k}}{2^{l_k}\binom{e_k+1}{n_k}}} \\
+&\times \sum_{n_an_bn_cn_dl_a l_b l_c l_d} \Bigg[(-1)^{l_d} (\sin\beta)^{e_a+e_d}(\cos\beta)^{e_b+e_c} M_{9j}(l_al_bl_cl_dl_1l_2l_3l_4\Lambda) \\
+&\times \binom{e_1+2}{e_a+1}\binom{e_2+2}{e_c+1}  \prod_{p=a}^d 2^{l_p} (2l_p+1) \frac{\binom{e_p+1}{n_p}}{\binom{e_p+l_p+1}{n_p+l_p}}\Bigg]
 \end{aligned}
 ```
 
 Finally, if $\tan\beta = (m_1\omega_1/m_2\omega_2)^{1/2} = \sqrt{D}$ is a square root of rational, then
 ```math
 \begin{aligned}
-    (\sin\beta)^{f_a+f_d}(\cos\beta)^{f_b+f_c} &= (\sin\beta)^{f_4-f_1}(\cos\beta)^{f_1+f_3}(\tan\beta)^{2f_a} \\
-    &= \frac{\sqrt{D}^{f_4-f_1}}{\sqrt{1+D}^{f_3+f_4}} D^{f_a},
+    (\sin\beta)^{e_a+e_d}(\cos\beta)^{e_b+e_c} &= (\sin\beta)^{e_4-e_1}(\cos\beta)^{e_1+e_3}(\tan\beta)^{2e_a} \\
+    &= \frac{\sqrt{D}^{e_4-e_1}}{\sqrt{1+D}^{e_3+e_4}} D^{e_a},
 \end{aligned}
 ```
-where the $\frac{\sqrt{R}^{f_4-f_1}}{\sqrt{1+R}^{f_3+f_4}}$ can be taken aout from the summation. Espicially, when $D = 1$, we have
+where the $\frac{\sqrt{R}^{e_4-e_1}}{\sqrt{1+R}^{e_3+e_4}}$ can be taken aout from the summation. Espicially, when $D = 1$, we have
 ```math
-    (\sin\beta)^{f_a+f_d}(\cos\beta)^{f_b+f_c} = 2^{-\frac{f_1+f_2}{2}}.
+    (\sin\beta)^{e_a+e_d}(\cos\beta)^{e_b+e_c} = 2^{-\frac{e_1+e_2}{2}}.
 ```
 
 In summary, we prove that if $D = (m_1\omega_1)/(m_2\omega_2)$ is a rational, then the Moshinsky bracket can be expressed as a square root of a rational.

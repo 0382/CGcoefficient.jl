@@ -1,7 +1,7 @@
 module CGcoefficient
 
 export CG, CG0, threeJ, sixJ, nineJ, Racah,
-       dCG, d3j, d6j, d9j, dRacah,
+       dCG, d3j, d6j, d9j, dRacah, xGaunt,
        lsjj, norm9J,
        Moshinsky,
        SqrtRational,
