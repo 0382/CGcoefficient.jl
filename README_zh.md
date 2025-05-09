@@ -57,7 +57,7 @@ julia> f6j(6,6,6,6,6,6)
 - `nineJ(j1, j2, j3, j4, j5, j6, j7, j8, j9)`, Wigner 9j系数，参数均为`Real`。
 - `norm9J(j2, j3, j4, j5, j5, j6, j7, j8, j9)`, normalized 9j系数，参数均为`Real`。
 - `lsjj(l1, l2, j1, j2, L, S, J)`, LS耦合到jj耦合的转换系数，它实际上等于一个normalized 9j系数，但更易于使用且更快。`j1, j2`是`Real`，其余必须是整数。
-- `Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ)`, Moshinsky括号，参数均为`Real`。
+- `Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ, D)`, Moshinsky括号，量子数都是整数，`D`是有理数，默认为`1`。
 
 #### 浮点数函数
 
@@ -73,7 +73,7 @@ julia> f6j(6,6,6,6,6,6)
 - `f9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9)`, Wigner 9j系数。
 - `fnorm9j(dj1, dj2, dj3, dj4, dj5, dj6, dj7, dj8, dj9)`, normalized 9j系数。
 - `flsjj(l1, l2, dj1, dj2, L, S, J)`, LS耦合到jj耦合的转换系数。
-- `fMoshinsky(N, L, n, l, n1, l1, n2, l2, Λ)`, oshinsky括号
+- `fMoshinsky(N, L, n, l, n1, l1, n2, l2, Λ)`, oshinsky括号。
 - `dfunc(dj, dm1, dm2, β)`, Wigner d 函数。
 
 

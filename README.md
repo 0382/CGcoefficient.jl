@@ -57,7 +57,7 @@ Exact function only for demonstration, some of them can be `Real` arguments, lik
 - `nineJ(j1, j2, j3, j4, j5, j6, j7, j8, j9)`, Wigner 9j-symbol, `Real` arguments.
 - `norm9J(j2, j3, j4, j5, j5, j6, j7, j8, j9)`, normalized 9j-symbol, `Real` arguments.
 - `lsjj(l1, l2, j1, j2, L, S, J)`, LS-coupling to jj-coupling transform coefficient. It actually equals to a normalized 9j-symbol, but easy to use and faster. `j1, j2` can be `Real`.
-- `Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ)`, Moshinsky brakets, `Integer` arguments.
+- `Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ, D)`, Moshinsky brakets, `Integer` arguments, except `D` is a rational (default is `1`).
 
 #### Float functions
 
