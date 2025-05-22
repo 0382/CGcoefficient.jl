@@ -608,7 +608,7 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
             end
         end
     end
-    simplify4!(tx, sum.num, sum.den, Snu, Sde, max(χ + 2, max(l1 + l2, L + l) + Λ + 1))
+    simplify4!(tx, sum.num, sum.den, Snu, Sde, max(χ + 2, max(l1 + l2, L + l) + Λ + 1, numD + denD))
     return SqrtRational(sum, Base.unsafe_rational(Snu, Sde))
 end
 
