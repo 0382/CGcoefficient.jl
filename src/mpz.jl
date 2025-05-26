@@ -6,6 +6,7 @@ const c_ui_pow_ui = MPZ.gmpz(:ui_pow_ui)
 const c_divexact = MPZ.gmpz(:divexact)
 const c_bin_uiui = MPZ.gmpz(:bin_uiui)
 const c_addmul = MPZ.gmpz(:addmul)
+const c_get_d_2exp = MPZ.gmpz(:get_d_2exp)
 @inline function __gmpz_tdiv_q_ui!(q::BigInt, n::BigInt, d::Culong)
     ccall(c_tdiv_q_ui, Culong, (Ref{BigInt}, Ref{BigInt}, Culong), q, n, d)
 end
@@ -20,6 +21,11 @@ end
 end
 @inline function __gmpz_addmul!(r::BigInt, a::BigInt, b::BigInt)
     ccall(c_addmul, Cvoid, (Ref{BigInt}, Ref{BigInt}, Ref{BigInt}), r, a, b)
+end
+@inline function __gmpz_get_d_2exp!(n::BigInt)
+    e = Ref{Clong}(0)
+    d = ccall(c_get_d_2exp, Cdouble, (Ref{Clong}, Ref{BigInt}), e, n)
+    return d, e[]
 end
 
 @inline function _bigbin(r::BigInt, n::Int, k::Int)
@@ -47,10 +53,6 @@ end
 
 @inline function __gmpq_add!(t::BigInt, a::Rational{BigInt}, nu::BigInt, de::BigInt)
     __gmpq_add!(t, a.num, a.den, nu, de)
-end
-
-@inline function __gmpq_add!(t::BigInt, a::Rational{BigInt}, b::Rational{BigInt})
-    __gmpq_add!(t, a.num, a.den, b.num, b.den)
 end
 
 # simplify `x√t`, move the square factors of `t` to `x`

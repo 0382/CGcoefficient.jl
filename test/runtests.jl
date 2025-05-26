@@ -2,6 +2,7 @@ using Test
 using CGcoefficient
 
 include("test_sqrtrational.jl")
+include("test_zero.jl")
 include("test_special.jl")
 include("test_Gaunt.jl")
 include("test_orthonormality.jl")
@@ -13,6 +14,9 @@ include("test_pf.jl")
 @testset "test SqrtRational" begin test_sqrtrational() end
 @testset "test SqrtRational show" begin test_show() end
 @testset "test simplify" begin test_simplify() end
+
+@testset "test trivial zero" begin test_trival_zero() end
+@testset "test zero" begin test_zero() end
 
 @testset "special condition: CG" begin test_special_CG(1//2:1//2:10) end
 @testset "special condition: CG0" begin test_CG0(1:10) end

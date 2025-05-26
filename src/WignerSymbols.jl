@@ -453,7 +453,7 @@ function _m9j!(
 end
 
 # D = \tan^2\beta = (m_1\omega_1)/(m_2\omega_2)
-function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l2::Int, Λ::Int, D::Rational{Int})
+function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l2::Int, Λ::Int, numD::Int, denD::Int)
     check_Moshinsky(N, L, n, l, n1, l1, n2, l2, Λ) || return zero(SqrtRational{BigInt})
     e1 = 2 * n1 + l1
     e2 = 2 * n2 + l2
@@ -464,8 +464,6 @@ function _Moshinsky(N::Int, L::Int, n::Int, l::Int, n1::Int, l1::Int, n2::Int, l
     nl2 = n2 + l2
     NL = N + L
     nl = n + l
-    numD = numerator(D)
-    denD = denominator(D)
 
     temp = BigInt()
     tx = BigInt()
@@ -776,5 +774,5 @@ It only calculate the case of ``\tan(\beta) = \sqrt{m_1\omega_1/m_2\omega_2} = 1
     iN, iL, in, il, in1, il1, in2, il2, iΛ = Int.((N, L, n, l, n1, l1, n2, l2, Λ))
     numD = Int(numerator(D))
     denD = Int(denominator(D))
-    return _Moshinsky(iN, iL, in, il, in1, il1, in2, il2, iΛ, Rational(numD, denD))
+    return _Moshinsky(iN, iL, in, il, in1, il1, in2, il2, iΛ, numD, denD)
 end

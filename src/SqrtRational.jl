@@ -88,10 +88,26 @@ Base.widen(x::SqrtRational) = SqrtRational(widen(x.s), widen(x.r))
 
 # convert
 """
-    float(x::SqrtRational)::BigFloat
-Convert a `SqrtRational` to `BigFloat`.
+    float(x::SqrtRational{T})::float(T)
+Convert a `SqrtRational` to float.
 """
-Base.float(x::SqrtRational) = convert(BigFloat, x.s) * sqrt(convert(BigFloat, x.r))
+Base.float(x::SqrtRational) = float(x.s) * sqrt(float(x.r))
+
+Base.convert(::Type{Float64}, x::SqrtRational{BigInt}) = begin
+    sn, esn = __gmpz_get_d_2exp!(x.s.num)
+    sd, esd = __gmpz_get_d_2exp!(x.s.den)
+    rn, ern = __gmpz_get_d_2exp!(x.r.num)
+    rd, erd = __gmpz_get_d_2exp!(x.r.den)
+    exp2 = 2 * (esn - esd) + ern - erd
+    oexp = exp2 & 1
+    exp2 = div(exp2 - oexp, 2)
+    if oexp == 1
+        rn = ldexp(rn, 1)
+    end
+    v = float(sn/sd) * sqrt(float(rn/rd))
+    v = ldexp(v, exp2)
+    return v
+end
 
 # show
 Base.show(io::IO, ::MIME"text/plain", x::SqrtRational) = begin

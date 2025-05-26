@@ -17,6 +17,10 @@ function test_sqrtrational()
     @test signbit(0*x) == false
     @test x == x
     @test x != -x
+    @test x == copy(x)
+    @test x - exact_sqrt(2//3) == SqrtRational(3//5 - 1, 2//3)
+    @test 0 - zero(x) == zero(x)
+    @test x - x == 0
 end
 
 function test_show()
