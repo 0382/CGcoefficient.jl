@@ -10,6 +10,7 @@ include("test_with_gsl.jl")
 include("test_float_gsl.jl")
 include("test_Moshinsky.jl")
 include("test_pf.jl")
+include("test_coverage.jl")
 
 @testset "test SqrtRational" begin test_sqrtrational() end
 @testset "test SqrtRational show" begin test_show() end
@@ -44,6 +45,20 @@ include("test_pf.jl")
 @testset "test e3j" begin test_e3j(1:3) end
 @testset "test e6j" begin test_e6j(1:3) end
 @testset "test pf binomial" begin test_pf_binomial() end
+
+@testset "test utility functions" begin test_utility_functions() end
+@testset "test binomial utils" begin test_binomial_utils() end
+@testset "test fbinomial edges" begin test_fbinomial_edges() end
+@testset "test wigner_init_float modes" begin test_wigner_init_float_modes() end
+@testset "test wigner_init_pf modes" begin test_wigner_init_pf_modes() end
+@testset "test fCGspin invalid" begin test_fCGspin_invalid() end
+@testset "test fCG3spin invalid" begin test_fCG3spin_invalid() end
+@testset "test SqrtRational errors" begin test_sqrtrational_errors() end
+@testset "test SqrtRational widen" begin test_sqrtrational_widen() end
+@testset "test dfunc" begin test_dfunc() end
+@testset "test Moshinsky D" begin test_moshinsky_D() end
+@testset "test fRacah" begin test_fRacah() end
+@testset "test norm9J direct" begin test_norm9J_direct() end
 
 try
     gsl3j(1, 1, 1, 0, 0, 0)
