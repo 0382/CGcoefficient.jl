@@ -1,0 +1,120 @@
+        - using Primes
+        - using Base.GMP.MPZ
+        - 
+        - const c_tdiv_q_ui = MPZ.gmpz(:tdiv_q_ui)
+        - const c_ui_pow_ui = MPZ.gmpz(:ui_pow_ui)
+        - const c_divexact = MPZ.gmpz(:divexact)
+        - const c_bin_uiui = MPZ.gmpz(:bin_uiui)
+        - const c_addmul = MPZ.gmpz(:addmul)
+        - const c_get_d_2exp = MPZ.gmpz(:get_d_2exp)
+        - @inline function __gmpz_tdiv_q_ui!(q::BigInt, n::BigInt, d::Culong)
+  1791059     ccall(c_tdiv_q_ui, Culong, (Ref{BigInt}, Ref{BigInt}, Culong), q, n, d)
+        - end
+        - @inline function __gmpz_ui_pow_ui!(r::BigInt, b::Culong, e::Culong)
+   149304     ccall(c_ui_pow_ui, Cvoid, (Ref{BigInt}, Culong, Culong), r, b, e)
+        - end
+        - @inline function __gmpz_divexact!(q::BigInt, n::BigInt, d::BigInt)
+  1010396     ccall(c_divexact, Cvoid, (Ref{BigInt}, Ref{BigInt}, Ref{BigInt}), q, n, d)
+        - end
+        - @inline function __gmpz_bin_uiui!(r::BigInt, n::Culong, k::Culong)
+  1994620     ccall(c_bin_uiui, Cvoid, (Ref{BigInt}, Culong, Culong), r, n, k)
+        - end
+        - @inline function __gmpz_addmul!(r::BigInt, a::BigInt, b::BigInt)
+        -     ccall(c_addmul, Cvoid, (Ref{BigInt}, Ref{BigInt}, Ref{BigInt}), r, a, b)
+        - end
+        - @inline function __gmpz_get_d_2exp!(n::BigInt)
+        -     e = Ref{Clong}(0)
+        -     d = ccall(c_get_d_2exp, Cdouble, (Ref{Clong}, Ref{BigInt}), e, n)
+        -     return d, e[]
+        - end
+        - 
+        - @inline function _bigbin(r::BigInt, n::Int, k::Int)
+  1994620     __gmpz_bin_uiui!(r, Culong(n), Culong(k))
+  1994620     return r
+        - end
+        - 
+   318338 @inline _bigbin(n::Int, k::Int) = _bigbin(BigInt(), n, k)
+        - 
+        - @inline function _divgcd!(g::BigInt, n::BigInt, d::BigInt)
+   505198     MPZ.gcd!(g, n, d)
+   505198     __gmpz_divexact!(n, n, g)
+   505198     __gmpz_divexact!(d, d, g)
+   505198     return g
+        - end
+        - 
+        - # t is buffer, modefiy `na, da` in place
+        - @inline function __gmpq_add!(t::BigInt, na::BigInt, da::BigInt, nb::BigInt, db::BigInt)
+        -     MPZ.mul!(na, db)
+        -     __gmpz_addmul!(na, da, nb)
+        -     MPZ.mul!(da, db)
+        -     _divgcd!(t, na, da)
+        -     return
+        - end
+        - 
+        - @inline function __gmpq_add!(t::BigInt, a::Rational{BigInt}, nu::BigInt, de::BigInt)
+        -     __gmpq_add!(t, a.num, a.den, nu, de)
+        - end
+        - 
+        - # simplify `x√t`, move the square factors of `t` to `x`
+        - # assume `t` is positive
+   335480 function simplify!(x::BigInt, t::BigInt, hint::Int)
+   335480     q = zero(BigInt)
+   335480     tt = one(BigInt)
+   335480     for ip in primes(hint)
+  1197716         p = convert(Culong, ip)
+  1197716         p > t && break
+   995595         r = __gmpz_tdiv_q_ui!(q, t, p)
+   995595         i::Culong = zero(Culong)
+  1791059         while iszero(r)
+   795464             i += 1
+   795464             MPZ.set!(t, q)
+   795464             r = __gmpz_tdiv_q_ui!(q, t, p)
+   795464         end
+   995595         iszero(i) && continue
+   570134         ti, xi = divrem(i, Culong(2))
+   570134         xi == 1 && MPZ.mul_ui!(tt, p)
+   570134         if ti != 0
+   149304             __gmpz_ui_pow_ui!(q, p, ti)
+   149304             MPZ.mul!(x, q)
+        -         end
+   995595     end
+   335480     MPZ.mul!(t, tt)
+   335480     return
+        - end
+        - 
+        - # simplify sn/√(1/rd) -> sn/sd*√(rn/rd), initial value of `sd, rn` is not important
+     5030 function simplify2!(sn::BigInt, sd::BigInt, rn::BigInt, rd::BigInt, hint::Int)
+     5030     _divgcd!(rn, sn, rd)
+     5030     _divgcd!(sd, rn, rd)
+     5030     MPZ.set_ui!(sd, 1)
+     5030     simplify!(sn, rn, hint)
+     5030     simplify!(sd, rd, hint)
+     5030     return
+        - end
+        - 
+        - # simplify s*√(n/d) -> s/g*√(n/d)
+   160374 function simplify3!(g::BigInt, s::BigInt, n::BigInt, d::BigInt, hint::Int)
+   160374     _divgcd!(g, n, d)
+   160374     _divgcd!(g, s, d)
+   160374     MPZ.mul!(n, g)
+   160374     _divgcd!(g, n, d)
+   160374     MPZ.set_ui!(g, 1)
+   160374     simplify!(s, n, hint)
+   160374     simplify!(g, d, hint)
+   160374     return
+        - end
+        - 
+        - # simplify sn/sd*√(rn/rd) -> sn/sd*√(rn/rd), t is buffer
+     2336 function simplify4!(t::BigInt, sn::BigInt, sd::BigInt, rn::BigInt, rd::BigInt, hint::Int)
+     2336     _divgcd!(t, sn, sd)
+     2336     _divgcd!(t, rn, rd)
+     2336     simplify!(sn, rn, hint)
+     2336     simplify!(sd, rd, hint)
+     2336     _divgcd!(t, sn, sd)
+     2336     _divgcd!(t, sn, rd)
+     2336     MPZ.mul!(rn, t)
+     2336     _divgcd!(t, sd, rn)
+     2336     MPZ.mul!(rd, t)
+     2336     _divgcd!(t, rn, rd)
+     2336     return
+        - end
