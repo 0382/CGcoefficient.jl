@@ -63,6 +63,21 @@ function test_simplify()
     test_simplify_with_6j()
 end
 
+function test_sqrtrational_errors()
+    # negative r should throw ArgumentError
+    @test_throws ArgumentError SqrtRational(1//1, -1//1)
+    # + operator with non-perfect-square r should throw ArgumentError
+    x = SqrtRational(1//1, 3//1)  # √3
+    @test_throws ArgumentError (x + 1)
+end
+
+function test_sqrtrational_widen()
+    x = SqrtRational(3//5, 2//3)
+    w = widen(x)
+    @test float(x) ≈ float(w)
+    @test w isa SqrtRational
+end
+
 function test_simplify_with_6j()
     test_range = 2:1//2:4
     for j1 in test_range

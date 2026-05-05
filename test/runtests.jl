@@ -10,11 +10,15 @@ include("test_with_gsl.jl")
 include("test_float_gsl.jl")
 include("test_Moshinsky.jl")
 include("test_pf.jl")
-include("test_coverage.jl")
+include("test_util.jl")
+include("test_wigner_init.jl")
+include("test_dfunc.jl")
 
 @testset "test SqrtRational" begin test_sqrtrational() end
 @testset "test SqrtRational show" begin test_show() end
 @testset "test simplify" begin test_simplify() end
+@testset "test SqrtRational errors" begin test_sqrtrational_errors() end
+@testset "test SqrtRational widen" begin test_sqrtrational_widen() end
 
 @testset "test trivial zero" begin test_trival_zero() end
 @testset "test zero" begin test_zero() end
@@ -29,6 +33,10 @@ include("test_coverage.jl")
 @testset "special condition: 9j" begin test_special_9j(1//2:1//2:3) end
 @testset "special condition: lsjj" begin test_lsjj(0:5) end
 @testset "special condition: flsjj" begin test_flsjj(0:5) end
+@testset "special condition: fCGspin invalid" begin test_fCGspin_invalid() end
+@testset "special condition: fCG3spin invalid" begin test_fCG3spin_invalid() end
+@testset "special condition: fRacah" begin test_fRacah() end
+@testset "special condition: norm9J" begin test_norm9J_direct() end
 
 @testset "test xGaunt" begin test_xGaunt(0:5) end
 
@@ -38,6 +46,7 @@ include("test_coverage.jl")
 @testset "test orthonormality: d9j" begin test_orthonormality_d9j(0:4) end
 
 @testset "test Moshinsky" begin test_Moshinsky() end
+@testset "test Moshinsky D" begin test_moshinsky_D() end
 
 @testset "test PFrational" begin test_PFRational() end
 @testset "test eCG" begin test_eCG(1:3) end
@@ -51,14 +60,8 @@ include("test_coverage.jl")
 @testset "test fbinomial edges" begin test_fbinomial_edges() end
 @testset "test wigner_init_float modes" begin test_wigner_init_float_modes() end
 @testset "test wigner_init_pf modes" begin test_wigner_init_pf_modes() end
-@testset "test fCGspin invalid" begin test_fCGspin_invalid() end
-@testset "test fCG3spin invalid" begin test_fCG3spin_invalid() end
-@testset "test SqrtRational errors" begin test_sqrtrational_errors() end
-@testset "test SqrtRational widen" begin test_sqrtrational_widen() end
+
 @testset "test dfunc" begin test_dfunc() end
-@testset "test Moshinsky D" begin test_moshinsky_D() end
-@testset "test fRacah" begin test_fRacah() end
-@testset "test norm9J direct" begin test_norm9J_direct() end
 
 try
     gsl3j(1, 1, 1, 0, 0, 0)
