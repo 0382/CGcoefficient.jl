@@ -141,3 +141,59 @@ function test_flsjj(test_range::AbstractArray)
         end
     end
 end
+
+# Test fCGspin with invalid inputs (should return 0.0)
+function test_fCGspin_invalid()
+    # invalid S (|S| > 1)
+    @test fCGspin(1, 1, 2) == 0.0
+    @test fCGspin(1, 1, -1) == 0.0
+    # invalid ds1 (must be ±1)
+    @test fCGspin(2, 1, 1) == 0.0
+    @test fCGspin(0, 1, 1) == 0.0
+    # invalid ds2 (must be ±1)
+    @test fCGspin(1, 2, 1) == 0.0
+    @test fCGspin(1, 0, 1) == 0.0
+end
+
+# Test fCG3spin with invalid inputs (should return 0.0)
+function test_fCG3spin_invalid()
+    # S12 > 1
+    @test fCG3spin(1, 1, 1, 2, 3) == 0.0
+    # S12 == 0 but dS != 1
+    @test fCG3spin(1, 1, 1, 0, 3) == 0.0
+    # S12 == 1 but dS is not 1 or 3
+    @test fCG3spin(1, 1, 1, 1, 5) == 0.0
+    # invalid ds1, ds2, ds3 (must be ±1)
+    @test fCG3spin(2, 1, 1, 1, 1) == 0.0
+    @test fCG3spin(1, 2, 1, 1, 1) == 0.0
+    @test fCG3spin(1, 1, 2, 1, 1) == 0.0
+    @test fCG3spin(0, 1, 1, 1, 1) == 0.0
+end
+
+# Test fRacah directly against the exact dRacah
+function test_fRacah()
+    wigner_init_float(5, "Jmax", 6)
+    for j1 in (1, 2), j2 in (1, 2), j3 in (0, 1, 2), j4 in (1, 2), j5 in (1, 2), j6 in (0, 1, 2)
+        if check_6j(j1, j2, j5, j4, j3, j6)
+            @test fRacah(j1, j2, j3, j4, j5, j6) ≈ float(dRacah(j1, j2, j3, j4, j5, j6))
+        end
+    end
+end
+
+# Test norm9J against its definition: sqrt((2j3+1)(2j6+1)(2j7+1)(2j8+1)) * nineJ(...)
+function test_norm9J_direct()
+    for j1 in (0, 1//2, 1), j2 in (0, 1//2, 1), j4 in (0, 1//2, 1), j5 in (0, 1//2, 1)
+        for j3 in abs(j1-j2):(j1+j2), j6 in abs(j4-j5):(j4+j5)
+            for j7 in abs(j1-j4):(j1+j4), j8 in abs(j2-j5):(j2+j5)
+                for j9 in abs(j7-j8):(j7+j8)
+                    if check_9j(Int(2j1),Int(2j2),Int(2j3),Int(2j4),Int(2j5),Int(2j6),Int(2j7),Int(2j8),Int(2j9)) &&
+                       check_couple(Int(2j3),Int(2j6),Int(2j9))
+                        n9 = norm9J(j1,j2,j3,j4,j5,j6,j7,j8,j9)
+                        expected = exact_sqrt((2j3+1)*(2j6+1)*(2j7+1)*(2j8+1)) * nineJ(j1,j2,j3,j4,j5,j6,j7,j8,j9)
+                        @test n9 == expected
+                    end
+                end
+            end
+        end
+    end
+end

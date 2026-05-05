@@ -58,3 +58,23 @@ function test_Moshinsky()
         @test fMoshinsky(N, L, n, l, n1, l1, n2, l2, Λ) ≈ float(Moshinsky_test_set_result2[i])
     end
 end
+
+# Test Moshinsky bracket with non-default mass ratio D ≠ 1
+function test_moshinsky_D()
+    wigner_init_float(5, "Moshinsky", 0)
+
+    # D = 1 (same as default) should give the same result
+    @test Moshinsky(0, 0, 0, 0, 0, 0, 0, 0, 0, 1) == 1
+
+    # D = 2//1: exercises the D ≠ 1 code path; ground state is D-independent
+    @test Moshinsky(0, 0, 0, 0, 0, 0, 0, 0, 0, 2//1) == 1
+
+    # A case with nonzero quantum numbers and D ≠ 1
+    @test Moshinsky(0, 1, 0, 0, 0, 0, 0, 1, 1, 2//1) isa SqrtRational
+
+    # Float version with non-unit tanβ
+    @test fMoshinsky(0, 1, 0, 0, 0, 0, 0, 1, 1, sqrt(2.0)) isa Float64
+
+    # Invalid input returns zero even with D parameter
+    @test Moshinsky(-1, 0, 0, 0, 0, 0, 0, 0, 0, 2) == 0
+end
