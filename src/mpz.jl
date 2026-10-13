@@ -1,31 +1,27 @@
 using Primes
 using Base.GMP.MPZ
 
-const c_tdiv_q_ui = MPZ.gmpz(:tdiv_q_ui)
-const c_ui_pow_ui = MPZ.gmpz(:ui_pow_ui)
-const c_divexact = MPZ.gmpz(:divexact)
-const c_bin_uiui = MPZ.gmpz(:bin_uiui)
-const c_addmul = MPZ.gmpz(:addmul)
-const c_get_d_2exp = MPZ.gmpz(:get_d_2exp)
+@eval begin
 @inline function __gmpz_tdiv_q_ui!(q::BigInt, n::BigInt, d::Culong)
-    ccall(c_tdiv_q_ui, Culong, (Ref{BigInt}, Ref{BigInt}, Culong), q, n, d)
+    ccall($(MPZ.gmpz(:tdiv_q_ui)), Culong, (Ref{BigInt}, Ref{BigInt}, Culong), q, n, d)
 end
 @inline function __gmpz_ui_pow_ui!(r::BigInt, b::Culong, e::Culong)
-    ccall(c_ui_pow_ui, Cvoid, (Ref{BigInt}, Culong, Culong), r, b, e)
+    ccall($(MPZ.gmpz(:ui_pow_ui)), Cvoid, (Ref{BigInt}, Culong, Culong), r, b, e)
 end
 @inline function __gmpz_divexact!(q::BigInt, n::BigInt, d::BigInt)
-    ccall(c_divexact, Cvoid, (Ref{BigInt}, Ref{BigInt}, Ref{BigInt}), q, n, d)
+    ccall($(MPZ.gmpz(:divexact)), Cvoid, (Ref{BigInt}, Ref{BigInt}, Ref{BigInt}), q, n, d)
 end
 @inline function __gmpz_bin_uiui!(r::BigInt, n::Culong, k::Culong)
-    ccall(c_bin_uiui, Cvoid, (Ref{BigInt}, Culong, Culong), r, n, k)
+    ccall($(MPZ.gmpz(:bin_uiui)), Cvoid, (Ref{BigInt}, Culong, Culong), r, n, k)
 end
 @inline function __gmpz_addmul!(r::BigInt, a::BigInt, b::BigInt)
-    ccall(c_addmul, Cvoid, (Ref{BigInt}, Ref{BigInt}, Ref{BigInt}), r, a, b)
+    ccall($(MPZ.gmpz(:addmul)), Cvoid, (Ref{BigInt}, Ref{BigInt}, Ref{BigInt}), r, a, b)
 end
 @inline function __gmpz_get_d_2exp!(n::BigInt)
     e = Ref{Clong}(0)
-    d = ccall(c_get_d_2exp, Cdouble, (Ref{Clong}, Ref{BigInt}), e, n)
+    d = ccall($(MPZ.gmpz(:get_d_2exp)), Cdouble, (Ref{Clong}, Ref{BigInt}), e, n)
     return d, e[]
+end
 end
 
 @inline function _bigbin(r::BigInt, n::Int, k::Int)
